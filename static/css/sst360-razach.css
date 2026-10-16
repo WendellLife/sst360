@@ -338,3 +338,17 @@ html.js .cabecalho .subtitulo { display: none; }
 @media (max-width: 560px) { .info-titulo { position: static; } .cabecalho > div:first-child { position: relative; } .info-titulo__dica { left: 0; right: 0; max-width: none; width: auto; } }
 .info-titulo__dica a { color: var(--text-brand); }
 @media (prefers-reduced-motion: reduce) { .info-titulo__dica { animation: rz-fade var(--dur-base) var(--ease-out) backwards; } }
+
+/* ------------------------------------------------------------ barra lateral compacta: os 12 itens cabem sem rolagem */
+.rz-side .sb { gap: var(--space-4); padding: var(--space-4) var(--space-3) var(--space-3); }
+.sb-brand { padding-top: 0; }
+.sb-rolagem { gap: var(--space-3); }
+.sb-group { gap: var(--space-1); }
+.sb-nav { gap: 0; }
+.sb-link { height: 34px; font-size: var(--text-sm); }
+.sb-foot { gap: var(--space-2); }
+.sb-week { padding: var(--space-3); gap: var(--space-1); }
+.sb-user { padding-top: var(--space-2); }
+.sb-user .av-lg { width: 34px; height: 34px; }
+@media (max-height: 820px) { .sb-week { display: none; } }
+@media (max-height: 700px) { .sb-link { height: 30px; } .sb-rolagem { gap: var(--space-2); } .rz-side .sb { gap: var(--space-3); } }
