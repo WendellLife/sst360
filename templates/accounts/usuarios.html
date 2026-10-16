@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Usuários - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">03 · Administração</div>
+    <h1>Usuários e acessos</h1>
+    <p class="subtitulo">Quem entra no {{ APP_NOME }} e o que cada pessoa vê. O painel e a captação ficam só para quem tem o módulo comercial.</p>
+  </div>
+  <a class="btn btn-primario" href="{% url 'accounts:usuario_novo' %}">Novo usuário</a>
+</div>
+
+<div class="kpis kpis-4">
+  <div class="kpi"><div class="rotulo">Equipe interna</div><div class="valor">{{ total_internos }}</div><div class="sub">acessos ativos</div></div>
+  <div class="kpi"><div class="rotulo">Comercial</div><div class="valor">{{ total_comercial }}</div><div class="sub">veem painel e captação</div></div>
+  <div class="kpi"><div class="rotulo">Técnico</div><div class="valor">{{ total_tecnico }}</div><div class="sub">veem as gestões de SST</div></div>
+  <div class="kpi"><div class="rotulo">Clientes no portal</div><div class="valor">{{ total_clientes }}</div><div class="sub">acessos ativos</div></div>
+</div>
+
+<form method="get" class="filtros">
+  <input class="busca" type="search" name="q" value="{{ q }}" placeholder="Nome, e-mail ou usuário">
+  <select name="tipo">
+    <option value="">Todos os tipos</option>
+    <option value="INTERNO"{% if tipo == "INTERNO" %} selected{% endif %}>Equipe interna</option>
+    <option value="CLIENTE"{% if tipo == "CLIENTE" %} selected{% endif %}>Cliente do portal</option>
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+  {% if q or tipo %}<a class="btn-texto" href="{% url 'accounts:usuarios' %}">limpar</a>{% endif %}
+  <div class="espaco"></div>
+  <div class="resumo">{{ usuarios|length }} usuário(s)</div>
+</form>
+
+<div class="tabela">
+  <table>
+    <thead><tr><th>Pessoa</th><th>Tipo</th><th>Módulos</th><th>Último acesso</th><th>Situação</th><th></th></tr></thead>
+    <tbody>
+      {% for u in usuarios %}
+      <tr>
+        <td>
+          <a class="principal" href="{% url 'accounts:usuario_editar' u.pk %}">{{ u.get_full_name|default:u.username }}</a>
+          <div class="apoio">{{ u.email|default:"sem e-mail" }} · {{ u.username }}</div>
+        </td>
+        <td>{% if u.is_interno %}Equipe interna{% if u.cargo %}<div class="apoio">{{ u.cargo }}</div>{% endif %}{% else %}Cliente do portal<div class="apoio">{{ u.empresa|default:"sem empresa" }}</div>{% endif %}</td>
+        <td><div class="chips">
+          {% if u.is_cliente %}<span class="etiqueta etiqueta--cinza">Portal</span>
+          {% elif u.is_superuser %}<span class="etiqueta etiqueta--escura">Tudo · superusuário</span>
+          {% else %}
+            {% if u.acesso_comercial %}<span class="etiqueta etiqueta--marca">Comercial</span>{% endif %}
+            {% if u.acesso_tecnico %}<span class="etiqueta etiqueta--azul">Técnico</span>{% endif %}
+            {% if u.acesso_admin %}<span class="etiqueta etiqueta--amarelo">Administração</span>{% endif %}
+          {% endif %}
+        </div></td>
+        <td class="dado texto-suave">{{ u.last_login|date:"d/m/Y H:i"|default:"nunca entrou" }}</td>
+        <td>{% if u.is_active %}<span class="etiqueta etiqueta--verde">Ativo</span>{% else %}<span class="etiqueta etiqueta--cinza">Desativado</span>{% endif %}</td>
+        <td class="direita"><a class="btn btn-p" href="{% url 'accounts:usuario_editar' u.pk %}">Editar</a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="vazio">Nenhum usuário encontrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

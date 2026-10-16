@@ -15,6 +15,10 @@ urlpatterns = [
     ),
     path("sair/", auth_views.LogoutView.as_view(), name="logout"),
     path("codigo/", views.PedirCodigoView.as_view(), name="codigo_pedir"),
+    path("usuarios/", views.UsuariosView.as_view(), name="usuarios"),
+    path("usuarios/novo/", views.UsuarioNovoView.as_view(), name="usuario_novo"),
+    path("usuarios/<int:pk>/", views.UsuarioEditarView.as_view(), name="usuario_editar"),
+    path("sem-acesso/", views.SemAcessoView.as_view(), name="sem_acesso"),
     path("codigo/confirmar/", views.ConfirmarCodigoView.as_view(), name="codigo_confirmar"),
     path(
         "senha/",

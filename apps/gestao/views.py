@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, UpdateView, View
 
-from apps.accounts.mixins import EquipeInternaMixin
+from apps.accounts.mixins import ComercialMixin, TecnicoMixin
 
 from .fap import NIVEIS, economia_meta, panorama
 from .forms import (
@@ -48,7 +48,7 @@ from .services import (
 )
 
 
-class GestaoListView(EquipeInternaMixin, ListView):
+class GestaoListView(TecnicoMixin, ListView):
     model = Gestao
     template_name = "gestao/lista.html"
     extra_context = {"secao": "gestao"}
@@ -82,7 +82,7 @@ class GestaoListView(EquipeInternaMixin, ListView):
         return contexto
 
 
-class GestaoDetailView(EquipeInternaMixin, DetailView):
+class GestaoDetailView(TecnicoMixin, DetailView):
     model = Gestao
     template_name = "gestao/detalhe.html"
     extra_context = {"secao": "gestao"}
@@ -115,7 +115,7 @@ class GestaoDetailView(EquipeInternaMixin, DetailView):
         return contexto
 
 
-class GestaoCreateView(EquipeInternaMixin, CreateView):
+class GestaoCreateView(TecnicoMixin, CreateView):
     model = Gestao
     form_class = GestaoForm
     template_name = "gestao/form.html"
@@ -137,7 +137,7 @@ class GestaoCreateView(EquipeInternaMixin, CreateView):
         return resposta
 
 
-class GestaoUpdateView(EquipeInternaMixin, UpdateView):
+class GestaoUpdateView(TecnicoMixin, UpdateView):
     model = Gestao
     form_class = GestaoForm
     template_name = "gestao/form.html"
@@ -150,7 +150,7 @@ class GestaoUpdateView(EquipeInternaMixin, UpdateView):
         return resposta
 
 
-class EtapaView(EquipeInternaMixin, View):
+class EtapaView(TecnicoMixin, View):
     """Avanca (ou recua) a etapa do metodo e registra na linha do tempo."""
 
     def post(self, request, pk):
@@ -169,7 +169,7 @@ class EtapaView(EquipeInternaMixin, View):
         return redirect(gestao.get_absolute_url())
 
 
-class _GestaoSubCreate(EquipeInternaMixin, View):
+class _GestaoSubCreate(TecnicoMixin, View):
     """Base para cadastros feitos dentro da pagina da gestao."""
 
     form_class = None
@@ -288,7 +288,7 @@ def sincronizar_fap_gestao(gestao):
         gestao.save(update_fields=["fap_atual", "atualizado_em"])
 
 
-class FichaFapSalvarView(EquipeInternaMixin, View):
+class FichaFapSalvarView(TecnicoMixin, View):
     """Cria ou atualiza a ficha do FAP de uma vigência (uma por ano)."""
 
     def post(self, request, pk):
@@ -315,7 +315,7 @@ class FichaFapSalvarView(EquipeInternaMixin, View):
         return redirect(gestao.get_absolute_url() + "#fap")
 
 
-class FichaFapExcluirView(EquipeInternaMixin, View):
+class FichaFapExcluirView(TecnicoMixin, View):
     def post(self, request, pk):
         ficha = get_object_or_404(FichaFap, pk=pk)
         gestao = ficha.gestao
@@ -325,7 +325,7 @@ class FichaFapExcluirView(EquipeInternaMixin, View):
         return redirect(gestao.get_absolute_url() + "#fap")
 
 
-class AcaoEventoView(EquipeInternaMixin, View):
+class AcaoEventoView(TecnicoMixin, View):
     """Registra um passo de uma acao do plano e atualiza o status."""
 
     def post(self, request, pk):
@@ -357,7 +357,7 @@ class AcaoEventoView(EquipeInternaMixin, View):
         return redirect(destino)
 
 
-class GerarPrazosView(EquipeInternaMixin, View):
+class GerarPrazosView(TecnicoMixin, View):
     """Recalcula compromissos do contrato, revisoes e reciclagens."""
 
     def post(self, request, pk):
@@ -376,7 +376,7 @@ class GerarPrazosView(EquipeInternaMixin, View):
         return redirect(gestao.get_absolute_url())
 
 
-class PrazoConcluirView(EquipeInternaMixin, View):
+class PrazoConcluirView(TecnicoMixin, View):
     def post(self, request, pk):
         prazo = get_object_or_404(Prazo, pk=pk)
         prazo.status = StatusPrazo.CUMPRIDO
@@ -388,7 +388,7 @@ class PrazoConcluirView(EquipeInternaMixin, View):
         return redirect(request.POST.get("next") or prazo.gestao.get_absolute_url())
 
 
-class AgendaPrazosView(EquipeInternaMixin, ListView):
+class AgendaPrazosView(TecnicoMixin, ListView):
     template_name = "gestao/agenda.html"
     extra_context = {"secao": "prazos"}
     context_object_name = "prazos"
@@ -420,7 +420,7 @@ class AgendaPrazosView(EquipeInternaMixin, ListView):
         return contexto
 
 
-class VencimentosView(EquipeInternaMixin, TemplateView):
+class VencimentosView(TecnicoMixin, TemplateView):
     """Documentos e treinamentos vencidos ou perto de vencer, em todos os clientes."""
 
     template_name = "gestao/vencimentos.html"
@@ -459,7 +459,7 @@ class VencimentosView(EquipeInternaMixin, TemplateView):
         return contexto
 
 
-class ImportarPlanoView(EquipeInternaMixin, View):
+class ImportarPlanoView(TecnicoMixin, View):
     """Passo 1: recebe a planilha e mostra a previa para conferencia."""
 
     template_name = "gestao/importar_plano.html"
@@ -500,7 +500,7 @@ class ImportarPlanoView(EquipeInternaMixin, View):
         return render(request, self.template_name, contexto)
 
 
-class ConfirmarImportacaoView(EquipeInternaMixin, View):
+class ConfirmarImportacaoView(TecnicoMixin, View):
     """Passo 2: rele o arquivo salvo e grava o que foi conferido."""
 
     def post(self, request, pk):
@@ -525,7 +525,7 @@ class ConfirmarImportacaoView(EquipeInternaMixin, View):
         return redirect(importacao.gestao.get_absolute_url())
 
 
-class ModeloPlanoView(EquipeInternaMixin, View):
+class ModeloPlanoView(TecnicoMixin, View):
     def get(self, request):
         resposta = HttpResponse(
             planilha_modelo(),
@@ -545,7 +545,7 @@ def panorama_carteira(gestoes=None):
     return linhas
 
 
-class FapCarteiraView(EquipeInternaMixin, TemplateView):
+class FapCarteiraView(ComercialMixin, TemplateView):
     """FAP de cada cliente lado a lado, para a equipe usar como argumento de venda."""
 
     template_name = "gestao/fap_carteira.html"

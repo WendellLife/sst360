@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block titulo %}{% if usuario %}Editar usuário{% else %}Novo usuário{% endif %} - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<a class="voltar" href="{% url 'accounts:usuarios' %}">← Usuários e acessos</a>
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">03 · Administração</div>
+    <h1>{% if usuario %}{{ usuario.get_full_name|default:usuario.username }}{% else %}Novo usuário{% endif %}</h1>
+    <p class="subtitulo">Equipe interna escolhe os módulos. Cliente do portal vê só a gestão da própria empresa e entra com código.</p>
+  </div>
+</div>
+<form method="post" class="cartao">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="cartao-corpo"><div class="aviso aviso--error">{{ form.non_field_errors }}</div></div>{% endif %}
+  <div class="cartao-cab"><h2>Dados da pessoa</h2></div>
+  <div class="cartao-corpo">
+    <div class="campos">
+      {% include "partials/campo.html" with campo=form.first_name %}
+      {% include "partials/campo.html" with campo=form.last_name %}
+      {% include "partials/campo.html" with campo=form.email %}
+      {% include "partials/campo.html" with campo=form.username %}
+      {% include "partials/campo.html" with campo=form.cargo %}
+      {% include "partials/campo.html" with campo=form.telefone %}
+      {% include "partials/campo.html" with campo=form.senha %}
+    </div>
+  </div>
+  <div class="cartao-cab"><h2>Tipo e acesso</h2></div>
+  <div class="cartao-corpo">
+    <div class="campos">
+      {% include "partials/campo.html" with campo=form.tipo %}
+      {% include "partials/campo.html" with campo=form.empresa %}
+    </div>
+    <div class="modulos-acesso" role="group" aria-label="Módulos da equipe interna">
+      {% for chave, nome, descricao in modulos %}
+      {% if chave == "comercial" %}{% with campo=form.acesso_comercial %}{% include "accounts/_modulo.html" %}{% endwith %}
+      {% elif chave == "tecnico" %}{% with campo=form.acesso_tecnico %}{% include "accounts/_modulo.html" %}{% endwith %}
+      {% else %}{% with campo=form.acesso_admin %}{% include "accounts/_modulo.html" %}{% endwith %}{% endif %}
+      {% endfor %}
+    </div>
+    <div class="campos" style="margin-top: var(--space-5)">{% include "partials/campo.html" with campo=form.is_active %}</div>
+    {% if usuario.is_superuser %}<p class="texto-fraco" style="margin-top: var(--space-3)">Superusuário: enxerga todos os módulos, independente das marcações.</p>{% endif %}
+  </div>
+  <div class="cartao-rodape">
+    <div class="form-acoes" style="margin-top:0; justify-content:flex-end">
+      <a class="btn-texto" href="{% url 'accounts:usuarios' %}">Cancelar</a>
+      <button class="btn btn-primario" type="submit">{% if usuario %}Salvar acesso{% else %}Cadastrar usuário{% endif %}</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

@@ -42,26 +42,31 @@ def branding(request):
 
 
 # Barra lateral no padrão Razach Tarefas Internas: grupos numerados, ícone Lucide, contagem à direita.
+# Cada item diz o módulo que libera o acesso (comercial, tecnico, admin; None = qualquer módulo).
 GRUPOS = [
-    ("01 · Gestão", [
-        ("painel", "Painel", "core:dashboard", "layout-dashboard", None),
-        ("indicadores", "Indicadores", "core:indicadores", "chart-column", None),
-        ("gestao", "Gestões de SST", "gestao:lista", "shield-check", None),
-        ("prazos", "Prazos", "gestao:agenda", "timer", "prazos_atrasados"),
-        ("vencimentos", "Vencimentos", "gestao:vencimentos", "calendar-x", "vencimentos_total"),
-        ("empresas", "Empresas", "empresas:lista", "building-2", None),
+    ("01 · Comercial", [
+        ("painel", "Painel", "core:dashboard", "layout-dashboard", None, "comercial"),
+        ("indicadores", "Indicadores", "core:indicadores", "chart-column", None, "comercial"),
+        ("funil", "Funil", "crm:funil", "filter", None, "comercial"),
+        ("diagnosticos", "Diagnósticos", "crm:diagnosticos", "list-checks", "diagnosticos_abertos", "comercial"),
+        ("leads", "Leads", "crm:lista", "user-plus", "leads_atrasados_total", "comercial"),
+        ("vendas", "Vendas", "vendas:lista", "handshake", None, "comercial"),
+        ("campanhas", "Campanhas", "campanhas:painel", "send", None, "comercial"),
+        ("fap", "FAP dos clientes", "gestao:fap_carteira", "gauge", None, "comercial"),
+        ("tarefas", "Sistema Tarefas", "tarefas_ext:painel", "square-kanban", None, "comercial"),
     ]),
-    ("02 · Captação", [
-        ("funil", "Funil", "crm:funil", "filter", None),
-        ("diagnosticos", "Diagnósticos", "crm:diagnosticos", "list-checks", "diagnosticos_abertos"),
-        ("leads", "Leads", "crm:lista", "user-plus", "leads_atrasados_total"),
-        ("vendas", "Vendas", "vendas:lista", "handshake", None),
-        ("campanhas", "Campanhas", "campanhas:painel", "send", None),
-        ("fap", "FAP dos clientes", "gestao:fap_carteira", "gauge", None),
+    ("02 · Gestão de SST", [
+        ("gestao", "Gestões de SST", "gestao:lista", "shield-check", None, "tecnico"),
+        ("prazos", "Prazos", "gestao:agenda", "timer", "prazos_atrasados", "tecnico"),
+        ("vencimentos", "Vencimentos", "gestao:vencimentos", "calendar-x", "vencimentos_total", "tecnico"),
+        ("empresas", "Empresas", "empresas:lista", "building-2", None, None),
+    ]),
+    ("03 · Administração", [
+        ("usuarios", "Usuários e acessos", "accounts:usuarios", "user-cog", None, "admin"),
     ]),
 ]
 SECAO_GRUPO = {chave: rotulo for rotulo, itens in GRUPOS for chave, *_ in itens}
-SECAO_GRUPO.update({"busca": "01 · Gestão"})
+SECAO_GRUPO.update({"busca": "02 · Gestão de SST"})
 
 
 def montar_menu(request, usuario, contexto):
@@ -69,15 +74,14 @@ def montar_menu(request, usuario, contexto):
 
     menu = []
     for rotulo, itens in GRUPOS:
-        menu.append({"rotulo": rotulo, "itens": [
+        visiveis = [
             {"chave": chave, "rotulo": nome, "url": reverse(rota), "icone": ic,
              "contagem": contexto.get(cont) if cont else None}
-            for chave, nome, rota, ic, cont in itens
-        ]})
-    if usuario.is_staff:
-        menu.append({"rotulo": "03 · Administração", "itens": [
-            {"chave": "admin", "rotulo": "Cadastros e acessos", "url": "/admin/", "icone": "user-cog", "contagem": None},
-        ]})
+            for chave, nome, rota, ic, cont, modulo in itens
+            if usuario.tem_modulo(modulo)
+        ]
+        if visiveis:
+            menu.append({"rotulo": rotulo, "itens": visiveis})
     return menu
 
 

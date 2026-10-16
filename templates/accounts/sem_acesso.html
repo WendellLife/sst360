@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titulo %}Sem acesso - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho"><div><div class="sobretitulo">Acesso</div><h1>Nenhum módulo liberado</h1></div></div>
+<div class="cartao"><div class="cartao-corpo">
+  <p>Seu usuário ainda não tem módulo liberado no {{ APP_NOME }}. Peça à administração do sistema para marcar o acesso comercial, técnico ou de administração.</p>
+</div></div>
+{% endblock conteudo %}
+{% block conteudo_publico %}
+<div class="publico__cab"><h1 class="publico__titulo">Sem acesso</h1><p class="publico__sub">Entre com um usuário da equipe interna.</p></div>
+<a class="btn btn-primario btn-largo" href="{% url 'accounts:login' %}">Entrar</a>
+{% endblock %}

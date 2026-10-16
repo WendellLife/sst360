@@ -11,6 +11,7 @@ class UserAdmin(BaseUserAdmin):
     autocomplete_fields = ("empresa",)
     fieldsets = BaseUserAdmin.fieldsets + (
         ("Perfil SST360", {"fields": ("tipo", "empresa", "cargo", "telefone")}),
+        ("Acesso por módulo", {"fields": ("acesso_comercial", "acesso_tecnico", "acesso_admin")}),
     )
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
         ("Perfil SST360", {"fields": ("tipo", "empresa", "cargo", "telefone")}),

@@ -8,6 +8,7 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 import os
+import sys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     "apps.relacionamento",
     "apps.vendas",
     "apps.campanhas",
+    "apps.tarefas_ext",
 ]
 
 MIDDLEWARE = [
@@ -126,6 +128,17 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Sistema Tarefas (Razach Tarefas Internas): banco próprio, lido pelo SST360 só para consulta.
+# Sem TAREFAS_DATABASE_URL, a área "Sistema Tarefas" mostra como ligar. TAREFAS_URL abre o sistema no navegador.
+if os.getenv("TAREFAS_DATABASE_URL"):
+    DATABASES["tarefas"] = dj_database_url.parse(os.getenv("TAREFAS_DATABASE_URL"), conn_max_age=600)
+if len(sys.argv) > 1 and sys.argv[1] == "test":
+    # Nos testes, o Tarefas é um SQLite em memória com as tabelas criadas pelo próprio teste.
+    DATABASES["tarefas"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:", "TEST": {"NAME": ":memory:"}}
+DATABASE_ROUTERS = ["apps.tarefas_ext.roteador.RoteadorTarefas"]
+TAREFAS_URL = os.getenv("TAREFAS_URL", "")
+
+AUTHENTICATION_BACKENDS = ["apps.accounts.backends.UsuarioOuEmailBackend"]
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "core:home"
 LOGOUT_REDIRECT_URL = "accounts:login"

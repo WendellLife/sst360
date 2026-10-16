@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.generic import TemplateView, View
 
-from apps.accounts.mixins import EquipeInternaMixin
+from apps.accounts.mixins import ComercialMixin, EquipeInternaMixin
 from apps.crm.models import Estagio, Lead
 from apps.empresas.models import Empresa, SituacaoEmpresa
 from apps.gestao.models import (
@@ -45,12 +45,10 @@ class HomeView(View):
                     "etapas": ETAPAS_METODO,
                 },
             )
-        if request.user.is_cliente:
-            return redirect("portal:home")
-        return redirect("core:dashboard")
+        return redirect(request.user.pagina_inicial())
 
 
-class DashboardView(EquipeInternaMixin, TemplateView):
+class DashboardView(ComercialMixin, TemplateView):
     template_name = "core/dashboard.html"
     extra_context = {"secao": "painel"}
 
@@ -144,7 +142,7 @@ class DashboardView(EquipeInternaMixin, TemplateView):
         return contexto
 
 
-class IndicadoresView(EquipeInternaMixin, TemplateView):
+class IndicadoresView(ComercialMixin, TemplateView):
     """Dashboards da carteira: conformidade, plano de ação, FAP e comercial."""
 
     template_name = "core/indicadores.html"
@@ -187,7 +185,7 @@ class IndicadoresView(EquipeInternaMixin, TemplateView):
         return contexto
 
 
-class ApresentacaoIndicadoresView(EquipeInternaMixin, View):
+class ApresentacaoIndicadoresView(ComercialMixin, View):
     """Baixa os indicadores do período como apresentação PowerPoint (.pptx)."""
 
     def get(self, request):

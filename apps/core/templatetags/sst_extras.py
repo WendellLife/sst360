@@ -89,7 +89,7 @@ ROTULOS_SECAO = {
     "vencimentos": "Vencimentos", "empresas": "Empresas", "funil": "Funil comercial", "diagnosticos": "Diagnósticos",
     "leads": "Leads", "vendas": "Vendas", "campanhas": "Campanhas", "fap": "FAP dos clientes", "busca": "Busca",
     "inicio": "Início", "plano": "Plano de ação", "documentos": "Documentos", "treinamentos": "Treinamentos",
-    "reunioes": "Visitas", "conversa": "Conversa",
+    "reunioes": "Visitas", "conversa": "Conversa", "usuarios": "Usuários e acessos", "tarefas": "Sistema Tarefas",
 }
 
 
@@ -112,7 +112,7 @@ def grupo_secao(secao):
     """Grupo da barra lateral para a trilha do cabeçalho (01 · Gestão, 02 · Captação)."""
     from apps.core.context_processors import SECAO_GRUPO
 
-    return SECAO_GRUPO.get(secao or "", "01 · Gestão")
+    return SECAO_GRUPO.get(secao or "", "")
 
 
 @register.filter(name="resto_pct")

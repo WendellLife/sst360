@@ -262,6 +262,10 @@ class Command(BaseCommand):
             defaults={
                 "first_name": nome, "last_name": sobrenome, "email": email,
                 "tipo": tipo, "is_staff": staff, "is_superuser": staff, "empresa": empresa,
+                # Analista: comercial e administração. Engenheiro: técnico (gestões de SST). Cliente: só o portal.
+                "acesso_comercial": tipo == TipoUsuario.INTERNO and username != "engenheiro",
+                "acesso_tecnico": tipo == TipoUsuario.INTERNO,
+                "acesso_admin": staff,
             },
         )
         if criado:
@@ -527,6 +531,8 @@ class Command(BaseCommand):
     # ------------------------------------------------------------- captacao
 
     def _leads(self, analista, engenheiro):
+        # Mesmo CNPJ do cliente de exemplo do sistema Tarefas: mostra o cruzamento na área comercial.
+        CNPJ_LEADS = {"Hospital Santa Clara": "30.561.892/0001-60"}
         dados = [
             ("Transportadora Rota Sul Ltda", Estagio.NOVO, SituacaoSST.DOCS_VENCIDOS, ServicoInteresse.GESTAO_ATIVA, 210, 3, "4500", OrigemLead.PARCEIRO, 2),
             ("Hospital Santa Clara", Estagio.CONTATO, SituacaoSST.NOTIFICADA, ServicoInteresse.PSICOSSOCIAL, 640, 3, "12000", OrigemLead.SITE, -1),
@@ -542,6 +548,7 @@ class Command(BaseCommand):
             if Lead.objects.filter(razao_social=nome).exists():
                 continue
             lead = Lead.objects.create(
+                cnpj=CNPJ_LEADS.get(nome, ""),
                 razao_social=nome, estagio=estagio, situacao_sst=situacao, servico_interesse=servico,
                 num_trabalhadores=trabalhadores, grau_risco=grau, valor_estimado=Decimal(valor),
                 origem=origem, responsavel=analista if dias % 2 else engenheiro,

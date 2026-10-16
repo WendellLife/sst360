@@ -17,7 +17,7 @@ class ShellRazachTest(TestCase):
         self.assertIn('class="sb"', html)
         self.assertIn("razach/img/razach-combinado-gradiente.png", html)
         self.assertIn('<span class="tb-pagina">Painel</span>', html)
-        self.assertIn("01 · Gestão", html)
+        self.assertIn("01 · Comercial", html)
         self.assertIn('class="sb-link is-active"', html)
         self.assertIn('class="ic"', html)
 

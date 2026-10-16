@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView, ListView, UpdateView, View
 
-from apps.accounts.mixins import EquipeInternaMixin
+from apps.accounts.mixins import ComercialMixin
 from apps.empresas.models import Empresa
 
 from .forms import VendaForm
@@ -23,7 +23,7 @@ def destino_seguro(request, padrao):
     return padrao
 
 
-class VendaListView(EquipeInternaMixin, ListView):
+class VendaListView(ComercialMixin, ListView):
     template_name = "vendas/lista.html"
     context_object_name = "vendas"
     extra_context = {"secao": "vendas"}
@@ -75,7 +75,7 @@ class VendaListView(EquipeInternaMixin, ListView):
         return contexto
 
 
-class VendaCreateView(EquipeInternaMixin, CreateView):
+class VendaCreateView(ComercialMixin, CreateView):
     model = Venda
     form_class = VendaForm
     template_name = "vendas/form.html"
@@ -120,7 +120,7 @@ class VendaCreateView(EquipeInternaMixin, CreateView):
         return super().form_invalid(form)
 
 
-class VendaUpdateView(EquipeInternaMixin, UpdateView):
+class VendaUpdateView(ComercialMixin, UpdateView):
     model = Venda
     form_class = VendaForm
     template_name = "vendas/form.html"
@@ -137,7 +137,7 @@ class VendaUpdateView(EquipeInternaMixin, UpdateView):
         return redirect(destino_seguro(self.request, self.object.empresa.get_absolute_url()))
 
 
-class VendaStatusView(EquipeInternaMixin, View):
+class VendaStatusView(ComercialMixin, View):
     def post(self, request, pk):
         venda = get_object_or_404(Venda, pk=pk)
         status = request.POST.get("status")

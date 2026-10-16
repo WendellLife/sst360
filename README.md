@@ -96,3 +96,36 @@ Resumo diário por responsável (atrasados, vencem hoje, a vencer). Sem SMTP no
 
 O cliente entra com e-mail ou celular e recebe um código de 6 dígitos (hash,
 10 minutos, uso único, limite de tentativas). Canal em `CANAL_CODIGO_ACESSO`.
+
+## Permissões por módulo
+
+Cada pessoa da equipe interna tem um ou mais módulos, marcados em **Usuários e acessos**
+(`/conta/usuarios/`, só para quem tem o módulo Administração):
+
+- **Comercial:** Painel, Indicadores, Funil, Diagnósticos, Leads, Vendas, Campanhas, FAP dos clientes
+  e Sistema Tarefas.
+- **Técnico:** Gestões de SST, Prazos, Vencimentos, documentos, treinamentos e relacionamento.
+- **Administração:** cadastra pessoas e define o acesso de cada uma.
+
+Empresas e a busca abrem para qualquer módulo. O menu só mostra o que a pessoa pode abrir; quem tenta
+abrir outra área volta para a própria página inicial com um aviso. Superusuário enxerga tudo. Clientes
+do portal entram com código e não têm módulo. A equipe entra com o nome de usuário ou com o e-mail.
+
+## Sistema Tarefas (leitura)
+
+O SST360 e o Razach Tarefas Internas continuam separados, cada um com o seu banco. O SST360 lê do
+Tarefas (nunca grava) clientes, contatos, projetos, tarefas e turmas e mostra na área comercial:
+
+- `/comercial/tarefas/`: clientes do Tarefas cruzados pelo CNPJ com empresas e leads do SST360,
+  tarefas em aberto e atrasadas, próximas turmas, e o botão **Criar lead** para quem ainda não tem
+  cadastro aqui;
+- cartão **No sistema Tarefas** no detalhe da empresa e do lead.
+
+Configuração (de preferência com um usuário do banco só com permissão de leitura):
+
+```
+TAREFAS_DATABASE_URL=postgres://leitura:senha@servidor:5432/razach_tarefas
+TAREFAS_URL=https://tarefas.seu-dominio.com.br
+```
+
+Sem `TAREFAS_DATABASE_URL`, a tela explica como ligar. O SST360 não migra nem altera as tabelas do Tarefas.

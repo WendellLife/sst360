@@ -86,8 +86,8 @@
       <div class="rz-top">
         <header class="tb">
           <div class="tb-crumb">
-            <span class="rz-label">{{ secao|grupo_secao }}</span>
-            <span class="tb-sep" aria-hidden="true">/</span>
+            {% with grupo=secao|grupo_secao %}{% if grupo %}<span class="rz-label">{{ grupo }}</span>
+            <span class="tb-sep" aria-hidden="true">/</span>{% endif %}{% endwith %}
             <span class="tb-pagina">{% block modulo %}{{ secao|rotulo_secao }}{% endblock %}</span>
           </div>
           <div class="tb-tools">
@@ -99,7 +99,8 @@
             </a>
             <button class="ib" type="button" data-tema-alternar aria-label="Alternar tema" title="Alternar tema">{% icone "moon" 18 "so-claro" %}{% icone "sun" 18 "so-escuro" %}</button>
             <span class="tb-div" aria-hidden="true"></span>
-            <a class="rz-c-button is-gradient is-sm" href="{% url 'gestao:nova' %}">{% icone "plus" 15 %}<span>Nova gestão</span></a>
+            {% if user.acesso_comercial or user.is_superuser %}<a class="rz-c-button is-gradient is-sm" href="{% url 'crm:novo' %}">{% icone "plus" 15 %}<span>Novo lead</span></a>
+            {% elif user.acesso_tecnico %}<a class="rz-c-button is-gradient is-sm" href="{% url 'gestao:nova' %}">{% icone "plus" 15 %}<span>Nova gestão</span></a>{% endif %}
           </div>
         </header>
       </div>

@@ -108,6 +108,7 @@
   </div>
 
   <aside>
+    {% include "tarefas_ext/_card.html" with resumo=tarefas_resumo %}
     {% for x in faps %}{% with c=x.c g=x.gestao %}
     <section class="cartao fap-resumo-empresa">
       <header class="cartao-cab"><h2>FAP{% if x.vigente %} {{ x.vigente.vigencia }}{% endif %}</h2>{% if c %}<span class="etiqueta {{ c.nivel.cor|badge_cor }}">{{ c.nivel.rotulo }}</span>{% endif %}</header>

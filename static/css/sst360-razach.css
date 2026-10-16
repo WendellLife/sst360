@@ -362,3 +362,25 @@ html.js .cabecalho .subtitulo { display: none; }
 .sb-link { height: 36px; }
 .sb-group + .sb-group { padding-top: var(--space-2); }
 @media (max-height: 760px) { .sb-link { height: 32px; } .sb-group + .sb-group { padding-top: 0; } }
+
+/* ------------------------------------------------------------ usuários: módulos de acesso como cartões marcáveis */
+.modulos-acesso { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-3); margin-top: var(--space-5); }
+.modulo-opcao { position: relative; display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--surface-card); cursor: pointer; transition: border-color var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard); }
+.modulo-opcao:has(input:checked) { border-color: var(--border-brand); background: var(--surface-brand-subtle); }
+.modulo-opcao input { margin-top: 2px; flex: 0 0 auto; }
+.modulo-texto { display: flex; flex-direction: column; gap: 2px; font-size: var(--text-sm); color: var(--text-muted); }
+.modulo-texto strong { font-size: var(--text-md); font-weight: 600; font-variation-settings: var(--fv-text-semibold); color: var(--text-strong); }
+.modulo-opcao .erro { position: absolute; left: var(--space-4); bottom: -20px; font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--danger); }
+
+/* ------------------------------------------------------------ dados do sistema Tarefas */
+.tarefas-mini { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin-bottom: var(--space-3); }
+.tarefas-mini > div { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); border-radius: var(--radius-sm); background: var(--surface-sunken); }
+.tarefas-mini strong { font-family: var(--font-brand); font-weight: var(--weight-extrabold); font-variation-settings: var(--fv-title); font-size: var(--text-2xl); line-height: 1; color: var(--text-strong); }
+.tarefas-mini strong.destaque-alerta { color: var(--danger); }
+.lista.lista-compacta { padding: 0; }
+.vinculo-filtros { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.vinculo-filtros a { display: inline-flex; align-items: center; gap: var(--space-2); height: 32px; padding: 0 var(--space-4); border-radius: var(--radius-pill); border: 1px solid var(--border-default); background: var(--surface-card); font-size: var(--text-sm); color: var(--text-body); }
+.vinculo-filtros a.is-on { background: var(--surface-brand-subtle); border-color: var(--border-brand); color: var(--text-brand); font-weight: 600; }
+.vinculo-filtros .num { font-size: var(--text-2xs); color: var(--text-muted); }
+.bloco-codigo { margin: var(--space-4) 0; padding: var(--space-4); border-radius: var(--radius-sm); background: var(--surface-sunken); font-family: var(--font-mono); font-size: var(--text-xs); line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-strong); }
+.vinculo-barra { padding: 0 var(--space-6) var(--space-4); }

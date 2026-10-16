@@ -103,3 +103,81 @@ class ConfirmarCodigoView(View):
         request.session.pop(SESSAO_USUARIO, None)
         login(request, registro.usuario, backend="django.contrib.auth.backends.ModelBackend")
         return redirect("portal:home")
+
+
+# --------------------------------------------------------------------- gestão de usuários
+from django.db.models import Q  # noqa: E402
+from django.urls import reverse  # noqa: E402
+from django.views.generic import CreateView, ListView, TemplateView, UpdateView  # noqa: E402
+
+from .forms import UsuarioForm  # noqa: E402
+from .mixins import AdminMixin  # noqa: E402
+
+MODULOS = [
+    ("comercial", "Comercial", "Painel, indicadores, funil, leads, diagnósticos, vendas, campanhas, FAP e dados do Tarefas."),
+    ("tecnico", "Técnico", "Gestões de SST, prazos, vencimentos, documentos, treinamentos e relacionamento."),
+    ("admin", "Administração", "Cadastra pessoas e define o acesso de cada uma."),
+]
+
+
+class UsuariosView(AdminMixin, ListView):
+    template_name = "accounts/usuarios.html"
+    context_object_name = "usuarios"
+    extra_context = {"secao": "usuarios", "modulos": MODULOS}
+
+    def get_queryset(self):
+        qs = User.objects.select_related("empresa").order_by("-is_active", "tipo", "first_name", "username")
+        filtro = self.request.GET.get("tipo", "")
+        if filtro in (TipoUsuario.INTERNO, TipoUsuario.CLIENTE):
+            qs = qs.filter(tipo=filtro)
+        q = self.request.GET.get("q", "").strip()
+        if q:
+            qs = qs.filter(Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(email__icontains=q) | Q(username__icontains=q))
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        todos = User.objects.all()
+        ctx.update(
+            q=self.request.GET.get("q", ""), tipo=self.request.GET.get("tipo", ""),
+            total_internos=todos.filter(tipo=TipoUsuario.INTERNO, is_active=True).count(),
+            total_comercial=todos.filter(tipo=TipoUsuario.INTERNO, is_active=True).filter(Q(acesso_comercial=True) | Q(is_superuser=True)).count(),
+            total_tecnico=todos.filter(tipo=TipoUsuario.INTERNO, is_active=True).filter(Q(acesso_tecnico=True) | Q(is_superuser=True)).count(),
+            total_clientes=todos.filter(tipo=TipoUsuario.CLIENTE, is_active=True).count(),
+        )
+        return ctx
+
+
+class _UsuarioFormMixin(AdminMixin):
+    model = User
+    form_class = UsuarioForm
+    template_name = "accounts/usuario_form.html"
+    extra_context = {"secao": "usuarios", "modulos": MODULOS}
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["editor"] = self.request.user
+        return kwargs
+
+    def get_success_url(self):
+        return reverse("accounts:usuarios")
+
+
+class UsuarioNovoView(_UsuarioFormMixin, CreateView):
+    def form_valid(self, form):
+        resposta = super().form_valid(form)
+        messages.success(self.request, f"Usuário {self.object} cadastrado.")
+        return resposta
+
+
+class UsuarioEditarView(_UsuarioFormMixin, UpdateView):
+    context_object_name = "usuario"
+
+    def form_valid(self, form):
+        resposta = super().form_valid(form)
+        messages.success(self.request, f"Acesso de {self.object} atualizado.")
+        return resposta
+
+
+class SemAcessoView(TemplateView):
+    template_name = "accounts/sem_acesso.html"

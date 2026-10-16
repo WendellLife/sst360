@@ -6,14 +6,14 @@ from django.views.generic import CreateView, DetailView, ListView, TemplateView,
 
 from apps.publico.models import Diagnostico, Urgencia as UrgenciaDiagnostico
 
-from apps.accounts.mixins import EquipeInternaMixin
+from apps.accounts.mixins import ComercialMixin
 from apps.core.templatetags.sst_extras import moeda
 
 from .forms import AtividadeForm, LeadForm
 from .models import Estagio, Lead, OrigemLead, ServicoInteresse, SituacaoSST, Urgencia
 
 
-class FunilView(EquipeInternaMixin, TemplateView):
+class FunilView(ComercialMixin, TemplateView):
     template_name = "crm/funil.html"
     extra_context = {"secao": "funil"}
 
@@ -41,7 +41,7 @@ class FunilView(EquipeInternaMixin, TemplateView):
         return contexto
 
 
-class LeadListView(EquipeInternaMixin, ListView):
+class LeadListView(ComercialMixin, ListView):
     model = Lead
     template_name = "crm/lista.html"
     extra_context = {"secao": "leads"}
@@ -71,7 +71,7 @@ class LeadListView(EquipeInternaMixin, ListView):
         return contexto
 
 
-class LeadDetailView(EquipeInternaMixin, DetailView):
+class LeadDetailView(ComercialMixin, DetailView):
     model = Lead
     template_name = "crm/detalhe.html"
     extra_context = {"secao": "leads"}
@@ -93,10 +93,14 @@ class LeadDetailView(EquipeInternaMixin, DetailView):
             "email": regua.pode_receber(lead, "EML"), "whatsapp": regua.pode_receber(lead, "WPP"),
             "envios": lead.envios.select_related("campanha").order_by("-campanha__ano", "-campanha__mes", "canal")[:6],
         }
+        if self.request.user.tem_modulo("comercial"):
+            from apps.tarefas_ext.servicos import resumo_por_cnpj
+
+            contexto["tarefas_resumo"] = resumo_por_cnpj(self.object.cnpj)
         return contexto
 
 
-class LeadCreateView(EquipeInternaMixin, CreateView):
+class LeadCreateView(ComercialMixin, CreateView):
     model = Lead
     form_class = LeadForm
     template_name = "crm/form.html"
@@ -107,7 +111,7 @@ class LeadCreateView(EquipeInternaMixin, CreateView):
         return super().form_valid(form)
 
 
-class LeadUpdateView(EquipeInternaMixin, UpdateView):
+class LeadUpdateView(ComercialMixin, UpdateView):
     model = Lead
     form_class = LeadForm
     template_name = "crm/form.html"
@@ -118,7 +122,7 @@ class LeadUpdateView(EquipeInternaMixin, UpdateView):
         return super().form_valid(form)
 
 
-class AtividadeCreateView(EquipeInternaMixin, View):
+class AtividadeCreateView(ComercialMixin, View):
     def post(self, request, pk):
         lead = get_object_or_404(Lead, pk=pk)
         form = AtividadeForm(request.POST)
@@ -133,7 +137,7 @@ class AtividadeCreateView(EquipeInternaMixin, View):
         return redirect(lead.get_absolute_url())
 
 
-class MoverEstagioView(EquipeInternaMixin, View):
+class MoverEstagioView(ComercialMixin, View):
     def post(self, request, pk):
         lead = get_object_or_404(Lead, pk=pk)
         novo = request.POST.get("estagio")
@@ -147,7 +151,7 @@ class MoverEstagioView(EquipeInternaMixin, View):
         return redirect(destino)
 
 
-class ConverterLeadView(EquipeInternaMixin, View):
+class ConverterLeadView(ComercialMixin, View):
     def post(self, request, pk):
         lead = get_object_or_404(Lead, pk=pk)
         if lead.empresa_id:
@@ -187,7 +191,7 @@ def situacao_pelas_respostas(respostas: dict) -> str:
     return SituacaoSST.EM_DIA
 
 
-class DiagnosticosView(EquipeInternaMixin, ListView):
+class DiagnosticosView(ComercialMixin, ListView):
     """Diagnosticos recebidos pelo site, na ordem de quem espera ha mais tempo."""
 
     template_name = "crm/diagnosticos.html"
@@ -213,7 +217,7 @@ class DiagnosticosView(EquipeInternaMixin, ListView):
         return contexto
 
 
-class CriarLeadDoDiagnosticoView(EquipeInternaMixin, View):
+class CriarLeadDoDiagnosticoView(ComercialMixin, View):
     """Transforma o diagnostico em lead no topo do funil."""
 
     def post(self, request, pk):
@@ -260,7 +264,7 @@ class CriarLeadDoDiagnosticoView(EquipeInternaMixin, View):
         return redirect(lead.get_absolute_url())
 
 
-class MarcarContatoDiagnosticoView(EquipeInternaMixin, View):
+class MarcarContatoDiagnosticoView(ComercialMixin, View):
     """Registra que alguem ja falou com a pessoa, sem criar lead."""
 
     def post(self, request, pk):

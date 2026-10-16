@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import View
 
-from apps.accounts.mixins import EquipeInternaMixin
+from apps.accounts.mixins import TecnicoMixin
 from apps.gestao.models import Gestao, StatusAcao
 
 from .forms import (
@@ -16,7 +16,7 @@ from .forms import (
 from .models import DocumentoSolicitado, StatusDocumento
 
 
-class RelacionamentoView(EquipeInternaMixin, View):
+class RelacionamentoView(TecnicoMixin, View):
     """Tudo que a equipe troca com a empresa, num lugar so."""
 
     template_name = "gestao/relacionamento.html"
@@ -46,7 +46,7 @@ class RelacionamentoView(EquipeInternaMixin, View):
         return render(request, self.template_name, contexto)
 
 
-class SolicitarDocumentoView(EquipeInternaMixin, View):
+class SolicitarDocumentoView(TecnicoMixin, View):
     def post(self, request, pk):
         gestao = get_object_or_404(Gestao, pk=pk)
         form = SolicitacaoDocumentoForm(request.POST)
@@ -61,7 +61,7 @@ class SolicitarDocumentoView(EquipeInternaMixin, View):
         return redirect("relacionamento:painel", pk=gestao.pk)
 
 
-class ConferirDocumentoView(EquipeInternaMixin, View):
+class ConferirDocumentoView(TecnicoMixin, View):
     """Marca o documento recebido como validado ou pede reenvio."""
 
     def post(self, request, pk):
@@ -75,7 +75,7 @@ class ConferirDocumentoView(EquipeInternaMixin, View):
         return redirect("relacionamento:painel", pk=solicitacao.gestao_id)
 
 
-class ReuniaoCreateView(EquipeInternaMixin, View):
+class ReuniaoCreateView(TecnicoMixin, View):
     def post(self, request, pk):
         gestao = get_object_or_404(Gestao, pk=pk)
         form = ReuniaoForm(request.POST)
@@ -89,7 +89,7 @@ class ReuniaoCreateView(EquipeInternaMixin, View):
         return redirect("relacionamento:painel", pk=gestao.pk)
 
 
-class ResponderView(EquipeInternaMixin, View):
+class ResponderView(TecnicoMixin, View):
     def post(self, request, pk):
         gestao = get_object_or_404(Gestao, pk=pk)
         form = MensagemForm(request.POST)

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Sistema Tarefas - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">01 · Comercial</div>
+    <h1>Clientes no sistema Tarefas</h1>
+    <p class="subtitulo">Empresas atendidas pela Razach em cursos, turmas e projetos, cruzadas pelo CNPJ com o {{ APP_NOME }}. Quem ainda não tem cadastro aqui é oportunidade para oferecer a gestão de SST. Somente leitura: nada é alterado no Tarefas.</p>
+  </div>
+  {% if url_tarefas %}<a class="btn" href="{{ url_tarefas }}" target="_blank" rel="noopener">Abrir o Tarefas</a>{% endif %}
+</div>
+
+{% if not status.ok %}
+<div class="cartao"><div class="cartao-corpo">
+  {% if status.motivo == "nao_configurado" %}
+  <h2 style="font-size: var(--text-xl)">Sistema Tarefas ainda não ligado</h2>
+  <p class="texto-suave" style="margin-top: var(--space-3)">Para trazer os dados, configure no servidor do {{ APP_NOME }} o endereço do banco do Tarefas (de preferência um usuário só de leitura):</p>
+  <pre class="bloco-codigo">TAREFAS_DATABASE_URL=postgres://leitura:senha@servidor:5432/razach_tarefas
+TAREFAS_URL=https://tarefas.seu-dominio.com.br</pre>
+  <p class="texto-fraco">Em desenvolvimento também funciona com o SQLite do Tarefas: <span class="num">sqlite:////caminho/Razach-Tarefas-Internas/db.sqlite3</span>.</p>
+  {% else %}
+  <h2 style="font-size: var(--text-xl)">Não foi possível ler o sistema Tarefas</h2>
+  <p class="texto-suave" style="margin-top: var(--space-3)">A conexão está configurada, mas o banco não respondeu. Confira o endereço e as permissões de leitura.</p>
+  <pre class="bloco-codigo">{{ status.erro }}</pre>
+  {% endif %}
+</div></div>
+{% else %}
+
+<div class="kpis kpis-4">
+  <div class="kpi destaque"><div class="rotulo">Sem cadastro no {{ APP_NOME }}</div><div class="valor">{{ totais.oportunidades }}</div><div class="sub">oportunidades de gestão de SST</div></div>
+  <div class="kpi"><div class="rotulo">Clientes ativos no Tarefas</div><div class="valor">{{ totais.clientes }}</div><div class="sub">{{ totais.tarefas_abertas }} tarefa(s) em aberto</div></div>
+  <div class="kpi"><div class="rotulo">Já são clientes de SST</div><div class="valor">{{ totais.no_sst360 }}</div><div class="sub">{{ totais.leads }} no funil como lead</div></div>
+  <div class="kpi"><div class="rotulo">Turmas · 60 dias</div><div class="valor">{{ totais.turmas_60 }}</div><div class="sub">{{ totais.pessoas_turmas }} pessoas em sala</div></div>
+</div>
+
+<div class="grade grade-2-1">
+  <section class="cartao">
+    <header class="cartao-cab"><h2>Clientes</h2><span class="texto-fraco">{{ linhas|length }} no filtro</span></header>
+    <div class="vinculo-barra">
+      <nav class="vinculo-filtros" aria-label="Filtrar por vínculo">
+        <a href="?"{% if not vinculo %} class="is-on"{% endif %}>Todos</a>
+        <a href="?vinculo=sem_cadastro"{% if vinculo == "sem_cadastro" %} class="is-on"{% endif %}>Sem cadastro</a>
+        <a href="?vinculo=lead"{% if vinculo == "lead" %} class="is-on"{% endif %}>Leads</a>
+        <a href="?vinculo=cliente"{% if vinculo == "cliente" %} class="is-on"{% endif %}>Clientes de SST</a>
+      </nav>
+    </div>
+    <div class="tabela">
+      <table>
+        <thead><tr><th>Cliente no Tarefas</th><th>CNPJ</th><th class="direita">Abertas</th><th>Próxima turma</th><th>No {{ APP_NOME }}</th></tr></thead>
+        <tbody>
+          {% for l in linhas %}{% with c=l.cliente %}
+          <tr>
+            <td>
+              <span class="principal">{{ c.nome }}</span>{% if not c.ativo %} <span class="etiqueta etiqueta--cinza">inativo</span>{% endif %}
+              <div class="apoio"><span class="num">{{ c.codigo }}</span>{% if l.contato %} · {{ l.contato.nome }}{% if l.contato.cargo %}, {{ l.contato.cargo }}{% endif %}{% endif %}{% if c.projetos_ativos %} · {{ c.projetos_ativos }} projeto(s){% endif %}</div>
+            </td>
+            <td class="dado texto-suave" style="white-space:nowrap">{{ c.cnpj|cnpj }}</td>
+            <td class="num direita">{{ c.abertas }}{% if c.atrasadas %}<div class="apoio destaque-alerta">{{ c.atrasadas }} atrasada(s)</div>{% endif %}</td>
+            <td class="num">{{ c.proxima_turma|date:"d/m/Y"|default:"—" }}</td>
+            <td>
+              {% if l.vinculo == "cliente" %}<a class="lk" href="{{ l.empresa.get_absolute_url }}">Cliente de SST</a>
+              {% elif l.vinculo == "lead" %}<a class="lk" href="{{ l.lead.get_absolute_url }}">Lead · {{ l.lead.get_estagio_display }}</a>
+              {% else %}
+              <form method="post" action="{% url 'tarefas_ext:criar_lead' c.pk %}">{% csrf_token %}<button class="btn btn-p btn-primario" type="submit">Criar lead</button></form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endwith %}{% empty %}
+          <tr><td colspan="5" class="vazio">Nenhum cliente nesse filtro.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="cartao">
+    <header class="cartao-cab"><h2>Próximas turmas</h2></header>
+    <ul class="lista">
+      {% for t in turmas %}
+      <li>
+        <div class="linha-flex"><span class="titulo">{{ t.cliente|default:"Turma aberta" }}</span><span class="etiqueta {% if t.estado == 'confirmada' %}etiqueta--verde{% elif t.estado == 'agendando' %}etiqueta--amarelo{% else %}etiqueta--cinza{% endif %}">{{ t.estado_rotulo }}</span></div>
+        <div class="texto-fraco"><span class="num">{{ t.data|date:"d/m/Y" }}</span> · {{ t.projeto|default:"" }} · {{ t.pessoas }} pessoas{% if t.local %} · {{ t.local }}{% endif %}</div>
+        {% if t.empresa_sst %}<a class="lk" href="{{ t.empresa_sst.get_absolute_url }}">cliente de SST</a>{% elif t.lead_sst %}<a class="lk" href="{{ t.lead_sst.get_absolute_url }}">lead no funil</a>{% elif t.cliente %}<span class="texto-fraco">sem cadastro no {{ APP_NOME }}: boa hora para falar de SST</span>{% endif %}
+      </li>
+      {% empty %}
+      <li class="vazio">Nenhuma turma nos próximos 60 dias.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% endif %}
+{% endblock %}

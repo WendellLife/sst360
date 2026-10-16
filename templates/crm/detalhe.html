@@ -63,6 +63,7 @@
         <div><dt>Próximo contato</dt><dd class="num">{{ lead.proximo_contato|date:"d/m/Y"|default:"—" }}</dd></div>
       </dl>
     </div></section>
+    {% include "tarefas_ext/_card.html" with resumo=tarefas_resumo %}
 
     <section class="cartao"><div class="cartao-corpo">
       <div class="sobretitulo" style="margin-bottom:10px">02 · Mover para</div>

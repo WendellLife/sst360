@@ -1,0 +1,5 @@
+<label class="modulo-opcao{% if campo.value %} is-on{% endif %}">
+  <input type="checkbox" name="{{ campo.html_name }}" id="{{ campo.id_for_label }}"{% if campo.value %} checked{% endif %}>
+  <span class="modulo-texto"><strong>{{ nome }}</strong><span>{{ descricao }}</span></span>
+  {% for erro in campo.errors %}<span class="erro">{{ erro }}</span>{% endfor %}
+</label>

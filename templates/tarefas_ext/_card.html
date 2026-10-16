@@ -1,0 +1,39 @@
+{% if resumo %}
+<section class="cartao tarefas-card">
+  <header class="cartao-cab"><h2>No sistema Tarefas</h2><span class="etiqueta etiqueta--marca">{{ resumo.cliente.codigo }}</span></header>
+  <div class="cartao-corpo">
+    <div class="tarefas-mini">
+      <div><span class="rotulo-mono">Tarefas abertas</span><strong class="num">{{ resumo.total_abertas }}</strong></div>
+      <div><span class="rotulo-mono">Atrasadas</span><strong class="num{% if resumo.atrasadas %} destaque-alerta{% endif %}">{{ resumo.atrasadas }}</strong></div>
+      <div><span class="rotulo-mono">Projetos</span><strong class="num">{{ resumo.projetos|length }}</strong></div>
+    </div>
+    {% if resumo.abertas %}
+    <ul class="lista lista-compacta">
+      {% for t in resumo.abertas %}
+      <li>
+        <div class="linha-flex">
+          <span class="titulo">{{ t.titulo }}</span>
+          <span class="etiqueta {% if t.atrasada %}etiqueta--vermelho{% elif t.etapa == 'revisao' %}etiqueta--escura{% elif t.etapa == 'andamento' %}etiqueta--azul{% else %}etiqueta--cinza{% endif %}">{{ t.etapa_rotulo }}</span>
+        </div>
+        <div class="texto-fraco"><span class="num">{{ t.codigo }}</span>{% if t.responsavel %} · {{ t.responsavel }}{% endif %}{% if t.prazo %} · prazo <span class="num">{{ t.prazo|date:"d/m" }}</span>{% endif %}</div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if resumo.turmas %}
+    <div class="rotulo-mono" style="margin-top: var(--space-4)">Próximas turmas</div>
+    <ul class="lista lista-compacta">
+      {% for t in resumo.turmas %}
+      <li><div class="linha-flex"><span class="titulo">{{ t.projeto|default:"Turma" }}</span><span class="etiqueta etiqueta--verde">{{ t.estado_rotulo }}</span></div>
+        <div class="texto-fraco"><span class="num">{{ t.data|date:"d/m/Y" }}</span> · {{ t.tipo_rotulo }} · {{ t.pessoas }} pessoas{% if t.local %} · {{ t.local }}{% endif %}</div></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if resumo.contato %}<p class="texto-fraco" style="margin-top: var(--space-3)">Contato no Tarefas: {{ resumo.contato.nome }}{% if resumo.contato.cargo %} · {{ resumo.contato.cargo }}{% endif %}</p>{% endif %}
+  </div>
+  <div class="cartao-rodape"><div class="linha-flex">
+    <span class="texto-fraco">Somente leitura · dados do sistema Tarefas</span>
+    {% if resumo.url %}<a class="lk" href="{{ resumo.url }}" target="_blank" rel="noopener">Abrir no Tarefas</a>{% endif %}
+  </div></div>
+</section>
+{% endif %}

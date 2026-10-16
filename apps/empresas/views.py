@@ -73,6 +73,10 @@ class EmpresaDetailView(EquipeInternaMixin, DetailView):
         })
         contexto["status_venda"] = StatusVenda.choices
         contexto["faps"] = panorama_carteira(self.object.gestoes.filter(encerrado_em__isnull=True))
+        if self.request.user.tem_modulo("comercial"):
+            from apps.tarefas_ext.servicos import resumo_por_cnpj
+
+            contexto["tarefas_resumo"] = resumo_por_cnpj(self.object.cnpj)
         return contexto
 
     def post(self, request, *args, **kwargs):

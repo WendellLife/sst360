@@ -10,7 +10,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 
-from apps.accounts.mixins import EquipeInternaMixin
+from apps.accounts.mixins import ComercialMixin
 
 from . import regua
 from .models import Campanha, Canal, Envio, Etapa, Modelo, StatusEnvio
@@ -38,7 +38,7 @@ def _vizinho(c: Campanha, passo: int) -> str:
     return f"{ano}-{mes:02d}"
 
 
-class CampanhasView(EquipeInternaMixin, TemplateView):
+class CampanhasView(ComercialMixin, TemplateView):
     template_name = "campanhas/painel.html"
     extra_context = {"secao": "campanhas"}
 
@@ -65,7 +65,7 @@ class CampanhasView(EquipeInternaMixin, TemplateView):
         return contexto
 
 
-class GerarEnviosView(EquipeInternaMixin, View):
+class GerarEnviosView(ComercialMixin, View):
     def post(self, request):
         c = _campanha_do_pedido(request)
         n = regua.gerar_envios(c)
@@ -73,7 +73,7 @@ class GerarEnviosView(EquipeInternaMixin, View):
         return redirect(f"{reverse('campanhas:painel')}?mes={c.chave}")
 
 
-class EnviarEmailsView(EquipeInternaMixin, View):
+class EnviarEmailsView(ComercialMixin, View):
     def post(self, request):
         c = _campanha_do_pedido(request)
         if not c.envios_gerados_em:
@@ -86,7 +86,7 @@ class EnviarEmailsView(EquipeInternaMixin, View):
         return redirect(f"{reverse('campanhas:painel')}?mes={c.chave}#emails")
 
 
-class ConteudoView(EquipeInternaMixin, View):
+class ConteudoView(ComercialMixin, View):
     def post(self, request):
         c = _campanha_do_pedido(request)
         tema, conteudo = request.POST.get("tema", "").strip(), request.POST.get("conteudo", "").strip()
@@ -99,7 +99,7 @@ class ConteudoView(EquipeInternaMixin, View):
         return redirect(f"{reverse('campanhas:painel')}?mes={c.chave}#conteudo")
 
 
-class WhatsappView(EquipeInternaMixin, View):
+class WhatsappView(ComercialMixin, View):
     """Marca o envio como feito e abre o WhatsApp com a mensagem pronta."""
 
     def get(self, request, pk):
@@ -109,7 +109,7 @@ class WhatsappView(EquipeInternaMixin, View):
         return redirect(link)
 
 
-class PularEnvioView(EquipeInternaMixin, View):
+class PularEnvioView(ComercialMixin, View):
     def post(self, request, pk):
         envio = get_object_or_404(Envio, pk=pk)
         if envio.status == StatusEnvio.PENDENTE:
@@ -118,14 +118,14 @@ class PularEnvioView(EquipeInternaMixin, View):
         return redirect(f"{reverse('campanhas:painel')}?mes={envio.campanha.chave}#whatsapp")
 
 
-class PreviaEmailView(EquipeInternaMixin, View):
+class PreviaEmailView(ComercialMixin, View):
     def get(self, request, pk):
         envio = get_object_or_404(Envio.objects.select_related("lead", "campanha"), pk=pk)
         msg = regua._email(envio, regua.garantir_modelos())
         return HttpResponse(msg.alternatives[0][0])
 
 
-class ModelosView(EquipeInternaMixin, View):
+class ModelosView(ComercialMixin, View):
     template_name = "campanhas/modelos.html"
 
     def contexto(self, request):
