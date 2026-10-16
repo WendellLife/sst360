@@ -15,8 +15,8 @@ class ShellLifeLaboralTest(TestCase):
         self.client.force_login(User.objects.get(username="analista"))
         html = self.client.get("/painel/").content.decode()
         self.assertIn('class="sidebar"', html)
-        self.assertIn("img/lifelaboral/logo-horizontal.png", html)
-        self.assertIn("Life Laboral / <b>Painel</b>", html)
+        self.assertIn("img/razach/razach-combinado-gradiente.png", html)
+        self.assertIn("SST360 / <b>Painel</b>", html)
         self.assertIn('class="menu__item ativo"', html)
 
     def test_busca_global(self):
@@ -37,4 +37,4 @@ class ShellLifeLaboralTest(TestCase):
         self.client.force_login(User.objects.get(username="cliente"))
         html = self.client.get("/portal/").content.decode()
         self.assertIn("portal-nav", html)
-        self.assertNotIn("razach", html)
+        self.assertIn("razach-combinado-gradiente.png", html)

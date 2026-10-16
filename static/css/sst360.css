@@ -96,8 +96,8 @@ h1, h2, h3 {
 .sidebar { position: sticky; top: 0; height: 100vh; overflow: auto; background: var(--surface-card); border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; }
 .sidebar__logo { padding: 22px 18px 16px; border-bottom: 1px solid var(--border-subtle); }
 .sidebar__logo a { display: block; }
-.sidebar__logo img { height: 44px; width: auto; max-width: 100%; display: block; }
-.sidebar__logo .logo-simbolo { display: none; height: 30px; }
+.sidebar__logo img { height: 48px; width: auto; max-width: 100%; display: block; }
+.sidebar__logo .logo-simbolo { display: none; height: 34px; }
 .sidebar__produto { margin-top: 10px; font: 600 9.5px/1 var(--titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); }
 .sidebar__perfil { margin: 14px 12px 6px; padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: 12px; display: flex; gap: 10px; align-items: center; }
 .sidebar__perfil > div:last-child { min-width: 0; }
@@ -136,7 +136,7 @@ h1, h2, h3 {
 .portal { min-height: 100vh; background: var(--papel); }
 .portal-topo { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-subtle); }
 .portal-topo .faixa { max-width: 1180px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.portal-marca img { height: 34px; width: auto; display: block; }
+.portal-marca img { height: 38px; width: auto; display: block; }
 .portal-topo .marca-area { font: 600 9.5px/1 var(--titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); margin-top: 6px; }
 .portal-nav { display: flex; gap: 4px; flex-wrap: wrap; }
 .portal-nav a { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 13.5px; font-weight: 500; color: var(--text-body); min-height: 38px; }

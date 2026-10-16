@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titulo %}{{ APP_NOME }}{% endblock %} · Life Laboral</title>
+  <title>{% block titulo %}{{ APP_NOME }}{% endblock %}</title>
   {% include "partials/fontes.html" %}
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/sst360.css' %}">
-  <link rel="icon" type="image/png" href="{% static 'img/lifelaboral/simbolo.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'img/razach/razach-simbolo-gradiente.png' %}">
   <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js" defer></script>
 </head>
 <body class="ll-body">
@@ -15,7 +15,7 @@
 <div class="shell">
   <aside class="sidebar">
     <div class="sidebar__logo">
-      <a href="{% url 'core:dashboard' %}"><img class="logo-cheio" src="{% static 'img/lifelaboral/logo-horizontal.png' %}" alt="Life Laboral"><img class="logo-simbolo" src="{% static 'img/lifelaboral/simbolo.png' %}" alt="Life Laboral"></a>
+      <a href="{% url 'core:dashboard' %}"><img class="logo-cheio" src="{% static 'img/razach/razach-combinado-gradiente.png' %}" alt="Razach Technology"><img class="logo-simbolo" src="{% static 'img/razach/razach-simbolo-gradiente.png' %}" alt="Razach Technology"></a>
       <div class="sidebar__produto">{{ APP_NOME }} · Gestão de SST</div>
     </div>
     <div class="sidebar__perfil">
@@ -51,7 +51,7 @@
 
   <div class="shell__principal">
     <header class="header">
-      <div class="header__crumb">Life Laboral / <b>{% block modulo %}{{ secao|rotulo_secao }}{% endblock %}</b></div>
+      <div class="header__crumb">{{ APP_NOME }} / <b>{% block modulo %}{{ secao|rotulo_secao }}{% endblock %}</b></div>
       <form class="header__busca" method="get" action="{% url 'core:busca' %}" role="search">
         {% include "partials/icone.html" with nome="busca" %}
         <input type="search" name="q" value="{{ q_busca|default:'' }}" placeholder="Buscar empresa, gestão, lead…" aria-label="Buscar" data-atalho="/">
@@ -77,7 +77,7 @@ document.addEventListener("keydown", function (e) {
   <header class="portal-topo">
     <div class="faixa">
       <div class="portal-marca">
-        <a href="{% url 'portal:home' %}"><img src="{% static 'img/lifelaboral/logo-horizontal.png' %}" alt="Life Laboral" height="34"></a>
+        <a href="{% url 'portal:home' %}"><img src="{% static 'img/razach/razach-combinado-gradiente.png' %}" alt="Razach Technology" height="38"></a>
         <div class="marca-area">{{ user.empresa }}</div>
       </div>
       <nav class="portal-nav" aria-label="Principal">
@@ -123,7 +123,7 @@ document.addEventListener("keydown", function (e) {
 <div class="publico">
   <div class="cartao-publico">
     <div class="cartao-publico__hero">
-      <img src="{% static 'img/lifelaboral/logo-horizontal-branca.png' %}" alt="Life Laboral">
+      <img src="{% static 'img/razach/razach-combinado-claro.png' %}" alt="Razach Technology">
       <p>{{ APP_NOME }} · Gestão de saúde e segurança do trabalho</p>
     </div>
     <div class="cartao-publico__corpo">

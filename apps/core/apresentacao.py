@@ -39,7 +39,7 @@ COR_NIVEL = {"BMAX": VERDE, "BON": VERDE, "NEU": RGBColor(0x5B, 0x6B, 0x74), "MA
 FONTE = "Arial"
 L, A = Inches(13.333), Inches(7.5)
 MARGEM = Inches(0.6)
-IMG = Path(settings.BASE_DIR) / "static" / "img" / "lifelaboral"
+IMG = Path(settings.BASE_DIR) / "static" / "img" / "razach"
 
 
 # ---------------------------------------------------------------- utilitários
@@ -254,8 +254,8 @@ class Deck:
 def _capa(dk):
     d = dk.d
     s = dk.novo("", escuro=True, notas="Abertura: período, quem preparou e o que a apresentação cobre.")
-    if (IMG / "logo-horizontal-branca.png").exists():
-        s.shapes.add_picture(str(IMG / "logo-horizontal-branca.png"), MARGEM, Inches(0.7), height=Inches(0.75))
+    if (IMG / "razach-combinado-claro.png").exists():
+        s.shapes.add_picture(str(IMG / "razach-combinado-claro.png"), MARGEM, Inches(0.7), height=Inches(0.75))
     _texto(s, MARGEM, Inches(2.2), Inches(10), Inches(0.4), "SST360 · UNIVERSO FX · LIFE LABORAL", tam=13, negrito=True, cor=CIANO)
     _texto(s, MARGEM, Inches(2.7), Inches(11), Inches(1.8), "Indicadores da carteira de saúde e segurança do trabalho", tam=40, negrito=True, cor=BRANCO)
     _texto(s, MARGEM, Inches(4.75), Inches(11), Inches(0.5), d["periodo"].rotulo, tam=20, cor=NEVOA)
