@@ -50,17 +50,18 @@ TAREFAS_URL=https://tarefas.seu-dominio.com.br</pre>
     </div>
     <div class="tabela">
       <table>
-        <thead><tr><th>Cliente no Tarefas</th><th>CNPJ</th><th class="direita">Abertas</th><th>Próxima turma</th><th>No {{ APP_NOME }}</th></tr></thead>
+        <thead><tr><th>Cliente no Tarefas</th><th>CNPJ</th><th class="direita">Abertas</th><th>Último serviço</th><th>Próximo serviço</th><th>No {{ APP_NOME }}</th></tr></thead>
         <tbody>
           {% for l in linhas %}{% with c=l.cliente %}
           <tr>
             <td>
               <span class="principal">{{ c.nome }}</span>{% if not c.ativo %} <span class="etiqueta etiqueta--cinza">inativo</span>{% endif %}
-              <div class="apoio"><span class="num">{{ c.codigo }}</span>{% if l.contato %} · {{ l.contato.nome }}{% if l.contato.cargo %}, {{ l.contato.cargo }}{% endif %}{% endif %}{% if c.projetos_ativos %} · {{ c.projetos_ativos }} projeto(s){% endif %}</div>
+              <div class="apoio"><span class="num">{{ c.codigo }}</span>{% if c.cliente_desde %} · desde <span class="num">{{ c.cliente_desde|date:"m/Y" }}</span>{% endif %}{% if l.contato %} · {{ l.contato.nome }}{% if l.contato.cargo %}, {{ l.contato.cargo }}{% endif %}{% endif %}{% if c.projetos_ativos %} · {{ c.projetos_ativos }} projeto(s){% endif %}</div>
             </td>
             <td class="dado texto-suave" style="white-space:nowrap">{{ c.cnpj|cnpj }}</td>
             <td class="num direita">{{ c.abertas }}{% if c.atrasadas %}<div class="apoio destaque-alerta">{{ c.atrasadas }} atrasada(s)</div>{% endif %}</td>
-            <td class="num">{{ c.proxima_turma|date:"d/m/Y"|default:"—" }}</td>
+            <td class="num">{{ c.ultimo_servico|date:"d/m/Y"|default:"—" }}{% if c.ultimo_servico %}<div class="apoio">{% if c.ultimo_servico_tipo == "turma" %}turma{% else %}entrega{% endif %}{% if c.turmas_realizadas %} · {{ c.turmas_realizadas }} turma(s){% endif %}</div>{% endif %}</td>
+            <td class="num">{{ c.proximo_servico|date:"d/m/Y"|default:"—" }}{% if c.proximo_servico %}<div class="apoio">{% if c.proximo_servico_tipo == "turma" %}turma{% else %}prazo de tarefa{% endif %}</div>{% endif %}</td>
             <td>
               {% if l.vinculo == "cliente" %}<a class="lk" href="{{ l.empresa.get_absolute_url }}">Cliente de SST</a>
               {% elif l.vinculo == "lead" %}<a class="lk" href="{{ l.lead.get_absolute_url }}">Lead · {{ l.lead.get_estagio_display }}</a>
@@ -70,7 +71,7 @@ TAREFAS_URL=https://tarefas.seu-dominio.com.br</pre>
             </td>
           </tr>
           {% endwith %}{% empty %}
-          <tr><td colspan="5" class="vazio">Nenhum cliente nesse filtro.</td></tr>
+          <tr><td colspan="6" class="vazio">{% if linhas or vinculo %}Nenhum cliente nesse filtro.{% else %}O sistema Tarefas ainda não tem clientes cadastrados.{% endif %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

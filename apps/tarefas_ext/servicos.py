@@ -51,6 +51,18 @@ def _mapas_sst360():
     return empresas, leads
 
 
+def datas_servico(cli):
+    """Marca no cliente anotado: desde quando é cliente, último serviço e próximo serviço (com o que é)."""
+    entrega = timezone.localdate(cli.ultima_entrega) if getattr(cli, "ultima_entrega", None) else None
+    turma = getattr(cli, "ultima_turma", None)
+    candidatos = [(d, o) for d, o in ((turma, "turma"), (entrega, "entrega")) if d]
+    cli.ultimo_servico, cli.ultimo_servico_tipo = max(candidatos) if candidatos else (None, "")
+    futuros = [(d, o) for d, o in ((getattr(cli, "proxima_turma", None), "turma"), (getattr(cli, "proximo_prazo", None), "prazo")) if d]
+    cli.proximo_servico, cli.proximo_servico_tipo = min(futuros) if futuros else (None, "")
+    cli.cliente_desde = timezone.localdate(cli.criado_em) if cli.criado_em else None
+    return cli
+
+
 def painel(hoje=None) -> dict:
     """Clientes do Tarefas com o que está em andamento e o vínculo com o SST360."""
     from .models import Cliente, Tarefa, Turma
@@ -65,7 +77,10 @@ def painel(hoje=None) -> dict:
             concluidas_30=Count("tarefas", filter=Q(tarefas__etapa="feito", tarefas__concluida_em__gte=trinta), distinct=True),
             projetos_ativos=Count("projetos", filter=Q(projetos__ativo=True), distinct=True),
             proxima_turma=Min("turmas__data", filter=Q(turmas__data__gte=hoje) & ~Q(turmas__estado="cancelada")),
+            proximo_prazo=Min("tarefas__prazo", filter=Q(tarefas__prazo__gte=hoje) & ~Q(tarefas__etapa="feito")),
+            ultima_turma=Max("turmas__data", filter=Q(turmas__data__lt=hoje) & ~Q(turmas__estado="cancelada")),
             ultima_entrega=Max("tarefas__concluida_em"),
+            turmas_realizadas=Count("turmas", filter=Q(turmas__data__lt=hoje) & ~Q(turmas__estado="cancelada"), distinct=True),
         ).order_by("-ativo", "nome")
     )
     principais = {}
@@ -74,6 +89,8 @@ def painel(hoje=None) -> dict:
     for c in Contato.objects.filter(cliente_id__in=[x.pk for x in clientes]).order_by("cliente_id", "-principal", "ordem", "id"):
         principais.setdefault(c.cliente_id, c)
 
+    for cli in clientes:
+        datas_servico(cli)
     empresas, leads = _mapas_sst360()
     linhas = []
     for cli in clientes:
@@ -133,15 +150,42 @@ def resumo_por_cnpj(cnpj, hoje=None):
         turmas = list(Turma.objects.filter(cliente=cliente, data__gte=hoje).exclude(estado="cancelada").select_related("projeto")[:4])
         projetos = list(cliente.projetos.filter(ativo=True).order_by("nome")[:4])
         contato = cliente.contatos.order_by("-principal", "ordem", "id").first()
+        realizados = sorted(
+            [{"data": t.data, "tipo": "Turma", "titulo": f"{t.projeto or 'Turma'} · {t.pessoas} pessoas", "estado": t.estado_rotulo}
+             for t in Turma.objects.filter(cliente=cliente, data__lt=hoje).exclude(estado="cancelada").select_related("projeto").order_by("-data")[:5]]
+            + [{"data": timezone.localdate(t.concluida_em), "tipo": "Entrega", "titulo": f"{t.codigo} · {t.titulo}", "estado": "Concluída"}
+               for t in Tarefa.objects.filter(cliente=cliente, etapa="feito", concluida_em__isnull=False).order_by("-concluida_em")[:5]],
+            key=lambda x: x["data"], reverse=True,
+        )[:5]
     except DatabaseError:
         return None
     for t in abertas:
         t.atrasada = bool(t.prazo and t.prazo < hoje)
     return {
         "cliente": cliente, "contato": contato, "abertas": abertas, "total_abertas": total_abertas,
-        "atrasadas": atrasadas, "turmas": turmas, "projetos": projetos,
+        "atrasadas": atrasadas, "turmas": turmas, "projetos": projetos, "realizados": realizados,
+        "cliente_desde": timezone.localdate(cliente.criado_em) if cliente.criado_em else None,
+        "ultimo_servico": realizados[0]["data"] if realizados else None,
+        "proximo_servico": min([d for d in [turmas[0].data if turmas else None] + [t.prazo for t in abertas if t.prazo and t.prazo >= hoje] if d], default=None),
         "url": url_tarefas(f"/clientes/?cliente={cliente.pk}"),
     }
+
+
+def _fmt(d):
+    return d.strftime("%d/%m/%Y") if d else "—"
+
+
+def _observacao_tarefas(cliente, resumo):
+    linhas = [f"Veio do sistema Tarefas ({cliente.codigo}). Já é atendido pela Razach em cursos, turmas ou projetos."]
+    linhas.append(
+        f"Cliente desde {_fmt(resumo.get('cliente_desde'))} · último serviço {_fmt(resumo.get('ultimo_servico'))}"
+        f" · próximo {_fmt(resumo.get('proximo_servico'))}."
+    )
+    for r in resumo.get("realizados", []):
+        linhas.append(f"- {_fmt(r['data'])}: {r['tipo']} · {r['titulo']}")
+    for t in resumo.get("turmas", []):
+        linhas.append(f"- {_fmt(t.data)}: Turma prevista · {t.projeto or 'Turma'} · {t.estado_rotulo}")
+    return "\n".join(linhas)
 
 
 def criar_lead(cliente_id, usuario):
@@ -158,6 +202,7 @@ def criar_lead(cliente_id, usuario):
     cliente = Cliente.objects.get(pk=cliente_id)
     k = chave_cnpj(cliente.cnpj)
     empresas, leads = _mapas_sst360()
+    resumo = resumo_por_cnpj(cliente.cnpj) or {}
     if k in empresas:
         return None, False
     if k in leads:
@@ -174,7 +219,7 @@ def criar_lead(cliente_id, usuario):
         origem=OrigemLead.CARTEIRA,
         responsavel=usuario,
         proximo_contato=timezone.localdate(),
-        observacoes=f"Veio do sistema Tarefas ({cliente.codigo}). Já é atendido pela Razach em cursos ou turmas.",
+        observacoes=_observacao_tarefas(cliente, resumo),
     )
     Atividade.objects.create(
         lead=lead, tipo=TipoAtividade.NOTA, titulo="Lead criado a partir do sistema Tarefas",

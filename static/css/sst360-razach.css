@@ -394,3 +394,4 @@ html .sb-brand .sb-logo { width: min(184px, calc(100% - 40px)); height: auto; }
 @media (max-height: 700px) { .sb-link { height: 29px; } .sb-rolagem { gap: var(--space-2); } .sb-group { gap: 2px; } }
 @media (max-height: 700px) { html .sb-brand .sb-logo { width: min(128px, calc(100% - 40px)); } .rz-side .sb { gap: var(--space-3); } }
 @media (max-height: 700px) { .rz-side .sb { padding-top: var(--space-3); padding-bottom: var(--space-2); } }
+.tarefas-datas { margin: 0 0 var(--space-3); }

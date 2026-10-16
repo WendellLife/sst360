@@ -56,6 +56,8 @@ class TarefasTestCase(TestCase):
                    criada_em=agora, concluida_em=agora, cliente_id=1, responsavel_id=1),
         ])
         Turma.objects.bulk_create([
+            Turma(id=2, data=hoje - timedelta(days=20), tipo="presencial", hora_inicio=time(8), hora_fim=time(12), pessoas=12,
+                  estado="realizada", local="Ipatinga", cliente_id=1, projeto_id=1),
             Turma(id=1, data=hoje + timedelta(days=10), tipo="presencial", hora_inicio=time(8), hora_fim=time(17), pessoas=14,
                   estado="confirmada", local="Ipatinga", cliente_id=1, projeto_id=1),
         ])
@@ -153,3 +155,23 @@ class ImportacaoTest(TarefasTestCase):
         call_command("importar_tarefas", "--responsavel", "vendas@teste.com.br", stdout=saida)
         self.assertIn("1 lead(s) criado(s)", saida.getvalue())
         self.assertEqual(Lead.objects.get(cnpj="48.157.263/0001-35").responsavel, self.comercial)
+
+
+class DatasDosServicosTest(TarefasTestCase):
+    def test_painel_tem_ultimo_e_proximo_servico(self):
+        hoje = timezone.localdate()
+        metal = next(l["cliente"] for l in servicos.painel()["linhas"] if l["cliente"].pk == 1)
+        self.assertEqual(metal.ultimo_servico, hoje)  # entrega concluída hoje é mais recente que a turma de 20 dias atrás
+        self.assertEqual(metal.ultimo_servico_tipo, "entrega")
+        self.assertEqual(metal.turmas_realizadas, 1)
+        self.assertEqual(metal.proximo_servico, hoje + timedelta(days=5))  # prazo da tarefa antes da turma (10 dias)
+        self.assertEqual(metal.proximo_servico_tipo, "prazo")
+
+    def test_resumo_e_lead_levam_as_datas(self):
+        hoje = timezone.localdate()
+        r = servicos.resumo_por_cnpj("48157263000135")
+        self.assertEqual([x["tipo"] for x in r["realizados"]], ["Entrega", "Turma"])
+        self.assertEqual(r["proximo_servico"], hoje + timedelta(days=5))
+        lead, _ = servicos.criar_lead(1, self.comercial)
+        self.assertIn("último serviço " + hoje.strftime("%d/%m/%Y"), lead.observacoes)
+        self.assertIn((hoje - timedelta(days=20)).strftime("%d/%m/%Y") + ": Turma", lead.observacoes)

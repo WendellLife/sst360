@@ -7,6 +7,7 @@
       <div><span class="rotulo-mono">Atrasadas</span><strong class="num{% if resumo.atrasadas %} destaque-alerta{% endif %}">{{ resumo.atrasadas }}</strong></div>
       <div><span class="rotulo-mono">Projetos</span><strong class="num">{{ resumo.projetos|length }}</strong></div>
     </div>
+    <p class="texto-fraco tarefas-datas">Cliente desde <span class="num">{{ resumo.cliente_desde|date:"d/m/Y"|default:"—" }}</span> · último serviço <span class="num">{{ resumo.ultimo_servico|date:"d/m/Y"|default:"—" }}</span> · próximo <span class="num">{{ resumo.proximo_servico|date:"d/m/Y"|default:"—" }}</span></p>
     {% if resumo.abertas %}
     <ul class="lista lista-compacta">
       {% for t in resumo.abertas %}
@@ -26,6 +27,15 @@
       {% for t in resumo.turmas %}
       <li><div class="linha-flex"><span class="titulo">{{ t.projeto|default:"Turma" }}</span><span class="etiqueta etiqueta--verde">{{ t.estado_rotulo }}</span></div>
         <div class="texto-fraco"><span class="num">{{ t.data|date:"d/m/Y" }}</span> · {{ t.tipo_rotulo }} · {{ t.pessoas }} pessoas{% if t.local %} · {{ t.local }}{% endif %}</div></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if resumo.realizados %}
+    <div class="rotulo-mono" style="margin-top: var(--space-4)">Serviços realizados</div>
+    <ul class="lista lista-compacta">
+      {% for r in resumo.realizados %}
+      <li><div class="linha-flex"><span class="titulo">{{ r.titulo }}</span><span class="etiqueta etiqueta--cinza">{{ r.tipo }}</span></div>
+        <div class="texto-fraco"><span class="num">{{ r.data|date:"d/m/Y" }}</span> · {{ r.estado }}</div></li>
       {% endfor %}
     </ul>
     {% endif %}
