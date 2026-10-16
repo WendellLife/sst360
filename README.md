@@ -129,3 +129,16 @@ TAREFAS_URL=https://tarefas.seu-dominio.com.br
 ```
 
 Sem `TAREFAS_DATABASE_URL`, a tela explica como ligar. O SST360 não migra nem altera as tabelas do Tarefas.
+
+## Começar com os dados reais
+
+Os dados do `seed_demo` são fictícios. Para começar a usar com os dados reais:
+
+```
+python manage.py limpar_dados_demo --confirmar      # apaga empresas, gestões, leads, vendas e usuários de exemplo
+python manage.py createsuperuser                    # se não houver um administrador
+python manage.py importar_tarefas --responsavel seu@email.com.br   # clientes do Tarefas viram leads
+```
+
+O `importar_tarefas` pode rodar de novo a qualquer momento: só cria lead para quem ainda não é empresa
+nem lead no SST360. A mesma importação está no botão "Trazer para o funil" da tela Sistema Tarefas.

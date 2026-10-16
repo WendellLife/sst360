@@ -129,3 +129,27 @@ class TelasTest(TarefasTestCase):
         tecnico = User.objects.create_user("tec", "tec@teste.com.br", "x", tipo=TipoUsuario.INTERNO, acesso_comercial=False, acesso_tecnico=True)
         self.client.force_login(tecnico)
         self.assertEqual(self.client.get("/comercial/tarefas/").status_code, 302)
+
+
+class ImportacaoTest(TarefasTestCase):
+    def test_importa_todos_sem_duplicar(self):
+        r = servicos.importar_clientes(self.comercial)
+        self.assertEqual([l.razao_social for l in r["criados"]], ["Metalúrgica Vale do Aço Ltda."])
+        self.assertEqual(r["ja_existiam"], 2)  # Construtora (empresa) e Hospital (lead)
+        self.assertEqual(servicos.importar_clientes(self.comercial)["criados"], [])
+
+    def test_botao_da_tela(self):
+        self.client.force_login(self.comercial)
+        r = self.client.post("/comercial/tarefas/importar/")
+        self.assertRedirects(r, "/comercial/tarefas/", fetch_redirect_response=False)
+        self.assertTrue(Lead.objects.filter(cnpj="48.157.263/0001-35").exists())
+
+    def test_comando(self):
+        from io import StringIO
+
+        from django.core.management import call_command
+
+        saida = StringIO()
+        call_command("importar_tarefas", "--responsavel", "vendas@teste.com.br", stdout=saida)
+        self.assertIn("1 lead(s) criado(s)", saida.getvalue())
+        self.assertEqual(Lead.objects.get(cnpj="48.157.263/0001-35").responsavel, self.comercial)

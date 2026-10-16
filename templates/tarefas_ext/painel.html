@@ -8,7 +8,10 @@
     <h1>Clientes no sistema Tarefas</h1>
     <p class="subtitulo">Empresas atendidas pela Razach em cursos, turmas e projetos, cruzadas pelo CNPJ com o {{ APP_NOME }}. Quem ainda não tem cadastro aqui é oportunidade para oferecer a gestão de SST. Somente leitura: nada é alterado no Tarefas.</p>
   </div>
-  {% if url_tarefas %}<a class="btn" href="{{ url_tarefas }}" target="_blank" rel="noopener">Abrir o Tarefas</a>{% endif %}
+  <div class="acoes">
+    {% if url_tarefas %}<a class="btn" href="{{ url_tarefas }}" target="_blank" rel="noopener">Abrir o Tarefas</a>{% endif %}
+    {% if status.ok and totais.oportunidades %}<form method="post" action="{% url 'tarefas_ext:importar' %}">{% csrf_token %}<button class="btn btn-primario" type="submit">Trazer {{ totais.oportunidades }} para o funil</button></form>{% endif %}
+  </div>
 </div>
 
 {% if not status.ok %}

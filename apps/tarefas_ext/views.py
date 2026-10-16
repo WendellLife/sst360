@@ -43,3 +43,18 @@ class CriarLeadView(ComercialMixin, View):
             return redirect(lead.get_absolute_url())
         messages.info(request, "Essa empresa já é cliente no SST360.")
         return redirect("tarefas_ext:painel")
+
+
+class ImportarTodosView(ComercialMixin, View):
+    """Traz para o funil, de uma vez, todos os clientes ativos do Tarefas que ainda não estão no SST360."""
+
+    def post(self, request):
+        if not servicos.status()["ok"]:
+            messages.error(request, "O sistema Tarefas não está ligado.")
+            return redirect("tarefas_ext:painel")
+        r = servicos.importar_clientes(request.user)
+        if r["criados"]:
+            messages.success(request, f"{len(r['criados'])} lead(s) criado(s) a partir do sistema Tarefas, com você como responsável.")
+        else:
+            messages.info(request, "Todos os clientes ativos do Tarefas já estão no SST360.")
+        return redirect("tarefas_ext:painel")

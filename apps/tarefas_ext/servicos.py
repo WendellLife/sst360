@@ -181,3 +181,20 @@ def criar_lead(cliente_id, usuario):
         descricao=f"Cliente {cliente.codigo} · {cliente.nome}.", autor=usuario,
     )
     return lead, True
+
+
+def importar_clientes(usuario=None, incluir_inativos=False) -> dict:
+    """Cria leads para todos os clientes do Tarefas que ainda não estão no SST360."""
+    from .models import Cliente
+
+    criados, ja, inativos = [], 0, 0
+    for cliente in Cliente.objects.order_by("nome", "id"):
+        if not cliente.ativo and not incluir_inativos:
+            inativos += 1
+            continue
+        lead, criado = criar_lead(cliente.pk, usuario)
+        if criado:
+            criados.append(lead)
+        else:
+            ja += 1
+    return {"criados": criados, "ja_existiam": ja, "inativos": inativos}
