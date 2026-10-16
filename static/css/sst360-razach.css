@@ -384,3 +384,13 @@ html.js .cabecalho .subtitulo { display: none; }
 .vinculo-filtros .num { font-size: var(--text-2xs); color: var(--text-muted); }
 .bloco-codigo { margin: var(--space-4) 0; padding: var(--space-4); border-radius: var(--radius-sm); background: var(--surface-sunken); font-family: var(--font-mono); font-size: var(--text-xs); line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-strong); }
 .vinculo-barra { padding: 0 var(--space-6) var(--space-4); }
+
+/* Logo maior na barra lateral (o botão de recolher fica alinhado ao centro do logo) */
+.sb-brand { padding: 0; }
+.sb-brand .sb-marca { display: block; align-self: stretch; border: 0; }
+html .sb-brand .sb-logo { width: min(184px, calc(100% - 40px)); height: auto; }
+.sb-recolher { top: 50%; transform: translateY(-50%); right: -4px; }
+@media (max-height: 760px) { html .sb-brand .sb-logo { width: min(156px, calc(100% - 40px)); } }
+@media (max-height: 700px) { .sb-link { height: 29px; } .sb-rolagem { gap: var(--space-2); } .sb-group { gap: 2px; } }
+@media (max-height: 700px) { html .sb-brand .sb-logo { width: min(128px, calc(100% - 40px)); } .rz-side .sb { gap: var(--space-3); } }
+@media (max-height: 700px) { .rz-side .sb { padding-top: var(--space-3); padding-bottom: var(--space-2); } }
