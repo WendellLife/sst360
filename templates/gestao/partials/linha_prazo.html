@@ -1,0 +1,23 @@
+{% load sst_extras %}
+<tr id="prazo-{{ prazo.pk }}">
+  <td>
+    <div class="principal">{{ prazo.titulo }}</div>
+    <div class="apoio">{{ prazo.base_legal|default:prazo.get_tipo_display }}</div>
+  </td>
+  <td class="num texto-suave">{{ prazo.data_inicio|date:"d/m/Y"|default:"—" }}</td>
+  <td>
+    <span class="etiqueta {{ prazo.cor|badge_cor }} num">
+      {{ prazo.data_fim|date:"d/m/Y" }}{% if prazo.status == 'PEND' %}{% if prazo.atrasado %} · {{ prazo.dias_atraso }}d atrasado{% else %} · {{ prazo.dias_restantes }}d{% endif %}{% endif %}
+    </span>
+  </td>
+  <td class="texto-suave">{{ prazo.responsavel|default:"—" }}</td>
+  <td class="texto-suave">{{ prazo.get_status_display }}</td>
+  <td class="direita">
+    {% if prazo.status == 'PEND' %}
+    <button class="btn btn-p" type="button"
+            hx-post="{% url 'gestao:prazo_concluir' prazo.pk %}"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-target="#prazo-{{ prazo.pk }}" hx-swap="outerHTML">Cumprido</button>
+    {% endif %}
+  </td>
+</tr>

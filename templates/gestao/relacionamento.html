@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Relacionamento · {{ gestao.empresa }} - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<a class="voltar" href="{{ gestao.get_absolute_url }}">← {{ gestao.empresa }}</a>
+
+<div class="cabecalho topo">
+  <div>
+    <div class="sobretitulo">Relacionamento com o cliente · {{ gestao.codigo }}</div>
+    <h1>{{ gestao.empresa }}</h1>
+    <p class="subtitulo">Documentos pedidos à empresa, visitas, andamento das ações e a conversa. O cliente vê o mesmo no portal.</p>
+  </div>
+  {% if nao_lidas %}<span class="etiqueta etiqueta--azul">{{ nao_lidas }} mensagem(ns) nova(s)</span>{% endif %}
+</div>
+
+<div class="grade grade-2-1">
+  <div>
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Documentos solicitados à empresa</h2></header>
+      <ul class="lista">
+        {% for pedido in solicitacoes %}
+        <li>
+          <div class="doc-pedido">
+            <div class="info">
+              <div class="titulo">
+                {% if pedido.arquivo %}<a href="{{ pedido.arquivo.url }}" target="_blank" rel="noopener">{{ pedido.titulo }}</a>{% else %}{{ pedido.titulo }}{% endif %}
+              </div>
+              {% if pedido.motivo %}<div class="texto-fraco">{{ pedido.motivo }}</div>{% endif %}
+              <div style="margin-top:6px" class="chips">
+                <span class="etiqueta {{ pedido.cor|badge_cor }}">{{ pedido.get_status_display }}</span>
+                {% if pedido.prazo %}<span class="texto-fraco num {% if pedido.atrasado %}destaque-alerta{% endif %}">prazo {{ pedido.prazo|date:"d/m/Y" }}</span>{% endif %}
+                {% if pedido.enviado_em %}<span class="texto-fraco num">enviado {{ pedido.enviado_em|date:"d/m/Y" }}</span>{% endif %}
+              </div>
+            </div>
+            {% if pedido.arquivo %}
+            <form method="post" action="{% url 'relacionamento:documento_conferir' pedido.pk %}">
+              {% csrf_token %}
+              <select name="status" style="max-width:190px">
+                <option value="REC" {% if pedido.status == 'REC' %}selected{% endif %}>Em conferência</option>
+                <option value="VAL" {% if pedido.status == 'VAL' %}selected{% endif %}>Validado</option>
+                <option value="RECU" {% if pedido.status == 'RECU' %}selected{% endif %}>Precisa reenviar</option>
+              </select>
+              <input type="text" name="observacao_equipe" value="{{ pedido.observacao_equipe }}" placeholder="observação" style="max-width:200px">
+              <button class="btn btn-p" type="submit">Salvar</button>
+            </form>
+            {% endif %}
+          </div>
+        </li>
+        {% empty %}
+        <li class="vazio">Nenhum documento solicitado.</li>
+        {% endfor %}
+      </ul>
+      <div class="cartao-rodape">
+        <details {% if form_solicitacao.errors %}open{% endif %}>
+          <summary>Solicitar documento</summary>
+          <form method="post" action="{% url 'relacionamento:documento_solicitar' gestao.pk %}">
+            {% csrf_token %}
+            {% include "partials/form_grid.html" with form=form_solicitacao %}
+            <div class="form-acoes"><button class="btn" type="submit">Solicitar</button></div>
+          </form>
+        </details>
+      </div>
+    </section>
+
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Conversa</h2></header>
+      {% if mensagens %}
+      <div class="conversa">
+        {% for mensagem in mensagens %}
+        <div class="balao {% if mensagem.da_equipe %}minha{% else %}deles{% endif %}">
+          <div class="quem">{{ mensagem.autor.get_full_name|default:mensagem.autor.username }} · {{ mensagem.criado_em|date:"d/m/Y H:i" }}</div>
+          <div class="texto">{{ mensagem.texto }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="vazio">Nenhuma mensagem trocada.</div>
+      {% endif %}
+      <div class="cartao-rodape">
+        <form method="post" action="{% url 'relacionamento:responder' gestao.pk %}">
+          {% csrf_token %}
+          {% include "partials/form_grid.html" with form=form_mensagem %}
+          <div class="form-acoes"><button class="btn btn-primario" type="submit">Responder</button></div>
+        </form>
+      </div>
+    </section>
+
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Ações em aberto</h2><span class="texto-fraco">o cliente acompanha cada passo</span></header>
+      <ul class="lista">
+        {% for acao in acoes %}
+        <li>
+          <div class="linha-flex topo">
+            <span class="titulo">{{ acao.descricao }}</span>
+            <span class="etiqueta {{ acao.cor_status|badge_cor }}">{% if acao.atrasada %}Atrasada{% else %}{{ acao.get_status_display }}{% endif %}</span>
+          </div>
+          <div class="texto-fraco">{{ acao.get_risco_display }}{% if acao.setor %} · {{ acao.setor }}{% endif %}{% if acao.prazo %} · prazo {{ acao.prazo|date:"d/m/Y" }}{% endif %}{% if acao.responsavel_empresa %} · {{ acao.responsavel_empresa }}{% endif %}</div>
+          <details>
+            <summary>Registrar passo</summary>
+            <form method="post" action="{% url 'gestao:acao_evento' acao.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <div class="campos">
+                <div class="campo"><label>O que aconteceu</label><input type="text" name="descricao" placeholder="Orçamento do enclausuramento aprovado"></div>
+                <div class="campo"><label>Status</label>
+                  <select name="status">
+                    {% for valor, rotulo in status_acao %}<option value="{{ valor }}" {% if valor == acao.status %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-acoes"><button class="btn btn-p" type="submit">Salvar</button></div>
+            </form>
+          </details>
+          {% if acao.eventos.all %}
+          <ul style="list-style:none;padding:0;margin:8px 0 0">
+            {% for evento in acao.eventos.all|slice:":3" %}
+            <li class="texto-fraco num" style="padding:2px 0">{{ evento.data|date:"d/m/Y" }} · {{ evento.descricao }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </li>
+        {% empty %}
+        <li class="vazio">Nenhuma ação em aberto.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <aside>
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Visitas e reuniões</h2></header>
+      <ul class="lista">
+        {% for reuniao in reunioes %}
+        <li>
+          <div class="linha-flex topo">
+            <span class="titulo">{{ reuniao.titulo }}</span>
+            <span class="texto-fraco num" style="white-space:nowrap">{{ reuniao.quando|date:"d/m H:i" }}</span>
+          </div>
+          <div class="chips" style="margin-top:4px">
+            <span class="etiqueta etiqueta--cinza">{{ reuniao.get_tipo_display }}</span>
+            <span class="etiqueta {{ reuniao.cor|badge_cor }}">{{ reuniao.get_status_display }}</span>
+            {% if not reuniao.visivel_cliente %}<span class="texto-fraco">interna</span>{% endif %}
+          </div>
+        </li>
+        {% empty %}
+        <li class="vazio">Nenhuma visita registrada.</li>
+        {% endfor %}
+      </ul>
+      <div class="cartao-rodape">
+        <details {% if form_reuniao.errors %}open{% endif %}>
+          <summary>Agendar visita ou reunião</summary>
+          <form method="post" action="{% url 'relacionamento:reuniao_nova' gestao.pk %}">
+            {% csrf_token %}
+            {% include "partials/form_grid.html" with form=form_reuniao %}
+            <div class="form-acoes"><button class="btn" type="submit">Salvar</button></div>
+          </form>
+        </details>
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% load static %}<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{{ APP_NOME }}{% endblock %}</title>
+  {% include "partials/fontes.html" %}
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/sst360.css' %}">
+  <link rel="icon" type="image/png" href="{% static 'img/razach/razach-simbolo-gradiente.png' %}">
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js" defer></script>
+</head>
+<body>
+{% if user.is_authenticated and user.is_interno %}
+<div class="app">
+  <aside class="barra-lateral">
+    <div class="marca">
+      <a class="marca-linha" href="{% url 'core:dashboard' %}" style="text-decoration:none">
+        <img src="{% static 'img/razach/razach-simbolo-claro.png' %}" alt="" width="30" height="30">
+        <span class="wordmark marca-nome">{{ APP_NOME }}</span>
+      </a>
+      <div class="marca-area">Painel interno · SST</div>
+    </div>
+
+    <div class="grupo-nav">01 · Gestão</div>
+    <a class="item-nav {% if secao == 'painel' %}ativo{% endif %}" href="{% url 'core:dashboard' %}"><span>Painel</span></a>
+    <a class="item-nav {% if secao == 'indicadores' %}ativo{% endif %}" href="{% url 'core:indicadores' %}"><span>Indicadores</span></a>
+    <a class="item-nav {% if secao == 'gestao' %}ativo{% endif %}" href="{% url 'gestao:lista' %}"><span>Gestões de SST</span></a>
+    <a class="item-nav {% if secao == 'prazos' %}ativo{% endif %}" href="{% url 'gestao:agenda' %}">
+      <span>Prazos</span>
+      {% if prazos_atrasados %}<span class="contagem alerta">{{ prazos_atrasados }}</span>{% endif %}
+    </a>
+    <a class="item-nav {% if secao == 'vencimentos' %}ativo{% endif %}" href="{% url 'gestao:vencimentos' %}">
+      <span>Vencimentos</span>
+      {% if vencimentos_total %}<span class="contagem">{{ vencimentos_total }}</span>{% endif %}
+    </a>
+    <a class="item-nav {% if secao == 'empresas' %}ativo{% endif %}" href="{% url 'empresas:lista' %}"><span>Empresas</span></a>
+
+    <div class="grupo-nav">02 · Captação</div>
+    <a class="item-nav {% if secao == 'funil' %}ativo{% endif %}" href="{% url 'crm:funil' %}"><span>Funil</span></a>
+    <a class="item-nav {% if secao == 'diagnosticos' %}ativo{% endif %}" href="{% url 'crm:diagnosticos' %}">
+      <span>Diagnósticos</span>
+      {% if diagnosticos_abertos %}<span class="contagem">{{ diagnosticos_abertos }}</span>{% endif %}
+    </a>
+    <a class="item-nav {% if secao == 'leads' %}ativo{% endif %}" href="{% url 'crm:lista' %}">
+      <span>Leads</span>
+      {% if leads_atrasados_total %}<span class="contagem alerta">{{ leads_atrasados_total }}</span>{% endif %}
+    </a>
+    <a class="item-nav {% if secao == 'vendas' %}ativo{% endif %}" href="{% url 'vendas:lista' %}"><span>Vendas</span></a>
+    <a class="item-nav {% if secao == 'fap' %}ativo{% endif %}" href="{% url 'gestao:fap_carteira' %}"><span>FAP dos clientes</span></a>
+
+    <div class="rodape">
+      <div class="usuario">{{ user.get_full_name|default:user.username }}</div>
+      {% if user.is_staff %}<a href="/admin/">Administração</a>{% endif %}
+      <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
+        <button class="sair" type="submit">Sair</button>
+      </form>
+      <div class="tecnologia">
+        <div class="rotulo-mono">Tecnologia</div>
+        <img src="{% static 'img/razach/razach-combinado-claro.png' %}" alt="Razach Technology" width="112" height="31">
+      </div>
+    </div>
+  </aside>
+
+  <main class="conteudo">
+    {% include "partials/messages.html" %}
+    {% block conteudo %}{% endblock %}
+  </main>
+</div>
+
+{% elif user.is_authenticated %}
+<div class="portal">
+  <header class="portal-topo">
+    <div class="faixa">
+      <div>
+        <a class="marca-linha" href="{% url 'portal:home' %}" style="text-decoration:none">
+          <img src="{% static 'img/razach/razach-simbolo-claro.png' %}" alt="" width="26" height="26">
+          <span class="wordmark marca-nome">{{ APP_NOME }}</span>
+        </a>
+        <div class="marca-area">{{ user.empresa }}</div>
+      </div>
+      <nav class="portal-nav">
+        <a class="{% if secao == 'inicio' %}ativo{% endif %}" href="{% url 'portal:home' %}">Início</a>
+        <a class="{% if secao == 'plano' %}ativo{% endif %}" href="{% url 'portal:plano' %}">Plano de ação</a>
+        <a class="{% if secao == 'documentos' %}ativo{% endif %}" href="{% url 'portal:documentos' %}">
+          Documentos{% if documentos_pendentes %}<span class="contagem">{{ documentos_pendentes }}</span>{% endif %}
+        </a>
+        <a class="{% if secao == 'treinamentos' %}ativo{% endif %}" href="{% url 'portal:treinamentos' %}">Treinamentos</a>
+        <a class="{% if secao == 'reunioes' %}ativo{% endif %}" href="{% url 'portal:reunioes' %}">Visitas</a>
+        <a class="{% if secao == 'conversa' %}ativo{% endif %}" href="{% url 'portal:conversa' %}">Conversa</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:10px">
+        <details class="sino">
+          <summary>Avisos{% if notificacoes %}<span class="contagem">{{ notificacoes|length }}</span>{% endif %}</summary>
+          <div class="painel">
+            {% for aviso in notificacoes %}
+            <a class="aviso-item {% if aviso.alerta %}alerta{% endif %}" href="{% url aviso.url %}">
+              <div class="texto">{{ aviso.texto }}</div>
+              <div class="quando">{{ aviso.quando }}</div>
+            </a>
+            {% empty %}
+            <div class="vazio">Nenhuma pendência no momento.</div>
+            {% endfor %}
+          </div>
+        </details>
+        <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
+          <button class="sair" type="submit">Sair</button>
+        </form>
+      </div>
+    </div>
+  </header>
+  <main class="portal-conteudo">
+    {% include "partials/messages.html" %}
+    {% block conteudo_portal %}{% block conteudo_cliente %}{% endblock %}{% endblock %}
+  </main>
+  <footer class="portal-rodape">
+    <span>{{ CONSULTORIA_NOME }} · Saúde e segurança do trabalho</span>
+    <span class="assinatura-razach"><span class="rotulo-mono" style="font-size:9.5px">Tecnologia</span>
+      <img src="{% static 'img/razach/razach-combinado-gradiente.png' %}" alt="Razach Technology" width="96" height="26"></span>
+  </footer>
+</div>
+
+{% else %}
+<div class="publico">
+  <div class="cartao-publico">
+    {% include "partials/messages.html" %}
+    {% block conteudo_publico %}{% endblock %}
+  </div>
+</div>
+{% endif %}
+</body>
+</html>

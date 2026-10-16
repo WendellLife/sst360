@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% load sst_extras l10n %}
+{% block titulo %}Minha gestão de SST - {{ APP_NOME }}{% endblock %}
+{% block conteudo_cliente %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Portal do cliente{% if gestao %} · {{ gestao.codigo }}{% endif %}</div>
+    <h1>Olá, {{ user.first_name|default:user.username }}</h1>
+    <p class="subtitulo">Gestão de saúde e segurança do trabalho de {{ empresa }}.</p>
+  </div>
+</div>
+
+{% if gestao %}
+<div class="faixa-passo">
+  <div class="conteudo-passo">
+    <div class="rotulo">Próximo passo</div>
+    <div class="texto">
+      {% if documento_pendente %}
+        Enviar “{{ documento_pendente.titulo }}”{% if documento_pendente.prazo %} até {{ documento_pendente.prazo|date:"d/m/Y" }}{% endif %}
+      {% elif proximo_prazo %}
+        {{ proximo_prazo.titulo }} · até {{ proximo_prazo.data_fim|date:"d/m/Y" }}
+      {% else %}
+        Nenhuma pendência. A equipe segue com o acompanhamento {{ gestao.get_modelo_display|lower }}.
+      {% endif %}
+    </div>
+  </div>
+  {% if documento_pendente %}
+  <a class="btn btn-primario" href="{% url 'portal:documentos' %}">Enviar agora</a>
+  {% else %}
+  <a class="btn btn-primario" href="{% url 'portal:plano' %}">Ver plano de ação</a>
+  {% endif %}
+</div>
+
+<section class="cartao">
+  <div class="cartao-corpo">
+    <div class="linha-flex" style="align-items:baseline;flex-wrap:wrap">
+      <h2 style="font-size:17px">Método de implantação</h2>
+      <div class="rotulo-mono">Etapa {{ gestao.etapa_numero }} de 12</div>
+    </div>
+    <div class="metodo-trilha">
+      {% for etapa in trilha %}
+      <div class="etapa {% if etapa.concluida %}concluida{% endif %} {% if etapa.atual %}atual{% endif %}" title="{{ etapa.nome }}">
+        <div class="marca"></div>
+        <div class="nome">{{ etapa.numero|stringformat:"02d" }} · {{ etapa.nome }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if etapa_info %}
+    <div class="grade grade-2" style="margin-top:18px;gap:12px">
+      <div class="etapa-metodo acesa">
+        <div class="cabeca"><span class="numero">{{ etapa_info.numero|stringformat:"02d" }}</span><span class="fase">Agora · {{ etapa_info.fase }}</span></div>
+        <h3>{{ etapa_info.titulo }}</h3>
+        <p>{{ etapa_info.desc }}</p>
+        <div class="entrega"><strong>Entrega</strong>{{ etapa_info.entrega }}</div>
+      </div>
+      {% if proxima_etapa %}
+      <div class="etapa-metodo">
+        <div class="cabeca"><span class="numero" style="color:var(--tinta-fraca)">{{ proxima_etapa.numero|stringformat:"02d" }}</span><span class="fase">Depois · {{ proxima_etapa.fase }}</span></div>
+        <h3>{{ proxima_etapa.titulo }}</h3>
+        <p>{{ proxima_etapa.desc }}</p>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<div class="kpis" style="margin-top:18px">
+  <div class="kpi">
+    <div class="rotulo">Documentos vigentes</div>
+    <div class="valor">{{ ind.documentos_vigentes }}<span class="texto-fraco" style="font-size:15px"> / {{ ind.documentos_total }}</span></div>
+    <div class="sub">{% if ind.documentos_a_vencer %}{{ ind.documentos_a_vencer }} em revisão próxima{% else %}PGR, PCMSO, LTCAT e laudos{% endif %}</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Plano de ação</div>
+    <div class="valor">{{ ind.acoes_percentual }}%</div>
+    <div class="barra-progresso {% if ind.acoes_percentual == 100 %}completo{% endif %}"><span style="width:{{ ind.acoes_percentual }}%"></span></div>
+    <div class="sub" style="margin-top:6px">{{ ind.acoes_encerradas }} de {{ ind.acoes_total }} ações concluídas</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Pessoas treinadas</div>
+    <div class="valor">{{ ind.pessoas_treinadas }}</div>
+    <div class="sub">{{ ind.treinamentos_total }} turma(s) realizada(s)</div>
+  </div>
+  {% if gestao.fap_atual %}
+  <div class="kpi">
+    <div class="rotulo">FAP vigente</div>
+    <div class="valor num" style="font-size:24px">{{ gestao.fap_atual|fap }}</div>
+    <div class="sub">{% if fap_vigente %}<span class="etiqueta {{ fap_vigente.c.nivel.cor|badge_cor }}">{{ fap_vigente.c.nivel.rotulo }}</span> · {% endif %}meta {{ gestao.fap_meta|fap }}</div>
+  </div>
+  {% endif %}
+</div>
+
+{% if fap_destaque %}{% with f=fap_destaque c=fap_destaque.c %}
+<section class="cartao fap-cartao" style="margin-bottom:18px">
+  <header class="cartao-cab"><h2>Seu FAP {{ f.vigencia }}</h2><span class="etiqueta {{ c.nivel.cor|badge_cor }}">Nível: {{ c.nivel.rotulo }}</span></header>
+  <div class="fap-resumo">
+    <div class="fap-principal">
+      <div class="fap-numero num">{{ c.fap|fap }}</div>
+      <div class="fap-regua">
+        <div class="faixas"><span class="bonus"></span><span class="malus"></span></div>
+        <span class="marcador" style="left:{{ fap_pos|unlocalize }}%"></span>
+        {% if fap_pos_meta is not None %}<span class="marcador meta" style="left:{{ fap_pos_meta|unlocalize }}%" title="Meta {{ gestao.fap_meta|fap }}"></span>{% endif %}
+        <div class="legenda num"><span>0,5000<span class="so-largo"> · bônus</span></span><span style="left:33.3%">1,0000</span><span>2,0000<span class="so-largo"> · malus</span></span></div>
+      </div>
+      <p class="texto-suave" style="margin:10px 0 0">{{ c.nivel.explicacao }}</p>
+    </div>
+    <dl class="fap-metricas">
+      <div><dt>Grau do RAT</dt><dd>{{ f.get_grau_rat_display }}</dd></div>
+      {% if c.ic is not None %}<div><dt>Pontuação</dt><dd class="num">{{ c.ic|fap }} <span class="texto-fraco">· {{ c.pontos|num_br }} de 100</span></dd></div>{% endif %}
+      <div><dt>RAT que a empresa paga</dt><dd class="num">{% if c.rat_ajustado is not None %}{{ c.rat_ajustado|num_br:4 }}% da folha{% else %}—{% endif %}</dd></div>
+      {% if c.diferenca_neutro_anual %}<div><dt>Frente ao FAP neutro</dt><dd class="num">{% if c.diferenca_neutro_anual > 0 %}<span class="positivo">economia de {{ c.diferenca_neutro_anual|moeda }}/ano</span>{% else %}<span class="destaque-alerta">acréscimo de {{ c.diferenca_neutro_anual|absoluto|moeda }}/ano</span>{% endif %}</dd></div>{% endif %}
+      {% if fap_economia_meta %}<div><dt>Ao atingir a meta {{ gestao.fap_meta|fap }}</dt><dd class="num positivo">mais {{ fap_economia_meta|moeda }}/ano</dd></div>{% endif %}
+    </dl>
+  </div>
+</section>
+{% endwith %}{% endif %}
+
+{% if alertas_documentos %}
+<div class="aviso aviso--warning" style="margin-bottom:18px">
+  <strong>Revisão de documento:</strong>
+  {% for documento in alertas_documentos %}{{ documento.sigla }} · {{ documento.situacao_rotulo|lower }}{% if not forloop.last %}; {% endif %}{% endfor %}.
+  A equipe técnica já tem a revisão na agenda.
+</div>
+{% endif %}
+
+<div class="grade grade-2-1">
+  <section class="cartao">
+    <header class="cartao-cab">
+      <h2>O que foi feito</h2>
+      <a href="{% url 'portal:gestao' gestao.pk %}">linha do tempo completa</a>
+    </header>
+    <div class="cartao-corpo">
+      <ul class="feed">
+        {% for registro in registros %}
+        <li>
+          <span class="ponto"></span>
+          <div>
+            <div class="titulo">{{ registro.titulo }}</div>
+            <div class="sub">{{ registro.data|date:"d/m/Y" }} · {{ registro.get_tipo_display }}</div>
+            {% if registro.descricao %}<div class="texto-suave" style="margin-top:4px;white-space:pre-line">{{ registro.descricao }}</div>{% endif %}
+          </div>
+        </li>
+        {% empty %}
+        <li style="display:block"><div class="vazio">Nenhum registro publicado ainda.</div></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+  <aside>
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Próximos prazos</h2></header>
+      <ul class="lista">
+        {% for prazo in prazos %}
+        <li>
+          <div class="linha-flex topo">
+            <span class="titulo">{{ prazo.titulo }}</span>
+            <span class="etiqueta {{ prazo.cor|badge_cor }} num">{{ prazo.data_fim|date:"d/m/Y" }}</span>
+          </div>
+          <div class="texto-fraco">{{ prazo.base_legal|default:prazo.get_tipo_display }}</div>
+        </li>
+        {% empty %}
+        <li class="vazio">Nenhum prazo em aberto.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    {% if proxima_reuniao %}
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Próxima visita</h2></header>
+      <div class="cartao-corpo">
+        <div class="reuniao">
+          <div class="quando-bloco">
+            <div class="dia">{{ proxima_reuniao.quando|date:"d" }}</div>
+            <div class="mes">{{ proxima_reuniao.quando|date:"M" }}</div>
+          </div>
+          <div class="corpo">
+            <div class="titulo" style="font-weight:600">{{ proxima_reuniao.titulo }}</div>
+            <div class="texto-fraco num">{{ proxima_reuniao.get_tipo_display }} · {{ proxima_reuniao.quando|date:"H:i" }}</div>
+            {% if proxima_reuniao.local %}<div class="texto-suave">{{ proxima_reuniao.local }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Equipe técnica</h2></header>
+      <div class="cartao-corpo">
+        <dl class="dl">
+          <div><dt>Responsável técnico</dt><dd>{{ gestao.responsavel_tecnico|default:"—" }}</dd></div>
+          <div><dt>Médico coordenador</dt><dd>{{ gestao.medico_coordenador|default:"—" }}</dd></div>
+          <div><dt>Acompanhamento</dt><dd>{{ gestao.get_modelo_display }}{% if gestao.responsavel %} · {{ gestao.responsavel.get_full_name|default:gestao.responsavel.username }}{% endif %}</dd></div>
+        </dl>
+        <a class="btn btn-p" style="margin-top:14px" href="{% url 'portal:conversa' %}">Falar com a equipe</a>
+      </div>
+    </section>
+  </aside>
+</div>
+{% else %}
+<div class="cartao"><div class="vazio">
+  <p>A gestão de SST da sua empresa ainda não foi cadastrada.</p>
+  <p class="texto-fraco">Assim que o contrato começar, o acompanhamento aparece aqui.</p>
+</div></div>
+{% endif %}
+{% endblock %}

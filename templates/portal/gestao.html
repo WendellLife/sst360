@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Linha do tempo - {{ APP_NOME }}{% endblock %}
+{% block conteudo_cliente %}
+<a class="voltar" href="{% url 'portal:home' %}">← Início</a>
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Gestão {{ gestao.codigo }} · desde {{ gestao.inicio|date:"d/m/Y" }}</div>
+    <h1>Linha do tempo</h1>
+    <p class="subtitulo">Visitas, inspeções, entregas de documentos, treinamentos e envios ao eSocial, em ordem.</p>
+  </div>
+  <span class="etiqueta {{ gestao.cor_etapa|badge_cor }}">Etapa {{ gestao.etapa }} · {{ gestao.get_etapa_display }}</span>
+</div>
+
+<section class="cartao">
+  <ul class="linha-tempo">
+    {% for registro in registros %}
+    <li>
+      <div class="topo">
+        <span class="titulo">{{ registro.titulo }}</span>
+        <span class="quando">{{ registro.data|date:"d/m/Y" }}</span>
+      </div>
+      <div class="meta">{{ registro.get_tipo_display }}</div>
+      {% if registro.descricao %}<div class="texto">{{ registro.descricao }}</div>{% endif %}
+    </li>
+    {% empty %}
+    <li class="vazio">Nenhum registro publicado ainda.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

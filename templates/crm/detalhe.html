@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}{{ lead }} - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<a class="voltar" href="{% url 'crm:funil' %}">← Funil</a>
+
+<div class="cabecalho topo">
+  <div>
+    <div class="sobretitulo">Lead</div>
+    <h1>{{ lead }}</h1>
+    <div class="texto-fraco">{{ lead.razao_social }} · {{ lead.get_situacao_sst_display }}</div>
+    {% if lead.urgencia != 'NA' %}<span class="etiqueta {{ lead.cor_urgencia|badge_cor }}" style="margin-top:8px;display:inline-block">{{ lead.get_urgencia_display }}</span>{% endif %}
+  </div>
+  <div class="acoes">
+    <a class="btn" href="{% url 'crm:editar' lead.pk %}">Editar</a>
+    {% if not lead.empresa %}
+    <form method="post" action="{% url 'crm:converter' lead.pk %}">{% csrf_token %}
+      <button class="btn btn-primario" type="submit">Converter em cliente</button>
+    </form>
+    {% else %}
+    <a class="btn btn-escuro" href="{{ lead.empresa.get_absolute_url }}">Ver empresa</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grade grade-2-1">
+  <section class="cartao">
+    <header class="cartao-cab"><h2>Atividades</h2></header>
+    <ul class="linha-tempo">
+      {% for atividade in atividades %}
+      <li>
+        <div class="topo">
+          <span class="titulo">{{ atividade.titulo }}</span>
+          <span class="quando num">{{ atividade.data|date:"d/m/Y" }}</span>
+        </div>
+        <div class="meta">{{ atividade.get_tipo_display }} · {{ atividade.autor|default:"—" }}</div>
+        {% if atividade.descricao %}<div class="texto">{{ atividade.descricao }}</div>{% endif %}
+      </li>
+      {% empty %}
+      <li class="vazio">Nenhuma atividade registrada.</li>
+      {% endfor %}
+    </ul>
+    <div class="cartao-rodape">
+      <form method="post" action="{% url 'crm:atividade_nova' lead.pk %}">
+        {% csrf_token %}
+        {% include "partials/form_grid.html" with form=form_atividade %}
+        <div class="form-acoes"><button class="btn" type="submit">Registrar atividade</button></div>
+      </form>
+    </div>
+  </section>
+
+  <aside>
+    <section class="cartao"><div class="cartao-corpo">
+      <div class="sobretitulo" style="margin-bottom:12px">01 · Dados</div>
+      <dl class="dl">
+        <div><dt>Contato</dt><dd>{{ lead.contato_nome|default:"—" }} {{ lead.contato_cargo }}</dd></div>
+        <div><dt>E-mail / telefone</dt><dd>{{ lead.contato_email }} {{ lead.contato_telefone }}</dd></div>
+        <div><dt>Origem</dt><dd>{{ lead.get_origem_display }}</dd></div>
+        <div><dt>Setor</dt><dd>{{ lead.setor|default:"—" }}</dd></div>
+        <div><dt>Trabalhadores / grau de risco</dt><dd>{{ lead.num_trabalhadores|default:"—" }}{% if lead.grau_risco %} · {{ lead.get_grau_risco_display }}{% endif %}</dd></div>
+        <div><dt>Serviço de interesse</dt><dd>{{ lead.get_servico_interesse_display }}</dd></div>
+        <div><dt>Valor mensal estimado</dt><dd class="num">{{ lead.valor_estimado|moeda }}</dd></div>
+        <div><dt>Próximo contato</dt><dd class="num">{{ lead.proximo_contato|date:"d/m/Y"|default:"—" }}</dd></div>
+      </dl>
+    </div></section>
+
+    <section class="cartao"><div class="cartao-corpo">
+      <div class="sobretitulo" style="margin-bottom:10px">02 · Mover para</div>
+      <form method="post" action="{% url 'crm:mover' lead.pk %}" style="display:flex;gap:8px">
+        {% csrf_token %}
+        <select name="estagio" style="max-width:none">
+          {% for valor, rotulo in estagios %}<option value="{{ valor }}" {% if lead.estagio == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+        </select>
+        <button class="btn" type="submit">Ok</button>
+      </form>
+    </div></section>
+
+    {% if lead.observacoes %}
+    <section class="cartao"><div class="cartao-corpo">
+      <div class="sobretitulo" style="margin-bottom:8px">03 · Observações</div>
+      <p class="texto-suave" style="white-space:pre-line;margin:0">{{ lead.observacoes }}</p>
+    </div></section>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

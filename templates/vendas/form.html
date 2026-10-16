@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}{% if object %}Editar venda{% else %}Nova venda{% endif %} - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+{% if empresa %}
+<a class="voltar" href="{{ empresa.get_absolute_url }}">← {{ empresa }}</a>
+{% else %}
+<a class="voltar" href="{% url 'vendas:lista' %}">← Vendas</a>
+{% endif %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Comercial{% if empresa %} · {{ empresa }}{% endif %}</div>
+    <h1>{% if object %}Editar venda{% else %}Registrar venda de serviço{% endif %}</h1>
+    <p class="subtitulo">Lance o serviço vendido para a empresa. O total é quantidade × valor unitário; vendas mensais entram na receita recorrente.</p>
+  </div>
+</div>
+<div class="cartao"><div class="cartao-corpo">
+  <form method="post">
+    {% csrf_token %}
+    {% if request.GET.next %}<input type="hidden" name="next" value="{{ request.GET.next }}">{% endif %}
+    {% include "partials/form_grid.html" with form=form %}
+    <div class="form-acoes">
+      <button class="btn btn-primario" type="submit">Salvar venda</button>
+      <a class="btn-texto" href="{% if empresa %}{{ empresa.get_absolute_url }}{% else %}{% url 'vendas:lista' %}{% endif %}">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

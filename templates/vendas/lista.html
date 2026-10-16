@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Vendas - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Comercial</div>
+    <h1>Vendas de serviços</h1>
+    <p class="subtitulo">Lançamentos manuais por empresa atendida: avulsos, aditivos e recorrentes.</p>
+  </div>
+  <div class="acoes">
+    <a class="btn btn-primario" href="{% url 'vendas:nova' %}">Nova venda</a>
+  </div>
+</div>
+
+<form method="get" class="filtros">
+  <label class="filtro-data">De <input type="date" name="de" value="{{ de|date:'Y-m-d' }}"></label>
+  <label class="filtro-data">até <input type="date" name="ate" value="{{ ate|date:'Y-m-d' }}"></label>
+  <input class="busca" type="search" name="q" value="{{ q }}" placeholder="Empresa ou descrição">
+  <select name="servico">
+    <option value="">Todos os serviços</option>
+    {% for valor, rotulo in servicos %}<option value="{{ valor }}" {% if servico_atual == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+  </select>
+  <select name="status">
+    <option value="">Todos os status</option>
+    {% for valor, rotulo in status_opcoes %}<option value="{{ valor }}" {% if status_atual == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+</form>
+
+<div class="kpis">
+  <div class="kpi destaque">
+    <div class="rotulo">Vendido no período</div>
+    <div class="valor" style="font-size:24px">{{ tot.total|moeda }}</div>
+    <div class="sub">{{ tot.quantidade }} venda(s){% if tot.canceladas %} · {{ tot.canceladas }} cancelada(s){% endif %}</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Recebido</div>
+    <div class="valor" style="font-size:24px">{{ tot.recebido|moeda }}</div>
+    <div class="sub">status recebida</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">A receber</div>
+    <div class="valor" style="font-size:24px">{{ tot.a_receber|moeda }}</div>
+    <div class="sub">fechadas e faturadas</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Recorrente</div>
+    <div class="valor" style="font-size:24px">{{ tot.recorrente|moeda }}</div>
+    <div class="sub">por mês, vendas mensais</div>
+  </div>
+</div>
+
+<div class="grade grade-2-1">
+  <div class="tabela">
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Empresa / venda</th><th>Serviço</th><th class="direita">Total</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for venda in vendas %}
+        <tr{% if not venda.ativa %} class="linha-cancelada"{% endif %}>
+          <td class="num">{{ venda.data|date:"d/m/Y" }}</td>
+          <td>
+            <a class="principal" href="{{ venda.empresa.get_absolute_url }}">{{ venda.empresa }}</a>
+            <div class="apoio"><a href="{% url 'vendas:editar' venda.pk %}?next={{ request.get_full_path|urlencode }}">{{ venda.descricao }}</a>{% if venda.vendedor %} · {{ venda.vendedor.get_full_name|default:venda.vendedor.username }}{% endif %}</div>
+          </td>
+          <td class="texto-suave">{{ venda.get_servico_display }}</td>
+          <td class="num direita">{{ venda.total|moeda }}<div class="apoio">{% if venda.quantidade > 1 %}{{ venda.quantidade }} × {{ venda.valor_unitario|moeda }} · {% endif %}{% if venda.cobranca == 'MEN' %}/mês{% else %}único{% endif %}</div></td>
+          <td>
+            <form method="post" action="{% url 'vendas:status' venda.pk %}" class="status-venda">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <span class="etiqueta {{ venda.cor|badge_cor }}">{{ venda.get_status_display }}</span>
+              <select name="status" onchange="this.form.submit()" aria-label="Alterar status">
+                {% for valor, rotulo in status_opcoes %}<option value="{{ valor }}" {% if venda.status == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+              </select>
+              <noscript><button class="btn btn-pequeno" type="submit">Ok</button></noscript>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="vazio">Nenhuma venda no período. <a href="{% url 'vendas:nova' %}">Registrar uma venda</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <section class="cartao">
+    <header class="cartao-cab"><h2>Por serviço</h2><span class="texto-fraco">{{ de|date:"d/m" }} a {{ ate|date:"d/m/Y" }}</span></header>
+    <ul class="lista">
+      {% for item in por_servico %}
+      <li class="barra-servico">
+        <div class="linha-flex"><span>{{ item.rotulo }}</span><span class="num">{{ item.total|moeda }}</span></div>
+        <div class="trilho"><span style="width:{{ item.percentual }}%"></span></div>
+        <div class="apoio texto-fraco">{{ item.qtd }} venda(s)</div>
+      </li>
+      {% empty %}
+      <li class="vazio">Sem vendas para agrupar.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% include "partials/paginacao.html" %}
+{% endblock %}

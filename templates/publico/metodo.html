@@ -1,0 +1,38 @@
+{% extends "publico/base_site.html" %}
+{% load static %}
+{% block titulo %}Método de implantação · {{ APP_NOME }}{% endblock %}
+{% block conteudo_site %}
+<section class="site-secao">
+  <div class="sobretitulo">Método de implantação</div>
+  <h1 class="titulo-secao" style="font-size:40px">Doze etapas para uma operação de SST que funciona.</h1>
+  <p class="subtitulo-secao">Estruturação, operação e consolidação. Cada etapa tem uma entrega concreta, registrada no portal do cliente com data e responsável.</p>
+
+  <div class="metodo-controles">
+    <div>
+      <div class="resumo" data-metodo-resumo>Doze etapas · Estruturação, operação e consolidação</div>
+      <div class="metodo-barra"><span data-metodo-barra></span></div>
+    </div>
+    <button class="btn btn-primario" type="button" data-metodo-botao hidden>Percorrer o método</button>
+  </div>
+
+  <div class="etapas-metodo" data-metodo>
+    {% for etapa in etapas %}
+    <div class="etapa-metodo" data-titulo="{{ etapa.titulo }}">
+      <div class="cabeca"><span class="numero">{{ etapa.numero|stringformat:"02d" }}</span><span class="fase">{{ etapa.fase }}</span></div>
+      <h3>{{ etapa.titulo }}</h3>
+      <p>{{ etapa.desc }}</p>
+      <div class="entrega"><strong>Entrega</strong>{{ etapa.entrega }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="selo-final" data-metodo-luz>Cultura de segurança implementada</div>
+
+  <div class="chamada-final" style="margin-top:48px">
+    <div class="sobretitulo" style="color:var(--ciano-artico)">Etapa 01</div>
+    <h2>O método começa pelo diagnóstico.</h2>
+    <p>Dezesseis perguntas para medir a exposição da empresa. A equipe técnica retorna com a leitura e a proposta de acompanhamento.</p>
+    <a class="btn btn-primario btn-grande" href="{% url 'publico:quiz' %}">Fazer o diagnóstico gratuito</a>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/metodo.js' %}" defer></script>{% endblock %}

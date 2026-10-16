@@ -1,0 +1,13 @@
+{% if is_paginated %}
+<nav class="paginacao">
+  <span>Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+  <div class="links">
+    {% if page_obj.has_previous %}
+      <a class="btn btn-p" href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.previous_page_number }}">anterior</a>
+    {% endif %}
+    {% if page_obj.has_next %}
+      <a class="btn btn-p" href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.next_page_number }}">próxima</a>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}

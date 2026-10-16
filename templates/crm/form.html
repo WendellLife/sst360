@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block titulo %}{% if object %}Editar lead{% else %}Novo lead{% endif %}{% endblock %}
+{% block conteudo %}
+<a class="voltar" href="{% url 'crm:funil' %}">← Funil</a>
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Captação</div>
+    <h1>{% if object %}Editar {{ object }}{% else %}Novo lead{% endif %}</h1>
+  </div>
+</div>
+<div class="cartao"><div class="cartao-corpo">
+  <form method="post">
+    {% csrf_token %}
+    {% include "partials/form_grid.html" with form=form %}
+    <div class="form-acoes">
+      <button class="btn btn-primario" type="submit">Salvar</button>
+      <a class="btn-texto" href="{% url 'crm:funil' %}">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

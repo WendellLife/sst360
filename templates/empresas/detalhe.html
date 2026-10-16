@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load sst_extras l10n %}
+{% block titulo %}{{ empresa }} - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<a class="voltar" href="{% url 'empresas:lista' %}">← Empresas</a>
+
+<div class="cabecalho topo">
+  <div>
+    <div class="sobretitulo">Empresa</div>
+    <h1>{{ empresa }}</h1>
+    <div class="texto-fraco">{{ empresa.razao_social }} · <span class="dado">{{ empresa.cnpj|cnpj }}</span> · {{ empresa.get_porte_display }}</div>
+  </div>
+  <div class="acoes">
+    <a class="btn" href="{% url 'empresas:editar' empresa.pk %}">Editar</a>
+    <a class="btn" href="{% url 'vendas:nova' %}?empresa={{ empresa.pk }}&next={{ request.path|urlencode }}%23vendas">Nova venda</a>
+    <a class="btn btn-primario" href="{% url 'gestao:nova' %}?empresa={{ empresa.pk }}">Nova gestão de SST</a>
+  </div>
+</div>
+
+<div class="grade grade-2-1">
+  <div>
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Gestões de SST</h2></header>
+      <ul class="lista">
+        {% for gestao in gestoes %}
+        <li class="linha-flex">
+          <div>
+            <a class="dado" href="{{ gestao.get_absolute_url }}">{{ gestao.codigo }}</a>
+            <div class="texto-fraco">{{ gestao.get_modelo_display }} · desde {{ gestao.inicio|date:"d/m/Y" }}{% if gestao.encerrado_em %} · encerrada em {{ gestao.encerrado_em|date:"d/m/Y" }}{% endif %}</div>
+          </div>
+          <span class="etiqueta {{ gestao.cor_etapa|badge_cor }}">{{ gestao.etapa }} · {{ gestao.get_etapa_display }}</span>
+        </li>
+        {% empty %}
+        <li class="vazio">Nenhuma gestão cadastrada para esta empresa.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="cartao" id="vendas">
+      <header class="cartao-cab">
+        <h2>Vendas de serviços</h2>
+        <span class="texto-fraco">{{ totais_vendas.quantidade }} venda(s) · <span class="num">{{ totais_vendas.total|moeda }}</span>{% if totais_vendas.recorrente %} · <span class="num">{{ totais_vendas.recorrente|moeda }}</span>/mês recorrente{% endif %}</span>
+      </header>
+      {% if vendas %}
+      <div class="mini-kpis">
+        <div><span class="rotulo">Recebido</span><span class="num">{{ totais_vendas.recebido|moeda }}</span></div>
+        <div><span class="rotulo">A receber</span><span class="num">{{ totais_vendas.a_receber|moeda }}</span></div>
+        <div><span class="rotulo">Recorrente</span><span class="num">{{ totais_vendas.recorrente|moeda }}/mês</span></div>
+      </div>
+      {% endif %}
+      <ul class="lista">
+        {% for venda in vendas %}
+        <li class="linha-flex topo venda-item{% if not venda.ativa %} cancelada{% endif %}">
+          <div style="min-width:0">
+            <a href="{% url 'vendas:editar' venda.pk %}?next={{ request.path|urlencode }}%23vendas" style="font-weight:600">{{ venda.descricao }}</a>
+            <div class="texto-fraco">{{ venda.data|date:"d/m/Y" }} · {{ venda.get_servico_display }}{% if venda.quantidade > 1 %} · {{ venda.quantidade }} × {{ venda.valor_unitario|moeda }}{% endif %}{% if venda.gestao %} · {{ venda.gestao.codigo }}{% endif %}{% if venda.vendedor %} · {{ venda.vendedor.get_full_name|default:venda.vendedor.username }}{% endif %}</div>
+          </div>
+          <div class="venda-lado">
+            <div class="num" style="font-weight:600">{{ venda.total|moeda }}<span class="texto-fraco" style="font-weight:400">{% if venda.cobranca == 'MEN' %}/mês{% endif %}</span></div>
+            <form method="post" action="{% url 'vendas:status' venda.pk %}" class="status-venda">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.path }}#vendas">
+              <span class="etiqueta {{ venda.cor|badge_cor }}">{{ venda.get_status_display }}</span>
+              <select name="status" onchange="this.form.submit()" aria-label="Alterar status">
+                {% for valor, rotulo in status_venda %}<option value="{{ valor }}" {% if venda.status == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+              </select>
+            </form>
+          </div>
+        </li>
+        {% empty %}
+        <li class="vazio">Nenhuma venda lançada para esta empresa.</li>
+        {% endfor %}
+      </ul>
+      <div class="cartao-rodape">
+        <details class="nova-venda" {% if not vendas %}open{% endif %}>
+          <summary class="btn btn-primario">Registrar venda de serviço</summary>
+          <form method="post" action="{% url 'vendas:nova' %}" style="margin-top:14px">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}#vendas">
+            <input type="hidden" name="origem" value="empresa">
+            {% include "partials/form_grid.html" with form=form_venda %}
+            <div class="form-acoes"><button class="btn btn-primario" type="submit">Salvar venda</button></div>
+          </form>
+        </details>
+      </div>
+    </section>
+
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Contatos</h2></header>
+      <ul class="lista">
+        {% for contato in contatos %}
+        <li>
+          <div style="font-weight:500">{{ contato.nome }}{% if contato.principal %} <span class="etiqueta etiqueta--verde">principal</span>{% endif %}</div>
+          <div class="texto-fraco">{{ contato.cargo }} · {{ contato.email }} · {{ contato.telefone }}</div>
+        </li>
+        {% empty %}
+        <li class="vazio">Nenhum contato cadastrado.</li>
+        {% endfor %}
+      </ul>
+      <div class="cartao-rodape">
+        <form method="post">
+          {% csrf_token %}
+          {% include "partials/form_grid.html" with form=form_contato %}
+          <div class="form-acoes"><button class="btn" type="submit">Adicionar contato</button></div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <aside>
+    {% for x in faps %}{% with c=x.c g=x.gestao %}
+    <section class="cartao fap-resumo-empresa">
+      <header class="cartao-cab"><h2>FAP{% if x.vigente %} {{ x.vigente.vigencia }}{% endif %}</h2>{% if c %}<span class="etiqueta {{ c.nivel.cor|badge_cor }}">{{ c.nivel.rotulo }}</span>{% endif %}</header>
+      <div class="cartao-corpo">
+        {% if c %}
+        <div class="linha-flex" style="align-items:baseline"><span class="fap-mini num">{{ c.fap|fap }}</span><span class="texto-fraco">{% if g.fap_meta %}meta {{ g.fap_meta|fap }}{% endif %}</span></div>
+        <div class="fap-regua mini" aria-hidden="true"><div class="faixas"><span class="bonus"></span><span class="malus"></span></div><span class="marcador" style="left:{{ c.fap|posicao_fap|unlocalize }}%"></span>{% if g.fap_meta %}<span class="marcador meta" style="left:{{ g.fap_meta|posicao_fap|unlocalize }}%"></span>{% endif %}</div>
+        <dl class="dl" style="margin-top:14px">
+          <div><dt>Grau do RAT / RAT ajustado</dt><dd class="num">{{ x.vigente.grau_rat }}%{% if c.rat_ajustado is not None %} → {{ c.rat_ajustado|num_br:2 }}%{% endif %}</dd></div>
+          <div><dt>Pontuação</dt><dd class="num">{% if c.ic is not None %}{{ c.ic|fap }} · {{ c.pontos|num_br:1 }} de 100{% else %}—{% endif %}</dd></div>
+          {% if c.custo_anual is not None %}<div><dt>Custo do RAT</dt><dd class="num">{{ c.custo_anual|moeda }}/ano</dd></div>{% endif %}
+          {% if x.tendencia %}<div><dt>Tendência</dt><dd><span class="etiqueta {{ x.tendencia.cor|badge_cor }}">{{ x.tendencia.sentido }} {{ x.tendencia.delta|fap_sinal }}</span> <span class="texto-fraco">{{ x.tendencia.de }}→{{ x.tendencia.para }}</span></dd></div>{% endif %}
+          {% if x.potencial %}<div><dt>Economia possível</dt><dd class="num positivo" style="font-weight:600">{{ x.potencial|moeda }}/ano</dd></div>{% endif %}
+        </dl>
+        {% endif %}
+        <p class="fap-argumento" style="margin:12px 0 0;padding:0;border:0">{{ x.argumento }}</p>
+        <div class="form-acoes" style="margin-top:12px">
+          <a class="btn btn-p" href="{{ g.get_absolute_url }}#fap">{% if x.vigente %}Abrir FAP{% else %}Lançar FAP{% endif %}</a>
+          {% if not x.contratado %}<a class="btn btn-p btn-primario" href="{% url 'vendas:nova' %}?empresa={{ empresa.pk }}&servico=FAP&next={{ request.path|urlencode }}%23vendas">Vender redução do FAP</a>{% endif %}
+        </div>
+      </div>
+    </section>
+    {% endwith %}{% endfor %}
+    <section class="cartao"><div class="cartao-corpo">
+      <div class="sobretitulo" style="margin-bottom:12px">01 · Dados</div>
+      <dl class="dl">
+        <div><dt>Situação</dt><dd>{{ empresa.get_situacao_display }}</dd></div>
+        <div><dt>Atividade</dt><dd>{{ empresa.atividade|default:"—" }}{% if empresa.cnae %} · CNAE <span class="dado">{{ empresa.cnae }}</span>{% endif %}</dd></div>
+        <div><dt>Trabalhadores / grau de risco</dt><dd>{{ empresa.num_trabalhadores|default:"—" }}{% if empresa.grau_risco %} · {{ empresa.get_grau_risco_display }}{% endif %}</dd></div>
+        <div><dt>Endereço</dt><dd>{{ empresa.logradouro }} {{ empresa.numero }} {{ empresa.bairro }}<br>{{ empresa.cidade }}{% if empresa.uf %}/{{ empresa.uf }}{% endif %} {{ empresa.cep }}</dd></div>
+        <div><dt>Contato</dt><dd>{{ empresa.telefone }} {{ empresa.email }}</dd></div>
+        <div><dt>Responsável</dt><dd>{{ empresa.responsavel|default:"—" }}</dd></div>
+        <div><dt>Início do contrato</dt><dd class="num">{{ empresa.inicio_contrato|date:"d/m/Y"|default:"—" }}</dd></div>
+      </dl>
+    </div></section>
+    {% if empresa.observacoes %}
+    <section class="cartao"><div class="cartao-corpo">
+      <div class="sobretitulo" style="margin-bottom:8px">02 · Observações</div>
+      <p class="texto-suave" style="white-space:pre-line;margin:0">{{ empresa.observacoes }}</p>
+    </div></section>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

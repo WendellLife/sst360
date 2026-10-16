@@ -1,0 +1,57 @@
+{% load static %}<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{{ APP_NOME }} · Gestão de saúde e segurança do trabalho{% endblock %}</title>
+  <meta name="description" content="{% block descricao %}Gestão integrada de SST: documentos, plano de ação, treinamentos, exames e eSocial num portal só, com equipe técnica multidisciplinar.{% endblock %}">
+  {% include "partials/fontes.html" %}
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/sst360.css' %}">
+  <link rel="icon" type="image/png" href="{% static 'img/razach/razach-simbolo-gradiente.png' %}">
+</head>
+<body>
+<div class="site">
+  <header class="site-topo">
+    <div class="faixa">
+      <div>
+        <a class="marca-linha" href="{% url 'core:home' %}" style="text-decoration:none">
+          <span class="wordmark marca-nome">{{ APP_NOME }}</span>
+        </a>
+        <div class="marca-sub">{{ CONSULTORIA_NOME }}</div>
+      </div>
+      <nav class="site-nav">
+        <a href="{% url 'core:home' %}#servicos">Serviços</a>
+        <a href="{% url 'publico:metodo' %}">Método</a>
+        <a href="{% url 'core:home' %}#nr01">NR-01</a>
+        <a href="{% url 'publico:quiz' %}">Diagnóstico</a>
+        <a class="btn" href="{% url 'accounts:codigo_pedir' %}">Área do cliente</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-corpo">
+    {% if messages %}
+    <div class="site-secao compacta">{% include "partials/messages.html" %}</div>
+    {% endif %}
+    {% block conteudo_site %}{% endblock %}
+  </main>
+
+  <footer class="site-rodape">
+    <div class="faixa">
+      <div>
+        <strong>{{ APP_NOME }}</strong> · gestão de saúde e segurança do trabalho operada por {{ CONSULTORIA_NOME }}.<br>
+        Engenharia de segurança, medicina do trabalho, ergonomia, higiene ocupacional e jurídico.<br>
+        <span class="rotulo-mono">{{ CONSULTORIA_SITE }}</span><br>
+        Tratamento de dados conforme a LGPD.
+      </div>
+      <div class="tecnologia">
+        <span class="rotulo-mono">Tecnologia</span>
+        <img src="{% static 'img/razach/razach-combinado-claro.png' %}" alt="Razach Technology">
+      </div>
+    </div>
+  </footer>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>

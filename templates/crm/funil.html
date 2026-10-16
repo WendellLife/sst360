@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Prospecção - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Captação</div>
+    <h1>Funil de prospecção</h1>
+    <p class="subtitulo">{{ ganhos }} ganho(s) · {{ perdidos }} perdido(s)</p>
+  </div>
+  <div class="acoes">
+    <a class="btn" href="?{% if request.GET.meus == '1' %}{% else %}meus=1{% endif %}">{% if request.GET.meus == '1' %}ver todos{% else %}somente meus{% endif %}</a>
+    <a class="btn" href="{% url 'crm:lista' %}">Lista</a>
+    <a class="btn btn-primario" href="{% url 'crm:novo' %}">Novo lead</a>
+  </div>
+</div>
+
+<div class="colunas-funil">
+  {% for coluna in colunas %}
+  <section class="coluna-funil">
+    <header>
+      <div class="titulo">{{ coluna.rotulo }}</div>
+      <div class="sub">{{ coluna.total }} lead(s) · {{ coluna.valor_total|moeda }}/mês</div>
+    </header>
+    <div class="cartoes">
+      {% for lead in coluna.leads %}
+      <article class="cartao-lead">
+        <a class="nome" href="{{ lead.get_absolute_url }}">{{ lead }}</a>
+        {% if lead.urgencia != 'NA' %}<span class="etiqueta {{ lead.cor_urgencia|badge_cor }}" >{{ lead.get_urgencia_display }}</span>{% endif %}
+        <div class="meta">{{ lead.cidade }}{% if lead.uf %}/{{ lead.uf }}{% endif %}{% if lead.num_trabalhadores %} · {{ lead.num_trabalhadores }} trab.{% endif %}</div>
+        <div class="meta">{{ lead.get_servico_interesse_display }}</div>
+        {% if lead.valor_estimado %}<div class="valor num">{{ lead.valor_estimado|moeda }}/mês</div>{% endif %}
+        {% if lead.contato_atrasado %}<div class="meta destaque-alerta">contato atrasado: {{ lead.proximo_contato|date:"d/m" }}</div>{% endif %}
+      </article>
+      {% empty %}
+      <div class="texto-fraco" style="text-align:center;padding:18px 0">vazio</div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}

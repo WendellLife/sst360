@@ -1,0 +1,6 @@
+<div class="campos">
+  {% for campo in form %}{% include "partials/campo.html" with campo=campo %}{% endfor %}
+</div>
+{% if form.non_field_errors %}
+  <div class="aviso aviso--error" style="margin-top:12px">{{ form.non_field_errors }}</div>
+{% endif %}

@@ -1,0 +1,144 @@
+{% extends "publico/base_site.html" %}
+{% block conteudo_site %}
+<section class="hero">
+  <div>
+    <div class="selo">01 · Saúde e segurança do trabalho</div>
+    <h1>SST com gestão, conformidade e rastreabilidade.</h1>
+    <p class="chamada">PGR, PCMSO, LTCAT, treinamentos, exames e eSocial coerentes entre si e com a operação real.
+      Equipe multidisciplinar no campo, plano de ação no portal, cada prazo com data e responsável.</p>
+    <div class="acoes">
+      <a class="btn btn-primario btn-grande" href="{% url 'publico:quiz' %}">Fazer o diagnóstico gratuito</a>
+      <a class="btn btn-grande" href="{% url 'publico:metodo' %}">Conhecer o método</a>
+    </div>
+    <div class="garantias">16 PERGUNTAS · CERCA DE 4 MINUTOS · SERVIÇOS INDICADOS NO RESULTADO</div>
+  </div>
+
+  <aside class="hero-painel" aria-label="Exemplo do painel de conformidade">
+    <div class="rotulo-mono">Painel de conformidade · exemplo</div>
+    <div class="linha"><span>PGR · inventário de riscos</span><strong><span class="estado ok">Vigente</span></strong></div>
+    <div class="linha"><span>Riscos psicossociais · NR-01</span><strong><span class="estado alerta">Em avaliação</span></strong></div>
+    <div class="linha"><span>PCMSO · ASOs do trimestre</span><strong><span class="estado ok">94% em dia</span></strong></div>
+    <div class="linha"><span>NR-35 · reciclagem</span><strong><span class="estado critico">Vence em 12 dias</span></strong></div>
+    <div class="linha"><span>eSocial · S-2240</span><strong><span class="estado ok">Enviado</span></strong></div>
+    <div class="linha"><span>Plano de ação</span><strong>38 de 52 ações concluídas</strong></div>
+  </aside>
+</section>
+
+<section class="site-faixa-clara">
+  <div class="site-secao">
+    <div class="destaque-norma">
+      <div>
+        <div class="sobretitulo">02 · Desafios</div>
+        <h2 class="titulo-secao">O problema não é a falta de documentos.</h2>
+        <p class="subtitulo-secao">É a ausência de um sistema funcional de gestão. Documento emitido e esquecido não protege trabalhador, não passa em auditoria e não sustenta defesa em perícia.</p>
+      </div>
+      <ul class="lista-check">
+        {% for dor in dores %}<li>{{ dor }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="site-secao" id="servicos">
+  <div class="sobretitulo">03 · Serviços</div>
+  <h2 class="titulo-secao">Soluções integradas em SST.</h2>
+  <p class="subtitulo-secao">Oito linhas de serviço, contratadas juntas ou separadas. Tudo o que é entregue entra no portal do cliente.</p>
+  <div class="passos">
+    {% for servico in servicos %}
+    <div class="passo">
+      <div class="numero">{{ servico.numero }}</div>
+      <h3>{{ servico.titulo }}</h3>
+      <p>{{ servico.desc }}</p>
+      <div class="chips">{% for item in servico.itens %}<span class="etiqueta etiqueta--cinza">{{ item }}</span>{% endfor %}</div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="site-faixa-escura" id="nr01">
+  <div class="site-secao">
+    <div class="destaque-norma">
+      <div>
+        <div class="sobretitulo">04 · NR-01 · Riscos psicossociais</div>
+        <h2 class="titulo-secao">Fatores psicossociais no inventário de riscos do PGR.</h2>
+        <p class="subtitulo-secao">A NR-01 inclui a avaliação dos riscos psicossociais no Gerenciamento de Riscos Ocupacionais (GRO). Organização do trabalho, relações interpessoais e demandas emocionais passam a ser mapeadas, avaliadas e tratadas com a mesma seriedade dos riscos físicos, químicos e biológicos.</p>
+        <a class="btn btn-primario" href="{% url 'publico:quiz' %}">Avaliar a exposição da empresa</a>
+      </div>
+      <div>
+        <div class="rotulo-mono" style="color:var(--ciano-artico);margin-bottom:12px">Fatores avaliados</div>
+        <ul class="lista-check">
+          <li>Sobrecarga e ritmo de trabalho</li>
+          <li>Assédio e conflitos interpessoais</li>
+          <li>Falta de reconhecimento e de apoio</li>
+          <li>Clima organizacional e comunicação interna</li>
+          <li>Liderança e equilíbrio emocional</li>
+        </ul>
+        <div class="rotulo-mono" style="color:var(--ciano-artico);margin:24px 0 12px">Entregas</div>
+        <ul class="lista-check">
+          <li>Diagnóstico com metodologia alinhada ao GRO</li>
+          <li>Inventário de riscos psicossociais integrado ao PGR</li>
+          <li>Plano de ação com prazo, responsável e verificação de eficácia</li>
+          <li>Indicadores acompanhados no portal</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="site-secao">
+  <div class="metodo-controles">
+    <div>
+      <div class="sobretitulo">05 · Método</div>
+      <h2 class="titulo-secao">Doze etapas, do diagnóstico à cultura de segurança.</h2>
+    </div>
+    <a class="btn" href="{% url 'publico:metodo' %}">Ver o método completo</a>
+  </div>
+  <div class="etapas-metodo">
+    {% for etapa in etapas %}{% if etapa.numero == 1 or etapa.numero == 5 or etapa.numero == 12 %}
+    <div class="etapa-metodo">
+      <div class="cabeca"><span class="numero">{{ etapa.numero|stringformat:"02d" }}</span><span class="fase">{{ etapa.fase }}</span></div>
+      <h3>{{ etapa.titulo }}</h3>
+      <p>{{ etapa.desc }}</p>
+      <div class="entrega"><strong>Entrega</strong>{{ etapa.entrega }}</div>
+    </div>
+    {% endif %}{% endfor %}
+  </div>
+</section>
+
+<section class="site-faixa-clara">
+  <div class="site-secao">
+    <div class="sobretitulo">06 · Como funciona</div>
+    <h2 class="titulo-secao">Do primeiro contato ao portal.</h2>
+    <p class="subtitulo-secao">A empresa acompanha documentos, plano de ação, treinamentos, visitas e prazos em tempo real.</p>
+    <div class="passos">
+      {% for passo in como_funciona %}
+      <div class="passo">
+        <div class="numero">{{ passo.numero }}</div>
+        <h3>{{ passo.titulo }}</h3>
+        <p>{{ passo.desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="site-secao">
+  <div class="destaque-norma">
+    <div>
+      <div class="sobretitulo">07 · Diferenciais</div>
+      <h2 class="titulo-secao">Mais que um fornecedor de laudos.</h2>
+      <p class="subtitulo-secao">Engenheiros, médicos, ergonomistas, higienistas e jurídico especializado no mesmo contrato, com clínica própria e um sistema que registra tudo.</p>
+    </div>
+    <ul class="lista-check">
+      {% for item in diferenciais %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+  </div>
+
+  <div class="chamada-final" style="margin-top:56px">
+    <div class="sobretitulo" style="color:var(--ciano-artico)">Diagnóstico gratuito</div>
+    <h2>Mais que cumprir normas: proteger pessoas.</h2>
+    <p>Dezesseis perguntas sobre perfil, documentos, saúde ocupacional, eSocial, treinamentos e histórico. O resultado mostra o nível de exposição, os serviços indicados e o prazo de retorno da equipe técnica.</p>
+    <a class="btn btn-primario btn-grande" href="{% url 'publico:quiz' %}">Começar o diagnóstico</a>
+  </div>
+</section>
+{% endblock %}

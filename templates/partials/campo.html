@@ -1,0 +1,16 @@
+{% load widget_tweaks %}
+{% if campo.is_hidden %}{{ campo }}
+{% elif campo.field.widget.input_type == 'checkbox' and not campo.field.widget.allow_multiple_selected %}
+<div class="campo marcavel">
+  {% render_field campo %}
+  <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+  {% for erro in campo.errors %}<p class="erro">{{ erro }}</p>{% endfor %}
+</div>
+{% else %}
+<div class="campo{% if campo.field.widget.allow_multiple_selected and campo.field.widget.input_type == 'checkbox' %} largo campo-opcoes{% endif %}">
+  {% if campo.label %}<label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>{% endif %}
+  {% render_field campo %}
+  {% if campo.help_text %}<p class="ajuda">{{ campo.help_text }}</p>{% endif %}
+  {% if campo.errors %}<div class="erros">{% for erro in campo.errors %}<p class="erro">{{ erro }}</p>{% endfor %}</div>{% endif %}
+</div>
+{% endif %}

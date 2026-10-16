@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Plano de ação - {{ APP_NOME }}{% endblock %}
+{% block conteudo_cliente %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Portal do cliente</div>
+    <h1>Plano de ação</h1>
+    <p class="subtitulo">Cada risco do PGR com a medida de controle, o responsável, o prazo e o que já foi feito.</p>
+  </div>
+</div>
+
+{% if gestao %}
+<div class="kpis">
+  <div class="kpi destaque">
+    <div class="rotulo">Concluído</div>
+    <div class="valor">{{ ind.acoes_percentual }}%</div>
+    <div class="sub">{{ ind.acoes_encerradas }} de {{ ind.acoes_total }} ações</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Em aberto</div>
+    <div class="valor">{{ acoes_abertas|length }}</div>
+    <div class="sub">no filtro atual</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Prazo vencido</div>
+    <div class="valor {% if ind.acoes_atrasadas %}alerta{% endif %}">{{ ind.acoes_atrasadas }}</div>
+    <div class="sub">precisam de atenção</div>
+  </div>
+</div>
+
+{% if resumo %}
+<section class="cartao">
+  <header class="cartao-cab"><h2>Por tipo de risco</h2></header>
+  <div class="cartao-corpo" style="display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">
+    {% for linha in resumo %}
+    <div class="linha-risco">
+      <span class="rotulo-mono">{{ linha.rotulo }}</span>
+      <span class="dado">{{ linha.encerradas }}/{{ linha.total }}</span>
+      <div class="medidor {% if linha.percentual == 100 %}completo{% endif %}"><span style="width:{{ linha.percentual }}%"></span></div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<form method="get" class="filtros">
+  <select name="risco">
+    <option value="">Todos os riscos</option>
+    {% for valor, rotulo in riscos %}<option value="{{ valor }}" {% if risco_atual == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+  {% if risco_atual %}<a class="btn-texto" href="{% url 'portal:plano' %}">limpar</a>{% endif %}
+</form>
+
+<h2 style="font-size:17px;margin:4px 0 12px">Em andamento</h2>
+{% for acao in acoes_abertas %}
+<div class="item-cartao">
+  <div class="topo">
+    <div style="min-width:0">
+      <h3>{{ acao.descricao }}</h3>
+      <div class="tipo">{{ acao.get_risco_display }}{% if acao.setor %} · {{ acao.setor }}{% endif %}</div>
+    </div>
+    <div class="chips">
+      <span class="etiqueta {{ acao.cor_prioridade|badge_cor }}">Prioridade {{ acao.get_prioridade_display|lower }}</span>
+      <span class="etiqueta {{ acao.cor_status|badge_cor }}">{% if acao.atrasada %}Prazo vencido{% else %}{{ acao.get_status_display }}{% endif %}</span>
+    </div>
+  </div>
+  <div class="valores">
+    <div class="item"><div class="rotulo">Responsável</div><div class="valor">{{ acao.responsavel_empresa|default:"—" }}</div></div>
+    <div class="item"><div class="rotulo">Prazo</div><div class="valor num {% if acao.atrasada %}destaque-alerta{% endif %}">{{ acao.prazo|date:"d/m/Y"|default:"—" }}</div></div>
+    {% if acao.custo_estimado %}<div class="item"><div class="rotulo">Custo estimado</div><div class="valor num">{{ acao.custo_estimado|moeda }}</div></div>{% endif %}
+  </div>
+  <div class="barra-progresso"><span style="width:{{ acao.progresso }}%"></span></div>
+  {% with eventos=acao.eventos.all %}
+  {% if eventos %}
+  <ul class="historico">
+    {% for evento in eventos %}{% if evento.visivel_cliente %}
+    <li><span class="data">{{ evento.data|date:"d/m/Y" }}</span><span>{{ evento.descricao }}</span></li>
+    {% endif %}{% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+</div>
+{% empty %}
+<div class="cartao"><div class="vazio">Nenhuma ação em aberto{% if risco_atual %} neste filtro{% endif %}.</div></div>
+{% endfor %}
+
+{% if acoes_encerradas %}
+<section class="cartao" style="margin-top:22px">
+  <header class="cartao-cab"><h2>Concluídas</h2><span class="texto-fraco">{{ acoes_encerradas|length }}</span></header>
+  <ul class="lista">
+    {% for acao in acoes_encerradas %}
+    <li class="linha-flex">
+      <div style="min-width:0">
+        <div class="titulo">{{ acao.descricao }}</div>
+        <div class="texto-fraco">{{ acao.get_risco_display }}{% if acao.setor %} · {{ acao.setor }}{% endif %}{% if acao.concluida_em %} · concluída em {{ acao.concluida_em|date:"d/m/Y" }}{% endif %}</div>
+      </div>
+      <span class="etiqueta etiqueta--verde">{{ acao.get_status_display }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% else %}
+<div class="cartao"><div class="vazio">A gestão da sua empresa ainda não foi cadastrada.</div></div>
+{% endif %}
+{% endblock %}

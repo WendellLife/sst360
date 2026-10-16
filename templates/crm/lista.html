@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Leads - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Captação</div>
+    <h1>Leads</h1>
+  </div>
+  <div class="acoes">
+    <a class="btn" href="{% url 'crm:funil' %}">Funil</a>
+    <a class="btn btn-primario" href="{% url 'crm:novo' %}">Novo lead</a>
+  </div>
+</div>
+
+<form method="get" class="filtros">
+  <input class="busca" type="search" name="q" value="{{ q }}" placeholder="Empresa, CNPJ ou contato">
+  <select name="estagio">
+    <option value="">Todos os estágios</option>
+    {% for valor, rotulo in estagios %}<option value="{{ valor }}" {% if estagio_atual == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+  <div class="espaco"></div>
+  <div class="resumo">{{ paginator.count|default:leads|length }} lead(s)</div>
+</form>
+
+<div class="tabela">
+  <table>
+    <thead>
+      <tr><th>Empresa</th><th>Situação em SST</th><th>Interesse</th><th>Urgência</th><th>Estágio</th><th>Valor</th><th>Responsável</th><th>Próximo contato</th></tr>
+    </thead>
+    <tbody>
+      {% for lead in leads %}
+      <tr>
+        <td>
+          <a class="principal" href="{{ lead.get_absolute_url }}">{{ lead }}</a>
+          <div class="apoio">{{ lead.cidade }}{% if lead.uf %}/{{ lead.uf }}{% endif %}{% if lead.num_trabalhadores %} · {{ lead.num_trabalhadores }} trab.{% endif %}</div>
+        </td>
+        <td class="texto-suave">{{ lead.get_situacao_sst_display }}</td>
+        <td class="texto-suave">{{ lead.get_servico_interesse_display }}</td>
+        <td>{% if lead.urgencia != 'NA' %}<span class="etiqueta {{ lead.cor_urgencia|badge_cor }}">{{ lead.get_urgencia_display }}</span>{% else %}<span class="texto-fraco">—</span>{% endif %}</td>
+        <td>{{ lead.get_estagio_display }}</td>
+        <td class="num">{{ lead.valor_estimado|moeda }}{% if lead.valor_estimado %}<div class="apoio">/mês</div>{% endif %}</td>
+        <td class="texto-suave">{{ lead.responsavel|default:"—" }}</td>
+        <td class="num {% if lead.contato_atrasado %}destaque-alerta{% endif %}">{{ lead.proximo_contato|date:"d/m/Y"|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="vazio">Nenhum lead encontrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "partials/paginacao.html" %}
+{% endblock %}

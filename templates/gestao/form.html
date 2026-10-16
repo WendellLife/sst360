@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}{% if object %}Editar gestão{% else %}Nova gestão{% endif %} - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<a class="voltar" href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'gestao:lista' %}{% endif %}">← {% if object %}{{ object.codigo }}{% else %}Gestões de SST{% endif %}</a>
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">01 · Gestão</div>
+    <h1>{% if object %}Editar gestão {{ object.codigo }}{% else %}Nova gestão de SST{% endif %}</h1>
+    <p class="subtitulo">Os compromissos do modelo de acompanhamento entram na agenda ao salvar. Revisões e reciclagens nascem dos documentos e treinamentos.</p>
+  </div>
+</div>
+<div class="cartao"><div class="cartao-corpo">
+  <form method="post">
+    {% csrf_token %}
+    {% include "partials/form_grid.html" with form=form %}
+    <div class="form-acoes">
+      <button class="btn btn-primario" type="submit">Salvar</button>
+      <a class="btn-texto" href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'gestao:lista' %}{% endif %}">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

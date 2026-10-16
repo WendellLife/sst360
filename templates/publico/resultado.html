@@ -1,0 +1,127 @@
+{% extends "publico/base_site.html" %}
+{% load sst_extras %}
+{% block titulo %}Resultado do diagnóstico — {{ APP_NOME }}{% endblock %}
+{% block conteudo_site %}
+<section class="site-secao">
+  <div class="quiz resultado">
+    <div class="resultado-cabeca">
+      <span class="etiqueta {{ diagnostico.cor|badge_cor }}">{{ diagnostico.get_urgencia_display }}</span>
+      <h1>{{ titulo_resultado }}</h1>
+      <p>{{ mensagem_resultado }}</p>
+      <div class="dado texto-suave" style="margin-top:14px">{{ diagnostico.pontuacao }} de {{ diagnostico.pontuacao_maxima }} pontos de exposição</div>
+      <details style="margin-top:14px">
+        <summary>Ver as {{ diagnostico.respostas|length }} respostas</summary>
+        <dl class="dl respostas-dl">
+          {% for item in diagnostico.respostas %}
+          <div><dt>{{ item.pergunta }}</dt><dd>{{ item.resposta }}</dd></div>
+          {% endfor %}
+        </dl>
+      </details>
+    </div>
+
+    {% if riscos %}
+    <section class="exposicao-multas">
+      <div class="rotulo">Exposição estimada em multas</div>
+      <div class="faixa-valor">
+        {% if exposicao.itens %}
+          <span class="num">{{ exposicao.minimo|moeda }}</span>
+          <span class="ate">a</span>
+          <span class="num">{{ exposicao.maximo|moeda }}</span>
+        {% else %}
+          <span>Riscos sem multa fixa, com custo em afastamentos e condenações</span>
+        {% endif %}
+      </div>
+      <p>{{ exposicao.riscos }} risco{{ exposicao.riscos|pluralize }} identificado{{ exposicao.riscos|pluralize }}{% if exposicao.altos %}, {{ exposicao.altos }} de gravidade alta{% endif %}. Soma das multas de referência de cada risco, considerando uma autuação por item.</p>
+      <div class="acoes-whatsapp">
+        <a class="btn btn-primario btn-grande" href="{{ whatsapp }}" target="_blank" rel="noopener">Quero eliminar esses riscos</a>
+        <span class="nota">Abre o WhatsApp da equipe comercial com o resumo do diagnóstico.</span>
+      </div>
+      <details class="resumo-whatsapp">
+        <summary>Ver o resumo que será enviado</summary>
+        <pre>{{ resumo }}</pre>
+      </details>
+    </section>
+
+    <section class="cartao" style="margin-top:18px">
+      <header class="cartao-cab">
+        <h2>Riscos identificados</h2>
+        <span class="texto-fraco">pelas suas respostas</span>
+      </header>
+      <ul class="lista riscos-lista">
+        {% for risco in riscos %}
+        <li class="risco-item {% if risco.gravidade == 'alta' %}alta{% endif %}">
+          <div class="linha-flex topo">
+            <div style="min-width:0">
+              <div class="titulo">{{ risco.titulo }}</div>
+              <div class="dado texto-suave">{{ risco.norma }}</div>
+            </div>
+            <span class="etiqueta {% if risco.gravidade == 'alta' %}etiqueta--vermelho{% else %}etiqueta--amarelo{% endif %}">Gravidade {% if risco.gravidade == 'alta' %}alta{% else %}média{% endif %}</span>
+          </div>
+          <p class="impacto">{{ risco.impacto }}</p>
+          <div class="risco-rodape">
+            {% if risco.minimo is not None %}
+            <span class="multa">
+              {% if risco.minimo == risco.maximo %}Multa de <strong class="num">{{ risco.minimo|moeda }}</strong>
+              {% else %}Multa de <strong class="num">{{ risco.minimo|moeda }}</strong> a <strong class="num">{{ risco.maximo|moeda }}</strong>{% endif %}
+              <span class="texto-fraco">· {{ risco.unidade }}</span>
+            </span>
+            {% endif %}
+            <span class="resolve">Resolve: {{ risco.servico_titulo }}</span>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="cartao-rodape texto-fraco fonte-multas">{{ fonte_multas }}</div>
+    </section>
+    {% else %}
+    <div class="aviso aviso--success" style="margin-top:18px">
+      <strong>Nenhum risco crítico apontado pelas respostas.</strong> O próximo ganho costuma estar em indicadores, FAP e prevenção de afastamentos.
+    </div>
+    {% endif %}
+
+    {% if servicos %}
+    <section class="cartao" style="margin-top:18px">
+      <header class="cartao-cab">
+        <h2>Serviços indicados</h2>
+        <span class="texto-fraco">a prioridade informada vem primeiro</span>
+      </header>
+      <ul class="lista">
+        {% for servico in servicos %}
+        <li class="servico-indicado">
+          <span class="ordem">{{ forloop.counter|stringformat:"02d" }}</span>
+          <div>
+            <div class="titulo">{{ servico.titulo }}</div>
+            <div class="texto-suave">{{ servico.motivo }}</div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    <div class="cartao contato-final" id="contato" style="margin-top:18px"><div class="cartao-corpo">
+    {% if ja_enviou %}
+      <h2 style="font-size:19px">Recebemos seu contato</h2>
+      <p class="texto-suave">A equipe técnica fala com você em até {{ prazo }} com a leitura destes riscos e o plano para eliminá-los.</p>
+      <div class="form-acoes">
+        <a class="btn" href="{% url 'core:home' %}">Voltar ao início</a>
+        <a class="btn btn-primario" href="{{ whatsapp }}" target="_blank" rel="noopener">Adiantar pelo WhatsApp</a>
+      </div>
+    {% else %}
+      <h2 style="font-size:19px">Receba o plano para eliminar esses riscos</h2>
+      <p class="texto-suave">A equipe técnica analisa as respostas e retorna em até <strong>{{ prazo }}</strong> com as prioridades,
+         o que resolver primeiro e quanto custa regularizar. Sem compromisso.</p>
+      <form method="post">
+        {% csrf_token %}
+        {% include "partials/form_grid.html" with form=form %}
+        <div class="form-acoes">
+          <button class="btn btn-primario btn-grande" type="submit">Quero o plano de regularização</button>
+          <a class="btn" href="{{ whatsapp }}" target="_blank" rel="noopener">Prefiro o WhatsApp</a>
+          <a class="btn-texto" href="{% url 'publico:quiz' %}?reiniciar=1">refazer diagnóstico</a>
+        </div>
+      </form>
+    {% endif %}
+    </div></div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load sst_extras l10n %}
+{% block titulo %}FAP dos clientes - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Comercial · FAP</div>
+    <h1>FAP dos clientes</h1>
+    <p class="subtitulo">O FAP vigente de cada cliente, o que ele custa na folha e quanto dá para economizar. Ordenado pela maior oportunidade.</p>
+  </div>
+</div>
+
+<div class="kpis kpis-4">
+  <div class="kpi destaque">
+    <div class="rotulo">Economia potencial</div>
+    <div class="valor" style="font-size:24px">{{ tot.potencial|moeda }}</div>
+    <div class="sub">por ano, somando os clientes</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Pago acima do neutro</div>
+    <div class="valor {% if tot.acrescimo %}alerta{% endif %}" style="font-size:24px">{{ tot.acrescimo|moeda }}</div>
+    <div class="sub">RAT extra por ano dos clientes em malus</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Clientes em malus</div>
+    <div class="valor {% if tot.malus %}alerta{% endif %}">{{ tot.malus }}</div>
+    <div class="sub">{{ tot.bonus }} em bônus · {{ tot.bloqueados }} com bloqueio</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Sem redução do FAP</div>
+    <div class="valor">{{ tot.sem_servico }}</div>
+    <div class="sub">de {{ tot.clientes }} cliente(s) · {{ tot.com_fap }} com FAP lançado</div>
+  </div>
+</div>
+
+<form method="get" class="filtros">
+  <input class="busca" type="search" name="q" value="{{ q }}" placeholder="Cliente ou código da gestão">
+  <select name="nivel">
+    <option value="">Todos os níveis</option>
+    {% for valor, rotulo in niveis %}<option value="{{ valor }}" {% if nivel_atual == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+  </select>
+  <label class="campo marcavel"><input type="checkbox" name="oportunidade" value="1" {% if oportunidade %}checked{% endif %}> <span>só oportunidades (serviço não contratado)</span></label>
+  <button class="btn" type="submit">Filtrar</button>
+  <div class="espaco"></div>
+  <div class="resumo">{{ linhas|length }} cliente(s)</div>
+</form>
+
+<div class="fap-lista">
+  {% for x in linhas %}{% with g=x.gestao c=x.c f=x.vigente %}
+  <article class="fap-linha{% if c and c.nivel.codigo == 'MMAX' %} critico{% endif %}">
+    <div class="fap-linha-cliente">
+      <a class="titulo" href="{{ x.empresa.get_absolute_url }}">{{ x.empresa }}</a>
+      <div class="texto-fraco"><a class="dado" href="{{ g.get_absolute_url }}#fap">{{ g.codigo }}</a>{% if f %} · RAT {{ f.grau_rat }}% · vigência {{ f.vigencia }}{% endif %}</div>
+      <div class="chips" style="margin-top:8px">
+        {% if c %}<span class="etiqueta {{ c.nivel.cor|badge_cor }}">{{ c.nivel.rotulo }}</span>{% else %}<span class="etiqueta etiqueta--cinza">Sem FAP</span>{% endif %}
+        {% if x.contratado %}<span class="etiqueta etiqueta--azul">Redução do FAP contratada</span>{% else %}<span class="etiqueta etiqueta--amarelo">Redução do FAP não contratada</span>{% endif %}
+        {% if f.bloqueio %}<span class="etiqueta etiqueta--vermelho">Bonificação bloqueada</span>{% endif %}
+      </div>
+    </div>
+
+    <div class="fap-linha-valor">
+      {% if c %}
+      <div class="fap-mini num">{{ c.fap|fap }}</div>
+      <div class="fap-regua mini" aria-hidden="true"><div class="faixas"><span class="bonus"></span><span class="malus"></span></div><span class="marcador" style="left:{{ c.fap|posicao_fap|unlocalize }}%"></span>{% if g.fap_meta %}<span class="marcador meta" style="left:{{ g.fap_meta|posicao_fap|unlocalize }}%"></span>{% endif %}</div>
+      <div class="texto-fraco" style="font-size:11px;margin-top:4px">{% if c.origem == 'oficial' %}oficial{% else %}calculado{% endif %}{% if g.fap_meta %} · meta {{ g.fap_meta|fap }}{% endif %}</div>
+      {% else %}<div class="fap-mini num texto-fraco">—</div>{% endif %}
+    </div>
+
+    <dl class="fap-linha-dados">
+      <div><dt>Pontuação</dt><dd class="num">{% if c.ic is not None %}{{ c.ic|fap }} <span class="texto-fraco">· {{ c.pontos|num_br:1 }} pts</span>{% else %}—{% endif %}</dd></div>
+      <div><dt>RAT ajustado</dt><dd class="num">{% if c.rat_ajustado is not None %}{{ c.rat_ajustado|num_br:2 }}%{% else %}—{% endif %}</dd></div>
+      <div><dt>Custo do RAT</dt><dd class="num">{% if c.custo_anual is not None %}{{ c.custo_anual|moeda }}/ano{% else %}<span class="texto-fraco">sem folha</span>{% endif %}</dd></div>
+      <div><dt>Tendência</dt><dd class="num">{% if x.tendencia %}<span class="etiqueta {{ x.tendencia.cor|badge_cor }}">{{ x.tendencia.sentido }} {{ x.tendencia.delta|fap_sinal }}</span> <span class="texto-fraco">{{ x.tendencia.de }}→{{ x.tendencia.para }}</span>{% else %}<span class="texto-fraco">—</span>{% endif %}</dd></div>
+    </dl>
+
+    <div class="fap-linha-potencial">
+      <div class="rotulo">Economia possível</div>
+      <div class="valor num {% if x.potencial %}positivo{% else %}texto-fraco{% endif %}">{% if x.potencial %}{{ x.potencial|moeda }}<span class="texto-fraco">/ano</span>{% else %}—{% endif %}</div>
+      <div class="acoes-fap">
+        <a class="btn btn-p" href="{{ g.get_absolute_url }}#fap">{% if f %}Abrir FAP{% else %}Lançar FAP{% endif %}</a>
+        {% if not x.contratado %}<a class="btn btn-p btn-primario" href="{% url 'vendas:nova' %}?empresa={{ x.empresa.pk }}&servico=FAP&next={{ x.empresa.get_absolute_url|urlencode }}%23vendas">Vender redução</a>{% endif %}
+      </div>
+    </div>
+
+    <p class="fap-argumento"><span class="rotulo-mono">Argumento</span> {{ x.argumento }}</p>
+  </article>
+  {% endwith %}{% empty %}
+  <div class="cartao"><div class="cartao-corpo vazio">Nenhum cliente neste filtro.</div></div>
+  {% endfor %}
+</div>
+<p class="texto-fraco" style="margin-top:14px;font-size:12px">Economia possível: o maior valor entre levar o FAP até a meta da gestão, voltar ao FAP neutro (1,0000) e recuperar a bonificação bloqueada. RAT ajustado = alíquota do RAT × FAP, sobre 13 folhas por ano. Metodologia do FAP: Resolução CNPS 1.347/2021.</p>
+{% endblock %}

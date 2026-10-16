@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}{{ gestao.codigo }} · {{ gestao.empresa }} - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<a class="voltar" href="{% url 'gestao:lista' %}">← Gestões de SST</a>
+
+<div class="cabecalho topo">
+  <div style="min-width:0">
+    <div class="sobretitulo">Gestão de SST · {{ gestao.get_modelo_display }}</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <h1>{{ gestao.empresa }}</h1>
+      <span class="etiqueta {{ gestao.cor_etapa|badge_cor }}">{{ gestao.etapa }} · {{ gestao.get_etapa_display }}</span>
+      {% if not gestao.ativa %}<span class="etiqueta etiqueta--cinza">Encerrada em {{ gestao.encerrado_em|date:"d/m/Y" }}</span>{% endif %}
+    </div>
+    <div class="texto-fraco" style="margin-top:6px">
+      <span class="dado">{{ gestao.codigo }}</span> ·
+      <a href="{{ gestao.empresa.get_absolute_url }}">{{ gestao.empresa.cnpj_formatado }}</a>
+      {% if gestao.empresa.grau_risco %} · grau de risco {{ gestao.empresa.grau_risco }}{% endif %}
+      {% if gestao.empresa.num_trabalhadores %} · {{ gestao.empresa.num_trabalhadores }} trabalhadores{% endif %}
+    </div>
+  </div>
+  <div class="acoes">
+    <a class="btn" href="{% url 'relacionamento:painel' gestao.pk %}">Relacionamento</a>
+    <a class="btn" href="{% url 'gestao:editar' gestao.pk %}">Editar</a>
+    <form method="post" action="{% url 'gestao:prazos_gerar' gestao.pk %}">{% csrf_token %}
+      <button class="btn btn-escuro" type="submit">Recalcular prazos</button>
+    </form>
+  </div>
+</div>
+
+<div class="kpis">
+  <div class="kpi">
+    <div class="rotulo">Documentos vigentes</div>
+    <div class="valor">{{ ind.documentos_vigentes }}<span class="texto-fraco" style="font-size:15px"> / {{ ind.documentos_total }}</span></div>
+    <div class="sub {% if ind.documentos_vencidos %}destaque-alerta{% endif %}">{{ ind.documentos_vencidos }} vencido(s) · {{ ind.documentos_a_vencer }} a revisar</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Plano de ação</div>
+    <div class="valor">{{ ind.acoes_percentual }}%</div>
+    <div class="sub {% if ind.acoes_atrasadas %}destaque-alerta{% endif %}">{{ ind.acoes_encerradas }}/{{ ind.acoes_total }} concluídas · {{ ind.acoes_atrasadas }} atrasada(s)</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Pessoas treinadas</div>
+    <div class="valor">{{ ind.pessoas_treinadas }}</div>
+    <div class="sub {% if ind.treinamentos_vencidos %}destaque-alerta{% endif %}">{{ ind.treinamentos_total }} turma(s) · {{ ind.treinamentos_vencidos }} reciclagem(ns) vencida(s)</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">FAP vigente → meta</div>
+    <div class="valor num" style="font-size:19px;white-space:nowrap">{{ gestao.fap_atual|fap }} <span class="texto-fraco">→</span> {{ gestao.fap_meta|fap }}</div>
+    <div class="sub">{% if fap_vigente %}<a href="#fap"><span class="etiqueta {{ fap_vigente.c.nivel.cor|badge_cor }}">{{ fap_vigente.c.nivel.rotulo }}</span> · RAT {{ fap_vigente.grau_rat }}%{% if fap_vigente.c.rat_ajustado is not None %} → {{ fap_vigente.c.rat_ajustado|num_br:2 }}%{% endif %}</a>{% else %}revisão do PGR a cada {{ gestao.meses_revisao_pgr }} meses{% endif %}</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Equipe técnica</div>
+    <div class="sub" style="font-size:13px;color:var(--tinta);margin-top:6px">{{ gestao.responsavel_tecnico|default:"—" }}</div>
+    <div class="sub">PCMSO: {{ gestao.medico_coordenador|default:"—" }}</div>
+    <div class="sub">Interno: {{ gestao.responsavel|default:"—" }}</div>
+  </div>
+</div>
+
+<section class="cartao">
+  <header class="cartao-cab">
+    <div>
+      <h2>Método de implantação</h2>
+      <div class="texto-fraco">Etapa {{ gestao.etapa_numero }} de 12 · {{ gestao.get_etapa_display }}</div>
+    </div>
+    <form method="post" action="{% url 'gestao:etapa' gestao.pk %}" class="etapas-form">
+      {% csrf_token %}
+      <select name="etapa">
+        {% for etapa in etapas %}
+        <option value="{{ etapa.valor }}" {% if etapa.valor == gestao.etapa %}selected{% endif %}>{{ etapa.valor }} · {{ etapa.rotulo }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-p" type="submit">Mudar etapa</button>
+    </form>
+  </header>
+  <div class="cartao-corpo">
+    <div class="metodo-trilha" style="margin-top:0">
+      {% for etapa in etapas %}
+      <div class="etapa {% if etapa.numero < gestao.etapa_numero %}concluida{% elif etapa.numero == gestao.etapa_numero %}atual{% endif %}" title="{{ etapa.rotulo }}">
+        <div class="marca"></div>
+        <div class="nome">{{ etapa.valor }} · {{ etapa.rotulo }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if gestao.servicos_rotulos %}
+    <div class="chips" style="margin-top:16px">
+      {% for servico in gestao.servicos_rotulos %}<span class="etiqueta etiqueta--marca">{{ servico }}</span>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% include "gestao/partials/fap.html" %}
+
+<div class="grade grade-2-1" style="margin-top:18px">
+  <div>
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Documentos técnicos</h2><span class="texto-fraco">{{ documentos|length }} documento(s)</span></header>
+      <div class="tabela" style="border:0;border-radius:0">
+        <table>
+          <thead><tr><th>Documento</th><th>Emitido</th><th>Revisar até</th><th>Situação</th><th></th></tr></thead>
+          <tbody>
+            {% for documento in documentos %}
+            <tr>
+              <td>
+                <div class="principal">{{ documento.sigla }}</div>
+                <div class="apoio">{% if documento.titulo %}{{ documento.titulo }} · {% endif %}{{ documento.responsavel_tecnico|default:"—" }}</div>
+              </td>
+              <td class="num texto-suave">{{ documento.emitido_em|date:"d/m/Y"|default:"—" }}</td>
+              <td class="num texto-suave">{{ documento.valido_ate|date:"d/m/Y"|default:"—" }}</td>
+              <td><span class="etiqueta {{ documento.cor|badge_cor }}">{{ documento.situacao_rotulo }}</span>{% if not documento.visivel_cliente %} <span class="apoio">interno</span>{% endif %}</td>
+              <td class="direita">{% if documento.arquivo %}<a href="{{ documento.arquivo.url }}" target="_blank" rel="noopener">arquivo</a>{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="vazio">Nenhum documento cadastrado.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="cartao-rodape">
+        <details>
+          <summary>Incluir documento</summary>
+          <form method="post" action="{% url 'gestao:documento_novo' gestao.pk %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% include "partials/form_grid.html" with form=form_documento %}
+            <div class="form-acoes">
+              <button class="btn" type="submit">Salvar documento</button>
+              <span class="texto-fraco">Sem data de revisão, ela é calculada pela norma e entra na agenda.</span>
+            </div>
+          </form>
+        </details>
+      </div>
+    </section>
+
+    <section class="cartao">
+      <header class="cartao-cab">
+        <div>
+          <h2>Plano de ação</h2>
+          <div class="texto-fraco">{{ ind.acoes_encerradas }} de {{ ind.acoes_total }} concluídas</div>
+        </div>
+        <a class="btn btn-p" href="{% url 'gestao:plano_importar' gestao.pk %}">Importar planilha</a>
+      </header>
+      {% if resumo_plano %}
+      <div class="cartao-corpo" style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));border-bottom:1px solid var(--linha-suave)">
+        {% for linha in resumo_plano %}
+        <div class="linha-risco">
+          <span class="rotulo-mono">{{ linha.rotulo }}</span>
+          <span class="dado">{{ linha.encerradas }}/{{ linha.total }}</span>
+          <div class="medidor {% if linha.percentual == 100 %}completo{% endif %}"><span style="width:{{ linha.percentual }}%"></span></div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <ul class="lista">
+        {% for acao in acoes %}
+        <li>
+          <div class="linha-flex topo">
+            <div style="min-width:0">
+              <div class="titulo">{{ acao.descricao }}</div>
+              <div class="texto-fraco">
+                {{ acao.get_risco_display }}{% if acao.setor %} · {{ acao.setor }}{% endif %}{% if acao.responsavel_empresa %} · {{ acao.responsavel_empresa }}{% endif %}
+                {% if acao.prazo %} · <span class="num {% if acao.atrasada %}destaque-alerta{% endif %}">prazo {{ acao.prazo|date:"d/m/Y" }}</span>{% endif %}
+              </div>
+            </div>
+            <div class="chips" style="flex-shrink:0">
+              <span class="etiqueta {{ acao.cor_prioridade|badge_cor }}">{{ acao.get_prioridade_display }}</span>
+              <span class="etiqueta {{ acao.cor_status|badge_cor }}">{% if acao.atrasada %}Atrasada{% else %}{{ acao.get_status_display }}{% endif %}</span>
+            </div>
+          </div>
+          <details>
+            <summary>Registrar andamento</summary>
+            <form method="post" action="{% url 'gestao:acao_evento' acao.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <div class="campos">
+                <div class="campo"><label>O que aconteceu</label><input type="text" name="descricao" placeholder="Guarda-corpo instalado no mezanino"></div>
+                <div class="campo"><label>Status</label>
+                  <select name="status">
+                    {% for valor, rotulo in status_acao %}<option value="{{ valor }}" {% if valor == acao.status %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="campo"><label>Custo estimado</label><input type="text" name="custo_estimado" placeholder="{{ acao.custo_estimado|default_if_none:'4.800,00' }}"></div>
+              </div>
+              <div class="form-acoes"><button class="btn btn-p" type="submit">Salvar</button></div>
+            </form>
+          </details>
+        </li>
+        {% empty %}
+        <li class="vazio">Plano de ação vazio. Inclua as ações do PGR ou importe a planilha.</li>
+        {% endfor %}
+      </ul>
+      <div class="cartao-rodape">
+        <details>
+          <summary>Incluir ação</summary>
+          <form method="post" action="{% url 'gestao:acao_nova' gestao.pk %}">
+            {% csrf_token %}
+            {% include "partials/form_grid.html" with form=form_acao %}
+            <div class="form-acoes"><button class="btn" type="submit">Salvar ação</button></div>
+          </form>
+        </details>
+      </div>
+    </section>
+
+  </div>
+
+  <div>
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Treinamentos</h2><span class="texto-fraco">{{ ind.pessoas_treinadas }} pessoas</span></header>
+      <ul class="lista">
+        {% for treinamento in treinamentos %}
+        <li>
+          <div class="linha-flex topo">
+            <div style="min-width:0">
+              <div class="titulo">{{ treinamento.nome }}</div>
+              <div class="texto-fraco num">
+                {{ treinamento.get_modalidade_display }}
+                {% if treinamento.realizado_em %} · {{ treinamento.realizado_em|date:"d/m/Y" }}{% elif treinamento.previsto_para %} · previsto {{ treinamento.previsto_para|date:"d/m/Y" }}{% endif %}
+                {% if treinamento.participantes %} · {{ treinamento.participantes }} part.{% endif %}
+                {% if treinamento.carga_horaria %} · {{ treinamento.carga_horaria }}h{% endif %}
+              </div>
+            </div>
+            <span class="etiqueta {{ treinamento.cor|badge_cor }}">{{ treinamento.situacao_rotulo }}</span>
+          </div>
+        </li>
+        {% empty %}
+        <li class="vazio">Nenhum treinamento registrado.</li>
+        {% endfor %}
+      </ul>
+      <div class="cartao-rodape">
+        <details>
+          <summary>Registrar treinamento</summary>
+          <form method="post" action="{% url 'gestao:treinamento_novo' gestao.pk %}">
+            {% csrf_token %}
+            {% include "partials/form_grid.html" with form=form_treinamento %}
+            <div class="form-acoes"><button class="btn" type="submit">Salvar treinamento</button></div>
+          </form>
+        </details>
+      </div>
+    </section>
+
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Linha do tempo</h2></header>
+      <ul class="linha-tempo">
+        {% for registro in registros %}
+        <li>
+          <div class="topo">
+            <span class="titulo">{{ registro.titulo }}</span>
+            <span class="quando">{{ registro.data|date:"d/m/Y" }}</span>
+          </div>
+          <div class="meta">
+            {{ registro.get_tipo_display }}{% if registro.registrado_por %} · {{ registro.registrado_por.get_full_name|default:registro.registrado_por.username }}{% endif %}
+            {% if not registro.visivel_cliente %} · <span style="color:var(--amarelo-cor)">interno</span>{% endif %}
+          </div>
+          {% if registro.descricao %}<div class="texto">{{ registro.descricao }}</div>{% endif %}
+        </li>
+        {% empty %}
+        <li class="vazio">Nada registrado ainda.</li>
+        {% endfor %}
+      </ul>
+      <div class="cartao-rodape">
+        <details>
+          <summary>Registrar visita, inspeção ou ocorrência</summary>
+          <form method="post" action="{% url 'gestao:registro_novo' gestao.pk %}">
+            {% csrf_token %}
+            {% include "partials/form_grid.html" with form=form_registro %}
+            <div class="form-acoes">
+              <button class="btn" type="submit">Salvar registro</button>
+              <span class="texto-fraco">Acidente / incidente gera o prazo da CAT (S-2210).</span>
+            </div>
+          </form>
+        </details>
+      </div>
+    </section>
+
+    {% if gestao.observacoes %}
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Observações</h2></header>
+      <div class="cartao-corpo texto-suave" style="white-space:pre-line">{{ gestao.observacoes }}</div>
+    </section>
+    {% endif %}
+  </div>
+</div>
+<div style="margin-top:18px">
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Prazos</h2><a href="{% url 'gestao:agenda' %}">agenda geral</a></header>
+      <div class="tabela" style="border:0;border-radius:0">
+        <table>
+          <thead><tr><th>Prazo</th><th>Início</th><th>Vencimento</th><th>Responsável</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            {% for prazo in prazos %}{% include "gestao/partials/linha_prazo.html" with prazo=prazo %}{% empty %}
+            <tr><td colspan="6" class="vazio">Nenhum prazo cadastrado.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="cartao-rodape">
+        <details>
+          <summary>Adicionar prazo manual</summary>
+          <form method="post" action="{% url 'gestao:prazo_novo' gestao.pk %}">
+            {% csrf_token %}
+            {% include "partials/form_grid.html" with form=form_prazo %}
+            <div class="form-acoes"><button class="btn" type="submit">Salvar prazo</button></div>
+          </form>
+        </details>
+      </div>
+    </section>
+</div>
+{% endblock %}

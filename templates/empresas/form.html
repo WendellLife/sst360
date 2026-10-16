@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block titulo %}{% if object %}Editar empresa{% else %}Nova empresa{% endif %}{% endblock %}
+{% block conteudo %}
+<a class="voltar" href="{% url 'empresas:lista' %}">← Empresas</a>
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Painel interno</div>
+    <h1>{% if object %}Editar {{ object }}{% else %}Nova empresa{% endif %}</h1>
+  </div>
+</div>
+<div class="cartao"><div class="cartao-corpo">
+  <form method="post">
+    {% csrf_token %}
+    {% include "partials/form_grid.html" with form=form %}
+    <div class="form-acoes">
+      <button class="btn btn-primario" type="submit">Salvar</button>
+      <a class="btn-texto" href="{% url 'empresas:lista' %}">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

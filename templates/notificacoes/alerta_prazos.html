@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>{{ resumo.assunto }}</title></head>
+<body style="margin:0;padding:24px;background:#f4f7f7;font-family:Archivo,'Helvetica Neue',Arial,sans-serif;color:#1f2e30;">
+  <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #d5dede;border-radius:10px;overflow:hidden;">
+    <div style="height:3px;background:linear-gradient(120deg,#6fcbce 0%,#1b6470 100%);"></div>
+    <div style="background:#0c1719;color:#f4f7f7;padding:16px 24px;">
+      <span style="font-size:18px;font-weight:800;letter-spacing:.01em;">{{ app_nome }}</span>
+      <div style="font-family:Montserrat,Arial,sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8c9c9e;margin-top:4px;">Prazos de SST &middot; {{ hoje|date:"d/m/Y" }}</div>
+    </div>
+
+    <div style="padding:24px;">
+      <p style="margin:0 0 20px;">Ol&aacute;, {{ resumo.nome }}.</p>
+
+      {% if resumo.atrasados %}
+      <h2 style="font-family:Montserrat,Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#b03a32;margin:0 0 10px;">01 &middot; Atrasados ({{ resumo.atrasados|length }})</h2>
+      {% for prazo in resumo.atrasados %}
+      <div style="border:1px solid #e9b4ae;background:#fbe9e7;padding:12px 14px;margin-bottom:10px;border-radius:4px;">
+        <div style="font-weight:600;color:#0c1719;">{{ prazo.titulo }}</div>
+        <div style="font-size:13px;color:#4a5a5c;">{{ prazo.gestao.empresa }} &middot; {{ prazo.gestao.codigo }}</div>
+        <div style="font-size:13px;color:#b03a32;">Venceu em {{ prazo.data_fim|date:"d/m/Y" }} &middot; h&aacute; {{ prazo.dias_atraso }} dia(s)</div>
+        <div style="font-size:12px;color:#4a5a5c;">{{ prazo.base_legal|default:"controle interno" }}</div>
+        <a href="{{ site_url }}{{ prazo.gestao.get_absolute_url }}" style="font-size:13px;color:#1b6470;">abrir gest&atilde;o</a>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      {% if resumo.vencem_hoje %}
+      <h2 style="font-family:Montserrat,Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#a9741a;margin:20px 0 10px;">02 &middot; Vencem hoje ({{ resumo.vencem_hoje|length }})</h2>
+      {% for prazo in resumo.vencem_hoje %}
+      <div style="border:1px solid #e5cb93;background:#fbf1de;padding:12px 14px;margin-bottom:10px;border-radius:4px;">
+        <div style="font-weight:600;color:#0c1719;">{{ prazo.titulo }}</div>
+        <div style="font-size:13px;color:#4a5a5c;">{{ prazo.gestao.empresa }} &middot; {{ prazo.gestao.codigo }}</div>
+        <div style="font-size:12px;color:#4a5a5c;">{{ prazo.base_legal|default:"controle interno" }}</div>
+        <a href="{{ site_url }}{{ prazo.gestao.get_absolute_url }}" style="font-size:13px;color:#1b6470;">abrir gest&atilde;o</a>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      {% if resumo.proximos %}
+      <h2 style="font-family:Montserrat,Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#1b6470;margin:20px 0 10px;">03 &middot; A vencer ({{ resumo.proximos|length }})</h2>
+      {% for prazo in resumo.proximos %}
+      <div style="border:1px solid #9fdadc;background:#e4f4f5;padding:12px 14px;margin-bottom:10px;border-radius:4px;">
+        <div style="font-weight:600;color:#0c1719;">{{ prazo.titulo }}</div>
+        <div style="font-size:13px;color:#4a5a5c;">{{ prazo.gestao.empresa }} &middot; {{ prazo.gestao.codigo }}</div>
+        <div style="font-size:13px;color:#1b6470;">Vence em {{ prazo.data_fim|date:"d/m/Y" }} &middot; faltam {{ prazo.dias_restantes }} dia(s)</div>
+        <div style="font-size:12px;color:#4a5a5c;">{{ prazo.base_legal|default:"controle interno" }}</div>
+        <a href="{{ site_url }}{{ prazo.gestao.get_absolute_url }}" style="font-size:13px;color:#1b6470;">abrir gest&atilde;o</a>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      <p style="margin:24px 0 0;">
+        <a href="{{ site_url }}/gestao/agenda/" style="display:inline-block;background:#1b6470;color:#ffffff;text-decoration:none;padding:10px 16px;border-radius:4px;font-weight:600;">Abrir agenda de prazos</a>
+      </p>
+    </div>
+
+    <div style="padding:14px 24px;background:#f4f7f7;border-top:1px solid #e8eded;font-size:12px;color:#4a5a5c;">
+      Aviso autom&aacute;tico do {{ app_nome }}. Prazos calculados a partir das datas cadastradas;
+      a confer&ecirc;ncia final &eacute; do respons&aacute;vel t&eacute;cnico.
+    </div>
+  </div>
+</body>
+</html>

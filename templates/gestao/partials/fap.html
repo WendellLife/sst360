@@ -1,0 +1,96 @@
+{% load sst_extras l10n %}
+<section class="cartao fap-cartao" id="fap" style="margin-top:18px">
+  <header class="cartao-cab">
+    <div>
+      <h2>FAP · Fator Acidentário de Prevenção</h2>
+      <div class="texto-fraco">Grau do RAT, pontuação pelos percentis do FAPWeb, nível e impacto na folha</div>
+    </div>
+    {% if fap_proxima %}<span class="etiqueta {{ fap_proxima.c.nivel.cor|badge_cor }}">Vigência {{ fap_proxima.vigencia }}: {{ fap_proxima.c.fap|fap }} · {{ fap_proxima.c.nivel.rotulo }}</span>{% endif %}
+  </header>
+
+  {% if fap_destaque %}{% with f=fap_destaque c=fap_destaque.c %}
+  <div class="fap-resumo">
+    <div class="fap-principal">
+      <div class="sobretitulo">FAP {{ f.vigencia }}{% if f == fap_vigente %} · vigente{% else %} · próxima vigência{% endif %}</div>
+      <div class="fap-numero num">{{ c.fap|fap }}</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span class="etiqueta {{ c.nivel.cor|badge_cor }}">Nível: {{ c.nivel.rotulo }}</span>
+        <span class="texto-fraco">{% if c.origem == 'oficial' %}valor oficial do FAPWeb{% else %}calculado pelos percentis{% endif %}{% if f.bloqueio %} · bonificação bloqueada{% endif %}</span>
+      </div>
+      <div class="fap-regua" aria-label="Posição do FAP entre 0,5000 e 2,0000">
+        <div class="faixas"><span class="bonus"></span><span class="malus"></span></div>
+        <span class="marcador" style="left:{{ fap_pos|unlocalize }}%" title="FAP {{ c.fap|fap }}"></span>
+        {% if fap_pos_meta is not None %}<span class="marcador meta" style="left:{{ fap_pos_meta|unlocalize }}%" title="Meta {{ gestao.fap_meta|fap }}"></span>{% endif %}
+        <div class="legenda num"><span>0,5000</span><span style="left:33.3%">1,0000</span><span>2,0000</span></div>
+      </div>
+      <p class="texto-suave" style="margin:10px 0 0">{{ c.nivel.explicacao }}</p>
+      {% if c.perda_bloqueio_anual %}<div class="aviso aviso--warning" style="margin-top:12px">Pela pontuação, o FAP seria <strong class="num">{{ c.fap_sem_bloqueio|fap }}</strong> sem o bloqueio ({{ f.get_bloqueio_display|lower }}). A empresa deixa de economizar <strong class="num">{{ c.perda_bloqueio_anual|moeda }}/ano</strong>. Vale analisar a contestação no FAPWeb.</div>{% endif %}
+    </div>
+
+    <dl class="fap-metricas">
+      <div><dt>Grau do RAT</dt><dd>{{ f.get_grau_rat_display }}</dd></div>
+      <div><dt>Pontuação (índice composto)</dt><dd class="num">{% if c.ic is not None %}{{ c.ic|fap }} <span class="texto-fraco">· {{ c.pontos|num_br }} de 100 pontos</span>{% else %}—{% endif %}</dd></div>
+      <div><dt>RAT ajustado (RAT × FAP)</dt><dd class="num">{% if c.rat_ajustado is not None %}{{ c.rat_ajustado|num_br:4 }}%{% else %}—{% endif %}</dd></div>
+      <div><dt>Contribuição RAT</dt><dd class="num">{% if c.custo_mensal is not None %}{{ c.custo_mensal|moeda }}/mês · {{ c.custo_anual|moeda }}/ano{% else %}<span class="texto-fraco">informe a folha mensal</span>{% endif %}</dd></div>
+      <div><dt>Frente ao FAP neutro (1,0000)</dt><dd class="num">{% if c.diferenca_neutro_anual is not None %}{% if c.diferenca_neutro_anual > 0 %}<span class="positivo">economia de {{ c.diferenca_neutro_anual|moeda }}/ano</span>{% elif c.diferenca_neutro_anual < 0 %}<span class="destaque-alerta">acréscimo de {{ c.diferenca_neutro_anual|absoluto|moeda }}/ano</span>{% else %}sem diferença{% endif %}{% else %}—{% endif %}</dd></div>
+      <div><dt>Até a meta {{ gestao.fap_meta|fap }}</dt><dd class="num">{% if fap_economia_meta %}<span class="positivo">economia de {{ fap_economia_meta|moeda }}/ano</span>{% elif gestao.fap_meta %}meta atingida{% else %}<span class="texto-fraco">defina a meta na gestão</span>{% endif %}</dd></div>
+    </dl>
+  </div>
+
+  {% if c.contribuicoes %}
+  <div class="fap-composicao">
+    <div class="sobretitulo" style="margin-bottom:10px">Composição da pontuação · quanto maior o percentil, pior a posição no CNAE</div>
+    {% for item in c.contribuicoes %}
+    <div class="fap-barra">
+      <span class="rotulo">{% if item.nome == 'gravidade' %}Gravidade{% elif item.nome == 'frequencia' %}Frequência{% else %}Custo{% endif %} <span class="texto-fraco">· peso {{ item.peso }}%</span></span>
+      <span class="trilho"><span style="width:{{ item.percentil|unlocalize }}%"></span></span>
+      <span class="num">percentil {{ item.percentil|num_br }} → {{ item.pontos|num_br }} pts</span>
+    </div>
+    {% endfor %}
+    <p class="texto-fraco" style="margin:8px 0 0">Pontuação = (0,50 × gravidade + 0,35 × frequência + 0,15 × custo) × 0,02. A gravidade pesa metade: reduzir tempo de afastamento e benefícios B91/B92/B93/B94 é o caminho mais rápido.</p>
+  </div>
+  {% endif %}
+  {% endwith %}{% else %}
+  <div class="cartao-corpo"><p class="texto-suave" style="margin:0">Nenhum FAP registrado. Lance o extrato do FAPWeb (percentis ou valor oficial) para ver o nível, a pontuação e o custo do RAT na folha.</p></div>
+  {% endif %}
+
+  {% if fichas_fap %}
+  <div class="tabela fap-tabela" style="border-left:0;border-right:0;border-radius:0">
+    <table>
+      <thead><tr><th>Vigência</th><th>Grau RAT</th><th>Percentis G · F · C</th><th>Pontuação</th><th>FAP</th><th>Nível</th><th class="direita">RAT ajustado</th><th class="direita">Custo anual</th><th></th></tr></thead>
+      <tbody>
+        {% for f in fichas_fap %}
+        <tr>
+          <td class="num"><strong>{{ f.vigencia }}</strong></td>
+          <td>{{ f.grau_rat }}%</td>
+          <td class="num texto-suave">{% if f.c.ic is not None %}{{ f.percentil_gravidade|num_br:0 }} · {{ f.percentil_frequencia|num_br:0 }} · {{ f.percentil_custo|num_br:0 }}{% else %}—{% endif %}</td>
+          <td class="num">{{ f.c.ic|fap }}</td>
+          <td class="num"><strong>{{ f.c.fap|fap }}</strong>{% if f.c.origem == 'oficial' %}<div class="apoio">oficial</div>{% endif %}</td>
+          <td><span class="etiqueta {{ f.c.nivel.cor|badge_cor }}">{{ f.c.nivel.rotulo }}</span></td>
+          <td class="num direita">{% if f.c.rat_ajustado is not None %}{{ f.c.rat_ajustado|num_br:4 }}%{% else %}—{% endif %}</td>
+          <td class="num direita">{{ f.c.custo_anual|moeda }}</td>
+          <td class="direita fap-acoes">
+            <a href="?fap={{ f.vigencia }}#fap">editar</a>
+            <form method="post" action="{% url 'gestao:fap_excluir' f.pk %}">{% csrf_token %}<button class="btn-texto" type="submit">remover</button></form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <div class="cartao-rodape">
+    <details {% if fap_edicao or not fichas_fap %}open{% endif %}>
+      <summary>{% if fap_edicao %}Editar FAP {{ fap_edicao.vigencia }}{% else %}Registrar FAP de uma vigência{% endif %}</summary>
+      <form method="post" action="{% url 'gestao:fap_salvar' gestao.pk %}" style="margin-top:12px">
+        {% csrf_token %}
+        {% include "partials/form_grid.html" with form=form_fap %}
+        <div class="form-acoes">
+          <button class="btn btn-primario" type="submit">Salvar FAP</button>
+          <span class="texto-fraco">Mesma vigência atualiza a ficha. A vigência atual passa a ser o "FAP vigente" da gestão.</span>
+        </div>
+      </form>
+    </details>
+  </div>
+</section>

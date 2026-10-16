@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Treinamentos - {{ APP_NOME }}{% endblock %}
+{% block conteudo_cliente %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Portal do cliente</div>
+    <h1>Treinamentos</h1>
+    <p class="subtitulo">Cronograma de turmas, treinamentos realizados e próximas reciclagens.</p>
+  </div>
+</div>
+
+{% if gestao %}
+<div class="kpis">
+  <div class="kpi"><div class="rotulo">Pessoas treinadas</div><div class="valor">{{ ind.pessoas_treinadas }}</div></div>
+  <div class="kpi"><div class="rotulo">Turmas realizadas</div><div class="valor">{{ ind.treinamentos_total }}</div></div>
+  <div class="kpi"><div class="rotulo">Em dia</div><div class="valor positivo">{{ ind.treinamentos_em_dia }}</div></div>
+  <div class="kpi"><div class="rotulo">Reciclagem vencida</div><div class="valor {% if ind.treinamentos_vencidos %}alerta{% endif %}">{{ ind.treinamentos_vencidos }}</div></div>
+</div>
+
+<div class="grade grade-2">
+  <section class="cartao">
+    <header class="cartao-cab"><h2>Próximas turmas</h2></header>
+    <ul class="lista">
+      {% for treinamento in planejados %}
+      <li>
+        <div class="reuniao">
+          <div class="quando-bloco">
+            <div class="dia">{{ treinamento.previsto_para|date:"d"|default:"—" }}</div>
+            <div class="mes">{{ treinamento.previsto_para|date:"M"|default:"a definir" }}</div>
+          </div>
+          <div class="corpo">
+            <div class="titulo" style="font-weight:600">{{ treinamento.nome }}</div>
+            <div class="texto-fraco">{{ treinamento.get_modalidade_display }}{% if treinamento.carga_horaria %} · {{ treinamento.carga_horaria }}h{% endif %}</div>
+          </div>
+        </div>
+      </li>
+      {% empty %}
+      <li class="vazio">Nenhuma turma planejada.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="cartao">
+    <header class="cartao-cab"><h2>Realizados</h2></header>
+    <ul class="lista">
+      {% for treinamento in realizados %}
+      <li>
+        <div class="linha-flex topo">
+          <div style="min-width:0">
+            <div class="titulo">{{ treinamento.nome }}</div>
+            <div class="texto-fraco num">{{ treinamento.realizado_em|date:"d/m/Y" }} · {{ treinamento.participantes }} participante(s) · {{ treinamento.get_modalidade_display }}</div>
+          </div>
+          <span class="etiqueta {{ treinamento.cor|badge_cor }}">{{ treinamento.situacao_rotulo }}</span>
+        </div>
+        {% if treinamento.valido_ate %}<div class="texto-fraco num">Reciclagem até {{ treinamento.valido_ate|date:"d/m/Y" }}</div>{% endif %}
+      </li>
+      {% empty %}
+      <li class="vazio">Nenhum treinamento registrado ainda.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% else %}
+<div class="cartao"><div class="vazio">A gestão da sua empresa ainda não foi cadastrada.</div></div>
+{% endif %}
+{% endblock %}

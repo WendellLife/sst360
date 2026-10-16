@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Gestões de SST - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">01 · Gestão</div>
+    <h1>Gestões de SST</h1>
+    <p class="subtitulo">Contratos de acompanhamento: etapa do método, documentos, treinamentos e plano de ação.</p>
+  </div>
+  <a class="btn btn-primario" href="{% url 'gestao:nova' %}">Nova gestão</a>
+</div>
+
+<form method="get" class="filtros">
+  <input class="busca" type="search" name="q" value="{{ q }}" placeholder="Código ou empresa">
+  <select name="etapa">
+    <option value="">Todas as etapas</option>
+    {% for valor, rotulo in etapas %}
+      <option value="{{ valor }}" {% if etapa_atual == valor %}selected{% endif %}>{{ valor }} · {{ rotulo }}</option>
+    {% endfor %}
+  </select>
+  <label class="campo marcavel">
+    <input type="checkbox" name="todas" value="1" {% if request.GET.todas == '1' %}checked{% endif %}>
+    <span>incluir encerradas</span>
+  </label>
+  <button class="btn" type="submit">Filtrar</button>
+  {% if q or etapa_atual %}<a class="btn-texto" href="{% url 'gestao:lista' %}">limpar</a>{% endif %}
+  <div class="espaco"></div>
+  <div class="resumo">{{ paginator.count|default:gestoes|length }} gestão(ões)</div>
+</form>
+
+<div class="tabela">
+  <table>
+    <thead>
+      <tr><th>Gestão</th><th>Empresa</th><th>Etapa do método</th><th>Documentos</th><th>Plano de ação</th><th>Modelo</th></tr>
+    </thead>
+    <tbody>
+      {% for linha in linhas %}{% with gestao=linha.gestao ind=linha.ind %}
+      <tr>
+        <td>
+          <a class="principal num" href="{{ gestao.get_absolute_url }}">{{ gestao.codigo }}</a>
+          <div class="apoio">desde {{ gestao.inicio|date:"m/Y" }}{% if not gestao.ativa %} · encerrada{% endif %}</div>
+        </td>
+        <td>
+          {{ gestao.empresa }}
+          <div class="apoio">{{ gestao.empresa.num_trabalhadores|default:"—" }} trabalhadores{% if gestao.empresa.grau_risco %} · GR {{ gestao.empresa.grau_risco }}{% endif %}</div>
+        </td>
+        <td><span class="etiqueta {{ gestao.cor_etapa|badge_cor }}">{{ gestao.etapa }} · {{ gestao.get_etapa_display }}</span></td>
+        <td>
+          <span class="num">{{ ind.documentos_vigentes }}/{{ ind.documentos_total }}</span>
+          <span class="apoio">vigentes</span>
+          {% if ind.documentos_vencidos %}<div class="apoio destaque-alerta">{{ ind.documentos_vencidos }} vencido(s)</div>
+          {% elif ind.documentos_a_vencer %}<div class="apoio">{{ ind.documentos_a_vencer }} a revisar</div>{% endif %}
+        </td>
+        <td style="min-width:150px">
+          <div class="linha-flex"><span class="num">{{ ind.acoes_percentual }}%</span><span class="apoio">{{ ind.acoes_encerradas }}/{{ ind.acoes_total }}</span></div>
+          <div class="medidor {% if ind.acoes_percentual == 100 %}completo{% endif %}" style="margin-top:4px"><span style="width:{{ ind.acoes_percentual }}%"></span></div>
+          {% if ind.acoes_atrasadas %}<div class="apoio destaque-alerta">{{ ind.acoes_atrasadas }} atrasada(s)</div>{% endif %}
+        </td>
+        <td class="texto-suave">{{ gestao.get_modelo_display }}</td>
+      </tr>
+      {% endwith %}{% empty %}
+      <tr><td colspan="6" class="vazio">Nenhuma gestão encontrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "partials/paginacao.html" %}
+{% endblock %}

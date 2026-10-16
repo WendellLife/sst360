@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load sst_extras l10n %}
+{% block titulo %}Indicadores - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+{% with c=carteira cf=conformidade v=comercial.vendas fu=comercial.funil dg=comercial.diagnosticos f=fap %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Painel interno · indicadores</div>
+    <h1>Indicadores da carteira</h1>
+    <p class="subtitulo">{{ periodo.rotulo }} · comercial, conformidade, FAP e carteira. Os mesmos números vão para a apresentação.</p>
+  </div>
+</div>
+
+<form method="get" class="filtros barra-indicadores">
+  <label class="filtro-data">De <input type="date" name="de" value="{{ filtro.de }}"></label>
+  <label class="filtro-data">até <input type="date" name="ate" value="{{ filtro.ate }}"></label>
+  <button class="btn" type="submit">Atualizar</button>
+  <div class="espaco"></div>
+  <a class="btn btn-primario" href="{% url 'core:indicadores_pptx' %}?de={{ filtro.de }}&ate={{ filtro.ate }}">Baixar apresentação (.pptx)</a>
+</form>
+
+<nav class="ancoras-indicadores" aria-label="Seções">
+  <a href="#resumo">Resumo</a><a href="#comercial">Comercial</a><a href="#conformidade">Conformidade</a><a href="#fap">FAP</a><a href="#carteira">Carteira</a><a href="#clientes">Clientes</a>
+</nav>
+
+<section id="resumo" class="secao-indicadores">
+  <div class="kpis kpis-4">
+    <div class="kpi destaque"><div class="rotulo">Vendido no período</div><div class="valor" style="font-size:24px">{{ v.total|moeda }}</div><div class="sub">{{ v.quantidade }} venda(s) · {{ v.recebido|moeda }} recebido</div></div>
+    <div class="kpi"><div class="rotulo">Receita recorrente</div><div class="valor" style="font-size:24px">{{ c.receita_mensal|moeda }}</div><div class="sub">por mês · {{ c.gestoes }} gestão(ões) ativa(s)</div></div>
+    <div class="kpi"><div class="rotulo">Economia possível no FAP</div><div class="valor positivo" style="font-size:24px">{{ f.potencial|moeda }}</div><div class="sub">por ano · {{ f.nao_contratado }} cliente(s) sem o serviço</div></div>
+    <div class="kpi"><div class="rotulo">Funil em aberto</div><div class="valor" style="font-size:24px">{{ fu.pipeline|moeda }}</div><div class="sub">por mês · {{ fu.abertos }} lead(s) · conversão {{ fu.conversao }}%</div></div>
+    <div class="kpi"><div class="rotulo">Documentos em dia</div><div class="valor {% if cf.documentos.vencido %}alerta{% endif %}">{{ cf.documentos.pct_vigentes }}%</div><div class="sub">{{ cf.documentos.vencido }} vencido(s) · {{ cf.documentos.a_vencer }} a revisar</div></div>
+    <div class="kpi"><div class="rotulo">Plano de ação</div><div class="valor">{{ cf.acoes.pct }}%</div><div class="sub {% if cf.acoes.atrasadas %}destaque-alerta{% endif %}">{{ cf.acoes.encerradas }}/{{ cf.acoes.total }} concluídas · {{ cf.acoes.atrasadas }} atrasada(s)</div></div>
+    <div class="kpi"><div class="rotulo">Prazos cumpridos no prazo</div><div class="valor">{{ cf.prazos.pct_no_prazo }}%</div><div class="sub {% if cf.prazos.atrasados %}destaque-alerta{% endif %}">{{ cf.prazos.atrasados }} atrasado(s) agora · {{ cf.prazos.proximos_30 }} em 30 dias</div></div>
+    <div class="kpi"><div class="rotulo">Pessoas treinadas</div><div class="valor">{{ cf.treinamentos.pessoas_periodo }}</div><div class="sub">{{ cf.treinamentos.turmas_periodo }} turma(s) · {{ cf.treinamentos.horas_periodo }} h·pessoa</div></div>
+  </div>
+  {% if destaques %}
+  <section class="cartao"><header class="cartao-cab"><h2>Destaques do período</h2><span class="texto-fraco">abrem a apresentação</span></header>
+    <div class="cartao-corpo"><ul class="destaques-lista">
+      {% for tipo, frase in destaques %}<li><span class="etiqueta marca-destaque {% if tipo == 'alerta' %}etiqueta--vermelho{% elif tipo == 'oportunidade' %}etiqueta--amarelo{% else %}etiqueta--verde{% endif %}">{% if tipo == 'alerta' %}Atenção{% elif tipo == 'oportunidade' %}Oportunidade{% else %}Resultado{% endif %}</span> {{ frase }}</li>{% endfor %}
+    </ul></div>
+  </section>
+  {% endif %}
+</section>
+
+<section id="comercial" class="secao-indicadores">
+  <h2 class="titulo-secao">Comercial</h2>
+  <p class="mensagem-secao">Vendas lançadas no período, funil de prospecção e diagnósticos do site.</p>
+  <div class="grade grade-2-1">
+    <section class="cartao">
+      <header class="cartao-cab"><h2>Vendas por mês</h2><span class="texto-fraco">ticket médio {{ v.ticket_medio|moeda }}</span></header>
+      <div class="cartao-corpo">{{ graficos.vendas_mes }}</div>
+      <details class="tabela-grafico"><summary>Ver em tabela</summary><table><tr><th>Mês</th><th>Vendido</th><th>Recebido</th><th>Vendas</th></tr>{% for m in v.por_mes %}<tr><td>{{ m.rotulo }}</td><td class="num">{{ m.total|moeda }}</td><td class="num">{{ m.recebido|moeda }}</td><td class="num">{{ m.qtd }}</td></tr>{% endfor %}</table></details>
+    </section>
+    <section class="cartao"><div class="cartao-corpo">
+      <dl class="numeros-grandes" style="grid-template-columns:1fr 1fr">
+        <div><dt>Recebido</dt><dd class="num">{{ v.recebido|moeda }}</dd></div>
+        <div><dt>A receber</dt><dd class="num">{{ v.a_receber|moeda }}</dd></div>
+        <div><dt>Recorrente</dt><dd class="num">{{ v.recorrente|moeda }}</dd></div>
+        <div><dt>Canceladas</dt><dd class="num">{{ v.canceladas }}</dd></div>
+      </dl>
+      <div class="sobretitulo" style="margin:6px 0 8px">Maiores clientes no período</div>
+      {{ graficos.vendas_cliente }}
+    </div></section>
+  </div>
+  <div class="grade grade-2" style="margin-top:18px">
+    <section class="cartao"><header class="cartao-cab"><h2>Vendas por serviço</h2><span class="texto-fraco">valor · quantidade</span></header><div class="cartao-corpo">{{ graficos.vendas_servico }}</div></section>
+    <section class="cartao"><header class="cartao-cab"><h2>Funil em aberto</h2><span class="texto-fraco">{{ fu.ganhos }} ganho(s) · {{ fu.perdidos }} perdido(s) no período</span></header><div class="cartao-corpo">{{ graficos.funil }}</div></section>
+  </div>
+  <section class="cartao" style="margin-top:18px">
+    <header class="cartao-cab"><h2>Diagnósticos do site</h2><span class="texto-fraco">{{ dg.total }} no período · {{ dg.pct_lead }}% viraram lead · {{ dg.whatsapp }} chamaram no WhatsApp</span></header>
+    <div class="cartao-corpo">{{ graficos.diagnosticos }}<p class="texto-fraco" style="margin:10px 0 0">Exposição média em multas por diagnóstico (teto): <strong class="num">{{ dg.exposicao_media|moeda }}</strong>.</p></div>
+  </section>
+</section>
+
+<section id="conformidade" class="secao-indicadores">
+  <h2 class="titulo-secao">Conformidade da carteira</h2>
+  <p class="mensagem-secao">Documentos técnicos, reciclagens, prazos normativos e planos de ação das gestões ativas.</p>
+  <div class="grade grade-2">
+    <section class="cartao"><header class="cartao-cab"><h2>Documentos técnicos</h2><span class="texto-fraco">{{ cf.documentos.total }} documento(s)</span></header>
+      <div class="cartao-corpo">{{ graficos.documentos }}
+        <div class="legenda-grafico"><span><i class="g-ok"></i>Vigentes {{ cf.documentos.vigente }}</span><span><i class="g-atencao"></i>A revisar {{ cf.documentos.a_vencer }}</span><span><i class="g-critico"></i>Vencidos {{ cf.documentos.vencido }}</span><span><i class="g-neutra"></i>Em elaboração {{ cf.documentos.elaboracao }}</span></div>
+      </div></section>
+    <section class="cartao"><header class="cartao-cab"><h2>Reciclagens</h2><span class="texto-fraco">{{ cf.treinamentos.em_dia|add:cf.treinamentos.a_vencer|add:cf.treinamentos.vencidas }} turma(s)</span></header>
+      <div class="cartao-corpo">{{ graficos.reciclagens }}
+        <div class="legenda-grafico"><span><i class="g-ok"></i>Em dia {{ cf.treinamentos.em_dia }}</span><span><i class="g-atencao"></i>A reciclar {{ cf.treinamentos.a_vencer }}</span><span><i class="g-critico"></i>Vencidas {{ cf.treinamentos.vencidas }}</span></div>
+        <p class="texto-fraco" style="margin:10px 0 0">{{ cf.treinamentos.pessoas_periodo }} pessoa(s) treinada(s) no período · {{ cf.treinamentos.horas_periodo }} h·pessoa.</p>
+      </div></section>
+  </div>
+  <div class="grade grade-2" style="margin-top:18px">
+    <section class="cartao"><header class="cartao-cab"><h2>Prazos normativos</h2><span class="texto-fraco">vencimento no período</span></header><div class="cartao-corpo">
+      <dl class="numeros-grandes">
+        <div><dt>No período</dt><dd class="num">{{ cf.prazos.no_periodo }}</dd></div>
+        <div><dt>Cumpridos</dt><dd class="num">{{ cf.prazos.cumpridos }}</dd></div>
+        <div><dt>No prazo</dt><dd class="num">{{ cf.prazos.pct_no_prazo }}%</dd></div>
+        <div><dt>Atrasados agora</dt><dd class="num {% if cf.prazos.atrasados %}destaque-alerta{% endif %}">{{ cf.prazos.atrasados }}</dd></div>
+        <div><dt>Próximos 30 dias</dt><dd class="num">{{ cf.prazos.proximos_30 }}</dd></div>
+      </dl></div></section>
+    <section class="cartao"><header class="cartao-cab"><h2>Planos de ação</h2><span class="texto-fraco">{{ cf.acoes.encerradas }} de {{ cf.acoes.total }} concluídas</span></header><div class="cartao-corpo">
+      <dl class="numeros-grandes">
+        <div><dt>Concluído</dt><dd class="num">{{ cf.acoes.pct }}%</dd></div>
+        <div><dt>Em aberto</dt><dd class="num">{{ cf.acoes.abertas }}</dd></div>
+        <div><dt>Atrasadas</dt><dd class="num {% if cf.acoes.atrasadas %}destaque-alerta{% endif %}">{{ cf.acoes.atrasadas }}</dd></div>
+        {% if cf.acoes.custo_aberto %}<div><dt>Custo em aberto</dt><dd class="num">{{ cf.acoes.custo_aberto|moeda }}</dd></div>{% endif %}
+      </dl></div></section>
+  </div>
+</section>
+
+<section id="fap" class="secao-indicadores">
+  <h2 class="titulo-secao">FAP dos clientes</h2>
+  <p class="mensagem-secao">{{ f.com_fap }} cliente(s) com FAP lançado · pago acima do neutro: <strong class="num">{{ f.acrescimo|moeda }}/ano</strong> · custo do RAT na carteira: <strong class="num">{{ f.custo_rat|moeda }}/ano</strong>.</p>
+  <div class="grade grade-2-1">
+    <section class="cartao"><header class="cartao-cab"><h2>FAP de cada cliente</h2><span class="texto-fraco">ponto = FAP vigente · círculo vazado = meta</span></header><div class="cartao-corpo">{{ graficos.fap }}</div></section>
+    <section class="cartao"><header class="cartao-cab"><h2>Oportunidades</h2><a href="{% url 'gestao:fap_carteira' %}">FAP dos clientes</a></header>
+      <ul class="lista">
+        {% for x in f.oportunidades %}<li class="linha-flex"><div style="min-width:0"><a class="titulo" href="{{ x.empresa.get_absolute_url }}">{{ x.empresa }}</a><div class="texto-fraco">{{ x.c.nivel.rotulo }}{% if not x.contratado %} · redução não contratada{% endif %}</div></div><span class="num positivo" style="font-weight:600">{{ x.potencial|moeda }}</span></li>
+        {% empty %}<li class="vazio">Sem oportunidades calculadas.</li>{% endfor %}
+      </ul></section>
+  </div>
+</section>
+
+<section id="carteira" class="secao-indicadores">
+  <h2 class="titulo-secao">Carteira</h2>
+  <p class="mensagem-secao">{{ c.clientes }} cliente(s) · {{ c.gestoes }} gestão(ões) ativa(s) · {{ c.trabalhadores }} trabalhadores cobertos · {{ c.receita_mensal|moeda }}/mês.</p>
+  <section class="cartao"><header class="cartao-cab"><h2>Gestões por etapa do método</h2></header><div class="cartao-corpo">{{ graficos.etapas }}</div></section>
+</section>
+
+<section id="clientes" class="secao-indicadores">
+  <h2 class="titulo-secao">Por cliente</h2>
+  <p class="mensagem-secao">Quem tem mais pendências aparece primeiro.</p>
+  <div class="tabela">
+    <table>
+      <thead><tr><th>Cliente</th><th>Etapa</th><th>Documentos em dia</th><th>Plano de ação</th><th>Pendências</th><th>FAP</th></tr></thead>
+      <tbody>
+        {% for cl in clientes %}
+        <tr>
+          <td><a class="principal" href="{{ cl.gestao.get_absolute_url }}">{{ cl.nome }}</a><div class="apoio">{{ cl.gestao.codigo }}</div></td>
+          <td class="texto-suave">{{ cl.etapa }} · {{ cl.etapa_rotulo }}</td>
+          <td style="min-width:150px"><div class="medidor-linha"><span class="trilho"><span style="width:{{ cl.pct_docs|unlocalize }}%"></span></span><span class="num">{{ cl.pct_docs }}%</span></div></td>
+          <td style="min-width:150px"><div class="medidor-linha"><span class="trilho"><span style="width:{{ cl.ind.acoes_percentual|unlocalize }}%"></span></span><span class="num">{{ cl.ind.acoes_percentual }}%</span></div></td>
+          <td class="texto-suave" style="font-size:13px">{% if cl.alerta %}{% if cl.ind.documentos_vencidos %}{{ cl.ind.documentos_vencidos }} doc. vencido(s)<br>{% endif %}{% if cl.prazos_atrasados %}{{ cl.prazos_atrasados }} prazo(s) atrasado(s)<br>{% endif %}{% if cl.ind.acoes_atrasadas %}{{ cl.ind.acoes_atrasadas }} ação(ões) atrasada(s)<br>{% endif %}{% if cl.ind.treinamentos_vencidos %}{{ cl.ind.treinamentos_vencidos }} reciclagem(ns) vencida(s){% endif %}{% else %}<span class="etiqueta etiqueta--verde">em dia</span>{% endif %}</td>
+          <td>{% if cl.fap.c %}<span class="num">{{ cl.fap.c.fap|fap }}</span> <span class="etiqueta {{ cl.fap.c.nivel.cor|badge_cor }}">{{ cl.fap.c.nivel.rotulo }}</span>{% else %}<span class="texto-fraco">—</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+<p class="texto-fraco" style="font-size:12px">Gerado em {{ gerado_em|date:"d/m/Y H:i" }}. Vendas e diagnósticos contam o período; documentos, reciclagens, planos e FAP mostram a situação de hoje.</p>
+{% endwith %}
+{% endblock %}

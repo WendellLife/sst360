@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Importar plano de ação - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<a class="voltar" href="{{ gestao.get_absolute_url }}">← {{ gestao.empresa }}</a>
+
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Plano de ação · {{ gestao.codigo }}</div>
+    <h1>Importar planilha</h1>
+    <p class="subtitulo">{{ gestao.empresa }}. Medidas de controle do inventário de riscos do PGR, uma por linha.</p>
+  </div>
+</div>
+
+{% if not resultado %}
+<div class="grade grade-2-1">
+  <section class="cartao"><div class="cartao-corpo">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% include "partials/form_grid.html" with form=form %}
+      <div class="form-acoes">
+        <button class="btn btn-primario" type="submit">Ler planilha</button>
+        <span class="texto-fraco">Nada é gravado agora: a prévia vem antes.</span>
+      </div>
+    </form>
+  </div></section>
+  <aside class="cartao"><div class="cartao-corpo">
+    <div class="rotulo-mono" style="margin-bottom:8px">Formato esperado</div>
+    <p class="texto-suave">Coluna obrigatória: <strong>Ação</strong>. Opcionais: Risco, Setor/GHE, Prioridade, Prazo, Responsável, Status, Custo e Observações.</p>
+    <p class="texto-suave">Ordem livre; colunas a mais são ignoradas. Risco aceita físico, químico, biológico, ergonômico, acidente, psicossocial ou gestão. Valores no formato 1.234,56.</p>
+    <a class="btn btn-escuro" style="margin-top:12px" href="{% url 'gestao:plano_modelo' %}">Baixar planilha modelo</a>
+  </div></aside>
+</div>
+{% else %}
+
+<div class="kpis">
+  <div class="kpi"><div class="rotulo">Linhas lidas</div><div class="valor">{{ resultado.linhas|length }}</div></div>
+  <div class="kpi"><div class="rotulo">Prontas para importar</div><div class="valor positivo">{{ resultado.validas|length }}</div></div>
+  <div class="kpi"><div class="rotulo">Com problema</div><div class="valor {% if resultado.invalidas %}alerta{% endif %}">{{ resultado.invalidas|length }}</div></div>
+  <div class="kpi"><div class="rotulo">Prioridade alta</div><div class="valor">{{ resultado.alta_prioridade }}</div></div>
+</div>
+
+{% if resultado.invalidas %}
+<div class="aviso aviso--error" style="margin-bottom:18px">
+  <strong>{{ resultado.invalidas|length }} linha(s) com problema</strong> ficam de fora. Corrija a planilha e envie de novo, ou siga sem elas.
+  <ul style="margin:8px 0 0;padding-left:18px">
+    {% for linha in resultado.invalidas %}
+    <li>Linha {{ linha.linha }} · {{ linha.descricao|default:"(sem descrição)" }} · {{ linha.erros|join:"; " }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<section class="cartao">
+  <header class="cartao-cab"><h2>Prévia · {{ resultado.validas|length }} ação(ões)</h2></header>
+  <div class="tabela" style="border:0;border-radius:0;max-height:28rem;overflow-y:auto">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Ação</th><th>Risco</th><th>Setor</th><th>Prioridade</th><th>Prazo</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for linha in resultado.validas %}
+        <tr>
+          <td class="dado texto-fraco">{{ linha.linha }}</td>
+          <td class="principal">{{ linha.descricao }}</td>
+          <td class="texto-suave">{{ linha.risco_rotulo }}</td>
+          <td class="texto-suave">{{ linha.setor|default:"—" }}</td>
+          <td>{{ linha.prioridade_rotulo }}</td>
+          <td class="num texto-suave">{{ linha.prazo|date:"d/m/Y"|default:"—" }}</td>
+          <td class="texto-suave">{{ linha.status_rotulo }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if resultado.colunas_ignoradas %}
+  <div class="cartao-rodape texto-fraco">Colunas ignoradas: {{ resultado.colunas_ignoradas|join:", " }}</div>
+  {% endif %}
+  <div class="cartao-rodape">
+    <form method="post" action="{% url 'gestao:plano_importar_confirmar' importacao.pk %}" class="form-acoes" style="margin:0">
+      {% csrf_token %}
+      <input type="hidden" name="politica" value="{{ politica }}">
+      <button class="btn btn-primario" type="submit">Gravar {{ resultado.validas|length }} ação(ões)</button>
+      <a class="btn-texto" href="{{ gestao.get_absolute_url }}">Cancelar</a>
+      <span class="texto-fraco">
+        Ações já cadastradas:
+        {% if politica == 'atualizar' %}atualizadas{% elif politica == 'ignorar' %}mantidas como estão{% else %}criadas de novo{% endif %}.
+      </span>
+    </form>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

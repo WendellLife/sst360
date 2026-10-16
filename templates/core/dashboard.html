@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Painel - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Painel interno · {% now "d/m/Y" %}</div>
+    <h1>Visão geral</h1>
+    <p class="subtitulo">Carteira de gestões de SST, prazos normativos, vencimentos e captação.</p>
+  </div>
+  <div class="acoes">
+    <a class="btn" href="{% url 'core:indicadores' %}">Indicadores</a>
+    <a class="btn" href="{% url 'crm:novo' %}">Novo lead</a>
+    <a class="btn btn-primario" href="{% url 'gestao:nova' %}">Nova gestão</a>
+  </div>
+</div>
+
+<div class="kpis kpis-4">
+  <div class="kpi destaque">
+    <div class="rotulo">Gestões ativas</div>
+    <div class="valor">{{ total_gestoes }}</div>
+    <div class="sub">{{ total_clientes }} cliente(s) · {{ trabalhadores }} trabalhadores</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Receita recorrente</div>
+    <div class="valor" style="font-size:24px">{{ receita_mensal|moeda }}</div>
+    <div class="sub">por mês, contratos ativos</div>
+  </div>
+  <a class="kpi kpi-link" href="{% url 'vendas:lista' %}">
+    <div class="rotulo">Vendas no mês</div>
+    <div class="valor" style="font-size:24px">{{ vendas_mes.total|moeda }}</div>
+    <div class="sub">{{ vendas_mes.quantidade }} venda(s) · {{ vendas_mes.recebido|moeda }} recebido</div>
+  </a>
+  <a class="kpi kpi-link" href="{% url 'vendas:lista' %}">
+    <div class="rotulo">A receber no mês</div>
+    <div class="valor" style="font-size:24px">{{ vendas_mes.a_receber|moeda }}</div>
+    <div class="sub">vendas fechadas e faturadas</div>
+  </a>
+  <div class="kpi">
+    <div class="rotulo">Prazos atrasados</div>
+    <div class="valor {% if total_prazos_atrasados %}alerta{% endif %}">{{ total_prazos_atrasados }}</div>
+    <div class="sub">{{ prazos_criticos|length }} em alerta</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Documentos vencidos</div>
+    <div class="valor {% if total_documentos_vencidos %}alerta{% endif %}">{{ total_documentos_vencidos }}</div>
+    <div class="sub">{{ total_documentos_alerta }} a revisar em 60 dias</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Ações atrasadas</div>
+    <div class="valor {% if total_acoes_atrasadas %}alerta{% endif %}">{{ total_acoes_atrasadas }}</div>
+    <div class="sub">nos planos de ação</div>
+  </div>
+  <div class="kpi">
+    <div class="rotulo">Funil em aberto</div>
+    <div class="valor">{{ total_leads }}</div>
+    <div class="sub">{{ pipeline_valor|moeda }}/mês</div>
+  </div>
+</div>
+
+{% if diagnosticos_novos %}
+<div class="aviso aviso--info" style="margin-bottom:18px">
+  <strong>{{ diagnosticos_novos }} diagnóstico(s) do site</strong> aguardando o primeiro contato.
+  <a href="{% url 'crm:diagnosticos' %}">abrir diagnósticos</a>
+</div>
+{% endif %}
+
+<div class="grade grade-2-1">
+  <section class="cartao">
+    <header class="cartao-cab">
+      <h2>Prazos críticos</h2>
+      <a href="{% url 'gestao:agenda' %}">abrir agenda</a>
+    </header>
+    <ul class="lista">
+      {% for prazo in prazos_criticos %}
+      <li class="linha-flex">
+        <div style="min-width:0">
+          <a class="titulo" href="{{ prazo.gestao.get_absolute_url }}">{{ prazo.titulo }}</a>
+          <div class="texto-fraco">{{ prazo.gestao.empresa }} · {{ prazo.base_legal|default:prazo.get_tipo_display }}</div>
+        </div>
+        <span class="etiqueta {{ prazo.cor|badge_cor }} num">
+          {{ prazo.data_fim|date:"d/m/Y" }}{% if prazo.atrasado %} · {{ prazo.dias_atraso }}d atraso{% else %} · {{ prazo.dias_restantes }}d{% endif %}
+        </span>
+      </li>
+      {% empty %}
+      <li class="vazio">Nenhum prazo crítico nos próximos dias.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="cartao">
+    <header class="cartao-cab"><h2>Gestões por etapa do método</h2></header>
+    <ul class="lista">
+      {% for item in por_etapa %}
+      <li class="linha-flex">
+        <span><span class="dado texto-fraco">{{ item.valor }}</span> · {{ item.rotulo }}</span>
+        <span class="serif" style="font-size:18px">{{ item.total }}</span>
+      </li>
+      {% empty %}
+      <li class="vazio">Nenhuma gestão ativa.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
+<div class="grade grade-3" style="margin-top:18px">
+  <section class="cartao">
+    <header class="cartao-cab">
+      <h2>Documentos a revisar</h2>
+      <a href="{% url 'gestao:vencimentos' %}">ver todos</a>
+    </header>
+    <ul class="lista">
+      {% for documento in documentos_alerta %}
+      <li>
+        <div class="linha-flex">
+          <a class="titulo" href="{{ documento.gestao.get_absolute_url }}">{{ documento.sigla }}</a>
+          <span class="etiqueta {{ documento.cor|badge_cor }}">{{ documento.situacao_rotulo }}</span>
+        </div>
+        <div class="texto-fraco">{{ documento.gestao.empresa }} · até {{ documento.valido_ate|date:"d/m/Y" }}</div>
+      </li>
+      {% empty %}
+      <li class="vazio">Nenhum documento vence nos próximos 60 dias.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="cartao">
+    <header class="cartao-cab">
+      <h2>Reciclagens</h2>
+      <a href="{% url 'gestao:vencimentos' %}">ver todas</a>
+    </header>
+    <ul class="lista">
+      {% for treinamento in treinamentos_alerta %}
+      <li>
+        <div class="linha-flex">
+          <a class="titulo" href="{{ treinamento.gestao.get_absolute_url }}">{{ treinamento.get_tipo_display }}</a>
+          <span class="etiqueta {{ treinamento.cor|badge_cor }}">{{ treinamento.valido_ate|date:"d/m/Y" }}</span>
+        </div>
+        <div class="texto-fraco">{{ treinamento.gestao.empresa }} · {{ treinamento.participantes }} participante(s)</div>
+      </li>
+      {% empty %}
+      <li class="vazio">Nenhuma reciclagem nos próximos 60 dias.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="cartao">
+    <header class="cartao-cab"><h2>Próximas visitas</h2></header>
+    <ul class="lista">
+      {% for visita in proximas_visitas %}
+      <li>
+        <a class="titulo" href="{% url 'relacionamento:painel' visita.gestao.pk %}">{{ visita.gestao.empresa }}</a>
+        <div class="texto-fraco num">{{ visita.get_tipo_display }} · {{ visita.quando|date:"d/m H:i" }}</div>
+        <div class="texto-suave">{{ visita.titulo }}</div>
+      </li>
+      {% empty %}
+      <li class="vazio">Nenhuma visita agendada.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
+<section class="cartao" style="margin-top:18px">
+  <header class="cartao-cab">
+    <h2>Funil de prospecção</h2>
+    <a href="{% url 'crm:funil' %}">abrir funil</a>
+  </header>
+  <div class="cartao-corpo">
+    <div class="estagios">
+      {% for item in leads_por_estagio %}
+      <div>
+        <div class="sobretitulo">{{ item.rotulo }}</div>
+        <div class="serif" style="font-size:24px">{{ item.total }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% if leads_atrasados %}
+  <div class="cartao-rodape">
+    <span class="sobretitulo destaque-alerta">Contatos atrasados:</span>
+    {% for lead in leads_atrasados %}<a href="{{ lead.get_absolute_url }}">{{ lead }}</a> <span class="texto-fraco">{{ lead.proximo_contato|date:"d/m" }}</span>{% if not forloop.last %} · {% endif %}{% endfor %}
+  </div>
+  {% endif %}
+</section>
+
+<section class="cartao" style="margin-top:18px">
+  <header class="cartao-cab">
+    <div><h2>Oportunidades de FAP</h2><div class="texto-fraco">{{ fap_malus }} cliente(s) em malus · economia possível de <span class="num">{{ fap_potencial_total|moeda }}</span>/ano na carteira</div></div>
+    <a href="{% url 'gestao:fap_carteira' %}">FAP dos clientes</a>
+  </header>
+  <ul class="lista">
+    {% for x in fap_oportunidades %}
+    <li class="linha-flex">
+      <div style="min-width:0">
+        <a class="titulo" href="{{ x.empresa.get_absolute_url }}">{{ x.empresa }}</a> <span class="etiqueta {{ x.c.nivel.cor|badge_cor }}">FAP {{ x.c.fap|fap }} · {{ x.c.nivel.rotulo }}</span>{% if not x.contratado %} <span class="etiqueta etiqueta--amarelo">redução não contratada</span>{% endif %}
+        <div class="texto-fraco">{{ x.argumento }}</div>
+      </div>
+      <div class="direita"><div class="num positivo" style="font-weight:600">{{ x.potencial|moeda }}</div><div class="apoio texto-fraco">por ano</div></div>
+    </li>
+    {% empty %}
+    <li class="vazio">Nenhuma oportunidade de FAP. Lance o extrato do FAPWeb nas gestões para calcular.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="cartao" style="margin-top:18px">
+  <header class="cartao-cab">
+    <h2>Últimas vendas</h2>
+    <a href="{% url 'vendas:lista' %}">ver vendas</a>
+  </header>
+  <ul class="lista">
+    {% for venda in ultimas_vendas %}
+    <li class="linha-flex">
+      <div style="min-width:0">
+        <a class="titulo" href="{{ venda.empresa.get_absolute_url }}#vendas">{{ venda.empresa }}</a>
+        <div class="texto-fraco">{{ venda.data|date:"d/m" }} · {{ venda.descricao }}</div>
+      </div>
+      <div class="direita"><div class="num">{{ venda.total|moeda }}{% if venda.cobranca == 'MEN' %}<span class="texto-fraco">/mês</span>{% endif %}</div><span class="etiqueta {{ venda.cor|badge_cor }}">{{ venda.get_status_display }}</span></div>
+    </li>
+    {% empty %}
+    <li class="vazio">Nenhuma venda lançada. Registre pela página de cada empresa.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+{% if empresas_sem_gestao %}
+<div class="aviso aviso--warning" style="margin-top:18px">
+  <strong>Clientes sem gestão ativa:</strong>
+  {% for empresa in empresas_sem_gestao %}<a href="{{ empresa.get_absolute_url }}">{{ empresa }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+</div>
+{% endif %}
+{% endblock %}

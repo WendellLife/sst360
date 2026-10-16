@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sst360_db
+    environment:
+      POSTGRES_DB: sst360
+      POSTGRES_USER: sst360
+      POSTGRES_PASSWORD: sst360
+    ports:
+      # 5433 no host: evita conflito com um Postgres ja instalado na maquina
+      - "5433:5432"
+    volumes:
+      - sst360_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sst360"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  sst360_pgdata:
