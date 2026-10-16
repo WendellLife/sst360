@@ -315,3 +315,26 @@ details > summary { color: var(--text-brand); font-weight: 600; font-variation-s
 @media (hover: hover) and (pointer: fine) { .portal-nav .sb-link:hover { background: var(--surface-sunken); color: var(--text-strong); } .portal-nav .sb-link.is-active:hover { background: var(--surface-brand-subtle); color: var(--text-brand); } }
 @media (max-width: 1100px) { .portal-nav .sb-link > span:not(.sb-count) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } }
 .cartao-cab h2:has(+ .etiqueta) { flex-shrink: 0; max-width: calc(100% - 64px); }
+
+/* ------------------------------------------------------------ subtítulo da página como ícone de informação */
+html.js .cabecalho .subtitulo { display: none; }
+.cabecalho h1 { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+.info-titulo { position: relative; display: inline-flex; flex: 0 0 auto; }
+.info-titulo__btn.ib { width: 30px; height: 30px; color: var(--text-muted); }
+.info-titulo.is-open .info-titulo__btn.ib { background: var(--surface-brand-subtle); color: var(--text-brand); }
+.info-titulo__dica {
+  position: absolute; top: calc(100% + 8px); left: -8px; z-index: 40;
+  width: max-content; max-width: min(380px, calc(100vw - 48px)); padding: var(--space-3) var(--space-4);
+  background: var(--glass-solid); color: var(--text-body); border: 1px solid var(--glass-edge); border-radius: var(--radius-md);
+  box-shadow: 0 0 0 1px var(--glass-ring), 0 18px 44px -18px rgb(12 23 25 / .35), var(--glass-hl);
+  -webkit-backdrop-filter: var(--glass-blur-bar); backdrop-filter: var(--glass-blur-bar);
+  font-family: var(--font-brand); font-variation-settings: var(--fv-text); font-weight: 400; font-size: var(--text-sm);
+  line-height: var(--leading-normal); letter-spacing: 0; text-transform: none; white-space: normal;
+  display: none;
+}
+.info-titulo:hover .info-titulo__dica, .info-titulo:focus-within .info-titulo__dica, .info-titulo.is-open .info-titulo__dica {
+  display: block; animation: rz-in var(--dur-base) var(--ease-out) backwards;
+}
+@media (max-width: 560px) { .info-titulo { position: static; } .cabecalho > div:first-child { position: relative; } .info-titulo__dica { left: 0; right: 0; max-width: none; width: auto; } }
+.info-titulo__dica a { color: var(--text-brand); }
+@media (prefers-reduced-motion: reduce) { .info-titulo__dica { animation: rz-fade var(--dur-base) var(--ease-out) backwards; } }
