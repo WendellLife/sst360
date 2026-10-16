@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Busca - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Busca</div>
+    <h1>{% if q %}Resultados para “{{ q }}”{% else %}Buscar no sistema{% endif %}</h1>
+    <p class="subtitulo">Empresas atendidas, gestões de SST e leads, pelo nome, CNPJ, código ou contato.</p>
+  </div>
+</div>
+
+<form class="filtros" method="get">
+  <input class="busca" type="search" name="q" value="{{ q }}" placeholder="Nome, CNPJ, código da gestão…" autofocus>
+  <button class="btn btn-primario" type="submit">Buscar</button>
+</form>
+
+{% if q|length < 2 %}
+  <div class="cartao"><div class="vazio">Digite pelo menos duas letras.</div></div>
+{% elif not total %}
+  <div class="cartao"><div class="vazio">Nada encontrado para “{{ q }}”.</div></div>
+{% else %}
+<div class="grade grade-3">
+  <section class="cartao">
+    <div class="cartao-cab"><h2>Empresas</h2><span class="etiqueta etiqueta--marca">{{ empresas|length }}</span></div>
+    <ul class="lista">
+      {% for e in empresas %}
+      <li><a class="titulo" href="{{ e.get_absolute_url }}">{{ e.nome_fantasia|default:e.razao_social }}</a>
+        <div class="texto-fraco"><span class="mono">{{ e.cnpj|cnpj }}</span> · {{ e.get_situacao_display }}</div></li>
+      {% empty %}<li class="texto-fraco">Nenhuma empresa.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="cartao">
+    <div class="cartao-cab"><h2>Gestões de SST</h2><span class="etiqueta etiqueta--marca">{{ gestoes|length }}</span></div>
+    <ul class="lista">
+      {% for g in gestoes %}
+      <li><a class="titulo" href="{{ g.get_absolute_url }}"><span class="mono">{{ g.codigo }}</span> · {{ g.empresa.nome_fantasia|default:g.empresa.razao_social }}</a>
+        <div class="texto-fraco">{{ g.get_etapa_display }}{% if g.encerrado_em %} · encerrada{% endif %}</div></li>
+      {% empty %}<li class="texto-fraco">Nenhuma gestão.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="cartao">
+    <div class="cartao-cab"><h2>Leads</h2><span class="etiqueta etiqueta--marca">{{ leads|length }}</span></div>
+    <ul class="lista">
+      {% for l in leads %}
+      <li><a class="titulo" href="{{ l.get_absolute_url }}">{{ l.nome_fantasia|default:l.razao_social }}</a>
+        <div class="texto-fraco">{{ l.get_estagio_display }}{% if l.contato_nome %} · {{ l.contato_nome }}{% endif %}</div></li>
+      {% empty %}<li class="texto-fraco">Nenhum lead.</li>{% endfor %}
+    </ul>
+  </section>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}Código de acesso - {{ APP_NOME }}{% endblock %}
 {% block conteudo_publico %}
-<div style="text-align:center;margin-bottom:22px">
-  <div class="serif" style="font-size:30px;font-weight:600">{{ APP_NOME }}</div>
-</div>
-
 {% if sem_pedido %}
 <div class="aviso aviso--warning">Peça o código antes de continuar.</div>
 <a class="btn btn-primario btn-largo" href="{% url 'accounts:codigo_pedir' %}">Pedir código</a>

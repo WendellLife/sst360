@@ -8,24 +8,24 @@
   {% include "partials/fontes.html" %}
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/sst360.css' %}">
-  <link rel="icon" type="image/png" href="{% static 'img/razach/razach-simbolo-gradiente.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'img/lifelaboral/simbolo.png' %}">
 </head>
-<body>
+<body class="ll-body">
 <div class="site">
   <header class="site-topo">
     <div class="faixa">
       <div>
         <a class="marca-linha" href="{% url 'core:home' %}" style="text-decoration:none">
-          <span class="wordmark marca-nome">{{ APP_NOME }}</span>
+          <img src="{% static 'img/lifelaboral/logo-horizontal.png' %}" alt="Life Laboral" height="38" style="height:38px;width:auto">
         </a>
-        <div class="marca-sub">{{ CONSULTORIA_NOME }}</div>
+        <div class="marca-sub">{{ APP_NOME }} · gestão de SST</div>
       </div>
       <nav class="site-nav">
         <a href="{% url 'core:home' %}#servicos">Serviços</a>
         <a href="{% url 'publico:metodo' %}">Método</a>
         <a href="{% url 'core:home' %}#nr01">NR-01</a>
         <a href="{% url 'publico:quiz' %}">Diagnóstico</a>
-        <a class="btn" href="{% url 'accounts:codigo_pedir' %}">Área do cliente</a>
+        <a class="btn btn-primario" href="{% url 'accounts:codigo_pedir' %}">Área do cliente</a>
       </nav>
     </div>
   </header>
@@ -46,8 +46,7 @@
         Tratamento de dados conforme a LGPD.
       </div>
       <div class="tecnologia">
-        <span class="rotulo-mono">Tecnologia</span>
-        <img src="{% static 'img/razach/razach-combinado-claro.png' %}" alt="Razach Technology">
+        <img src="{% static 'img/lifelaboral/logo-horizontal-branca.png' %}" alt="Life Laboral" style="height:40px;width:auto">
       </div>
     </div>
   </footer>

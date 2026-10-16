@@ -2,7 +2,7 @@
 
 Sistema de **gestão de saúde e segurança do trabalho (SST)** com portal do
 cliente e módulo de **captação de clientes**. Operado por Universo FX · Life
-Laboral; tecnologia Razach Technology.
+Laboral.
 
 A equipe técnica acompanha várias empresas pelo painel interno. Cada cliente
 entra num portal próprio e vê só a gestão da sua empresa: documentos, plano de
@@ -44,8 +44,12 @@ situação em SST e serviço de interesse.
 ## Stack
 
 Python 3.11+ · Django 5.2 · PostgreSQL (SQLite em desenvolvimento) · templates
-Django + HTMX · WhiteNoise. Identidade visual: design system Razach (Archivo +
-Montserrat, paleta ciano-petróleo) em `static/css/tokens.css`.
+Django + HTMX · WhiteNoise. Identidade visual: design system Life Laboral, o mesmo do sistema interno
+(`WendellLife/sistema_interno`): Manrope + IBM Plex Mono para números, teal
+#43B5B6 e azul #0086C4, cards de raio 16px, só tema claro. Tokens em
+`static/css/tokens.css` (aliases semânticos `--color-primary`, `--text-body`,
+`--border-subtle`...), componentes em `static/css/sst360.css`, ícones em
+`templates/partials/icone.html`. Busca global no cabeçalho (`/busca/`, atalho `/`).
 
 ## Como rodar
 

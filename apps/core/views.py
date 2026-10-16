@@ -205,3 +205,30 @@ class ApresentacaoIndicadoresView(EquipeInternaMixin, View):
         )
         resposta["Content-Disposition"] = f'attachment; filename="{nome}"'
         return resposta
+
+
+class BuscaView(EquipeInternaMixin, TemplateView):
+    """Busca do cabeçalho: empresas, gestões e leads de uma vez."""
+
+    template_name = "core/busca.html"
+    extra_context = {"secao": "busca"}
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        q = self.request.GET.get("q", "").strip()
+        contexto["q"] = contexto["q_busca"] = q
+        if len(q) >= 2:
+            filtro = Q(razao_social__icontains=q) | Q(nome_fantasia__icontains=q) | Q(cnpj__icontains=q)
+            contexto["empresas"] = Empresa.objects.filter(filtro).order_by("razao_social")[:15]
+            contexto["leads"] = (
+                Lead.objects.filter(filtro | Q(contato_nome__icontains=q)).select_related("empresa").order_by("razao_social")[:15]
+            )
+            contexto["gestoes"] = (
+                Gestao.objects.filter(
+                    Q(codigo__icontains=q) | Q(empresa__razao_social__icontains=q) | Q(empresa__nome_fantasia__icontains=q)
+                )
+                .select_related("empresa")
+                .order_by("-pk")[:15]
+            )
+            contexto["total"] = len(contexto["empresas"]) + len(contexto["leads"]) + len(contexto["gestoes"])
+        return contexto

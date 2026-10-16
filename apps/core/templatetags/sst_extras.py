@@ -82,3 +82,26 @@ def moeda_curta(valor):
     if abs(v) >= 1_000:
         return "R$ " + f"{v / 1_000:.1f}".replace(".", ",") + " mil"
     return "R$ " + f"{v:.0f}"
+
+
+ROTULOS_SECAO = {
+    "painel": "Painel", "indicadores": "Indicadores", "gestao": "Gestões de SST", "prazos": "Prazos",
+    "vencimentos": "Vencimentos", "empresas": "Empresas", "funil": "Funil comercial", "diagnosticos": "Diagnósticos",
+    "leads": "Leads", "vendas": "Vendas", "campanhas": "Campanhas", "fap": "FAP dos clientes", "busca": "Busca",
+    "inicio": "Início", "plano": "Plano de ação", "documentos": "Documentos", "treinamentos": "Treinamentos",
+    "reunioes": "Visitas", "conversa": "Conversa",
+}
+
+
+@register.filter(name="rotulo_secao")
+def rotulo_secao(secao):
+    """Nome do módulo para a trilha do cabeçalho."""
+    return ROTULOS_SECAO.get(secao or "", "SST360")
+
+
+@register.filter(name="iniciais")
+def iniciais(nome):
+    partes = [p for p in str(nome or "").split() if p]
+    if not partes:
+        return "?"
+    return (partes[0][0] + (partes[-1][0] if len(partes) > 1 else "")).upper()

@@ -5,23 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ assunto }}</title>
 </head>
-<body style="margin:0;padding:0;background:#f4f7f7;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7f7;padding:24px 12px;">
+<body style="margin:0;padding:0;background:#f5f7f8;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f7f8;padding:24px 12px;">
   <tr><td align="center">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border:1px solid #d5dede;border-radius:8px;">
-      <tr><td style="background:#0c1719;padding:20px 28px;border-radius:8px 8px 0 0;">
-        <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#6fcbce;">Universo FX · Life Laboral</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border:1px solid #d9e0e4;border-radius:8px;">
+      <tr><td style="background:#0086C4;background:linear-gradient(120deg,#0086C4 0%,#43B5B6 100%);padding:20px 28px;border-radius:8px 8px 0 0;">
+        <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#eaf5fb;">Universo FX · Life Laboral</div>
         <div style="font-family:Arial,Helvetica,sans-serif;font-size:20px;font-weight:bold;color:#ffffff;margin-top:6px;">Saúde e segurança do trabalho</div>
       </td></tr>
-      <tr><td style="padding:28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#1f2e30;">
+      <tr><td style="padding:28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#33454f;">
         {% for p in paragrafos %}<p style="margin:0 0 16px;">{{ p|linebreaksbr }}</p>{% endfor %}
-        <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 4px;"><tr><td style="background:#1b6470;border-radius:6px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 4px;"><tr><td style="background:#2b8283;border-radius:6px;">
           <a href="{{ link_proposta }}" style="display:inline-block;padding:13px 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;">{% if etapa == "MEN" %}Quero uma leitura rápida{% else %}Quero participar da cotação{% endif %}</a>
         </td></tr></table>
       </td></tr>
-      <tr><td style="padding:18px 28px;border-top:1px solid #e8eded;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.5;color:#66787a;">
+      <tr><td style="padding:18px 28px;border-top:1px solid #eceff1;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.5;color:#5b6b74;">
         Você recebe esta mensagem porque sua empresa conversou com a Universo FX · Life Laboral sobre saúde e segurança do trabalho.<br>
-        <a href="{{ link_sair }}" style="color:#66787a;">Não quero mais receber</a> · www.universofx.com.br · www.lifelaboral.com.br
+        <a href="{{ link_sair }}" style="color:#5b6b74;">Não quero mais receber</a> · www.universofx.com.br · www.lifelaboral.com.br
       </td></tr>
     </table>
   </td></tr>

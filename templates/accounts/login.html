@@ -1,11 +1,8 @@
 {% extends "base.html" %}
 {% block titulo %}Entrar - {{ APP_NOME }}{% endblock %}
 {% block conteudo_publico %}
-<div style="text-align:center;margin-bottom:26px">
-  {% load static %}<img src="{% static 'img/razach/razach-simbolo-gradiente.png' %}" alt="" width="52" height="52" style="display:block;margin:0 auto 10px">
-  <div class="wordmark" style="font-size:30px;color:var(--tinta)">{{ APP_NOME }}</div>
-  <p class="sobretitulo" style="margin:10px 0 0">Gestão de saúde e segurança do trabalho</p>
-</div>
+<h1 class="publico__titulo">Entrar</h1>
+<p class="publico__sub">Acesso da equipe interna. É cliente? Use o código por e-mail ou celular.</p>
 <form method="post">
   {% csrf_token %}
   <div class="campos" style="grid-template-columns:1fr">
