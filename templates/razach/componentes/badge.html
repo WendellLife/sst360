@@ -1,0 +1,1 @@
+{% comment %}Badge. Parâmetros: texto, tom (neutral|brand|success|warning|danger|solid), ponto, classe, attrs.{% endcomment %}<span class="rz-c-badge is-{{ tom|default:'neutral' }}{% if classe %} {{ classe }}{% endif %}"{% if attrs %} {{ attrs|safe }}{% endif %}>{% if ponto %}<span class="rz-c-badge-dot"></span>{% endif %}{{ texto }}</span>

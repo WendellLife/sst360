@@ -77,6 +77,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "apps.core.context_processors.branding",
             ],
+            "builtins": ["apps.core.templatetags.razach"],
         },
     },
 ]

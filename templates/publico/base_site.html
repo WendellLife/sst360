@@ -5,18 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}{{ APP_NOME }} · Gestão de saúde e segurança do trabalho{% endblock %}</title>
   <meta name="description" content="{% block descricao %}Gestão integrada de SST: documentos, plano de ação, treinamentos, exames e eSocial num portal só, com equipe técnica multidisciplinar.{% endblock %}">
-  {% include "partials/fontes.html" %}
-  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <script>(function(){var d=document.documentElement,t=null;try{t=localStorage.getItem("rz-tema")}catch(e){}if(t!=="light"&&t!=="dark")t=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";d.setAttribute("data-theme",t)})();</script>
+  <link rel="preload" href="{% static 'razach/fonts/archivo-latin.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% static 'razach/css/fonts.css' %}">
+  <link rel="stylesheet" href="{% static 'razach/ds/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'razach/ds/base.css' %}">
+  <link rel="stylesheet" href="{% static 'razach/css/componentes.css' %}">
+  <link rel="stylesheet" href="{% static 'razach/css/app.css' %}">
   <link rel="stylesheet" href="{% static 'css/sst360.css' %}">
-  <link rel="icon" type="image/png" href="{% static 'img/razach/razach-simbolo-gradiente.png' %}">
+  <link rel="stylesheet" href="{% static 'css/sst360-razach.css' %}">
+  <link rel="icon" type="image/png" href="{% static 'razach/img/razach-simbolo-gradiente.png' %}">
 </head>
-<body class="ll-body">
-<div class="site">
+<body>
+<div class="rz-app site">
   <header class="site-topo">
     <div class="faixa">
       <div>
         <a class="marca-linha" href="{% url 'core:home' %}" style="text-decoration:none">
-          <img src="{% static 'img/razach/razach-combinado-gradiente.png' %}" alt="Razach Technology" height="38" style="height:38px;width:auto">
+          <img class="so-claro" src="{% static 'razach/img/razach-combinado-gradiente.png' %}" alt="Razach Technology" style="height:36px;width:auto"><img class="so-escuro" src="{% static 'razach/img/razach-combinado-claro.png' %}" alt="Razach Technology" style="height:36px;width:auto">
         </a>
         <div class="marca-sub">{{ APP_NOME }} · gestão de SST</div>
       </div>
@@ -46,7 +52,7 @@
         Tratamento de dados conforme a LGPD.
       </div>
       <div class="tecnologia">
-        <img src="{% static 'img/razach/razach-combinado-claro.png' %}" alt="Razach Technology" style="height:40px;width:auto">
+        <img src="{% static 'razach/img/razach-combinado-claro.png' %}" alt="Razach Technology" style="height:40px;width:auto">
       </div>
     </div>
   </footer>

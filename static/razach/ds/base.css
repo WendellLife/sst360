@@ -1,0 +1,71 @@
+/* Razach Technology · folha de base do sistema (components/bundle.css do design system).
+   Única mudança: sem o @import do Google Fonts. Archivo e Montserrat vêm de css/fonts.css,
+   servidas pelo próprio servidor. --font-mono mantém o nome por função (rótulos e dados
+   técnicos): Montserrat não é monoespaçada.
+
+   tokens.css traz cor, escala, espaçamento, raios, sombras, gradientes e tempo.
+   Aqui ficam os valores que precisam de aspas ou de composição, os resets e o que
+   as classes rz-* têm além de tipo. */
+
+:root{
+  /* Triplas RGB dos seis nomes oficiais, para compor alfa: rgb(var(--turquesa-rgb)/.35) */
+  --ciano-artico-rgb:111 203 206;
+  --turquesa-rgb:53 152 159;
+  --petroleo-rgb:27 100 112;
+  --petroleo-profundo-rgb:16 54 59;
+  --grafite-rgb:12 23 25;
+  --nevoa-rgb:244 247 247;
+
+  /* Eixos variaveis do manual (pagina 06): quanto mais perto da marca, mais largo o tipo. */
+  --wdth-logo:125;
+  --wdth-title:110;
+  --wdth-text:100;
+  --fv-logo:"wdth" 125,"wght" 800;
+  --fv-title:"wdth" 110,"wght" 800;
+  --fv-text:"wdth" 100,"wght" 400;
+  --fv-text-semibold:"wdth" 100,"wght" 600;
+
+  /* Composicoes prontas de font shorthand. */
+  --type-display:var(--weight-extrabold) var(--text-6xl)/var(--leading-tight) var(--font-brand);
+  --type-title:var(--weight-extrabold) var(--text-3xl)/var(--leading-snug) var(--font-brand);
+  --type-body:var(--weight-regular) var(--text-base)/var(--leading-relaxed) var(--font-brand);
+  --type-label:var(--weight-semibold) var(--text-2xs)/1.2 var(--font-mono);
+  --type-data:var(--weight-regular) var(--text-xs)/1.5 var(--font-mono);
+
+  /* Transicao padrao de controle. */
+  --transition-control:background-color var(--dur-fast) var(--ease-standard),border-color var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard),box-shadow var(--dur-fast) var(--ease-standard);
+
+  /* Respiro da assinatura: 1X livre nos quatro lados, X = 1/4 da altura do simbolo. */
+  --logo-clear-space:1;
+}
+
+/* Resets minimos e primitivas de texto da marca. */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface-page);color:var(--text-body);font-family:var(--font-brand);font-variation-settings:var(--fv-text);font-size:var(--text-base);line-height:var(--leading-relaxed);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5,h6{margin:0;font-family:var(--font-brand);font-weight:var(--weight-extrabold);font-variation-settings:var(--fv-title);letter-spacing:var(--tracking-title);line-height:var(--leading-snug);color:var(--text-strong)}
+p{margin:0}
+a{color:var(--text-brand);text-decoration:none;border-bottom:1px solid rgb(var(--turquesa-rgb)/.35);transition:color var(--dur-fast) var(--ease-standard),border-color var(--dur-fast) var(--ease-standard)}
+a:hover{color:var(--text-accent);border-bottom-color:var(--turquesa)}
+code,kbd,pre,samp{font-family:var(--font-mono)}
+::selection{background:rgb(var(--ciano-artico-rgb)/.4);color:var(--text-strong)}
+:focus-visible{outline:none;box-shadow:var(--ring-focus)}
+
+/* tokens.css ja da familia, corpo, peso, entrelinha e entreletra das classes rz-*.
+   O que falta: eixo variavel, caixa, cor e numerais. */
+.rz-display,.rz-title{font-variation-settings:var(--fv-title);color:var(--text-strong)}
+.rz-body,.rz-aux{font-variation-settings:var(--fv-text)}
+.rz-body-strong{font-variation-settings:var(--fv-text-semibold)}
+.rz-aux{color:var(--text-muted)}
+.rz-label{text-transform:uppercase;color:var(--text-muted)}
+.rz-data{font-variant-numeric:tabular-nums;color:var(--text-body)}
+.rz-descriptor{text-transform:uppercase;color:var(--text-accent)}
+.rz-gradient-text{background:var(--gradient-brand);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Spinner do Button em estado loading. Linear, sem bounce. */
+@keyframes rz-spin{to{transform:rotate(360deg)}}
+
+@media (prefers-reduced-motion:reduce){
+  :root{--dur-instant:1ms;--dur-fast:1ms;--dur-base:1ms;--dur-slow:1ms;--dur-slower:1ms}
+  *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important}
+}

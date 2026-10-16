@@ -4,8 +4,8 @@ from django.test import TestCase
 from apps.accounts.models import User
 
 
-class ShellLifeLaboralTest(TestCase):
-    """Shell no padrão Life Laboral: menu lateral, trilha do cabeçalho e busca global."""
+class ShellRazachTest(TestCase):
+    """Shell no padrão Razach Tarefas Internas: barra lateral, barra superior e busca global."""
 
     @classmethod
     def setUpTestData(cls):
@@ -14,10 +14,12 @@ class ShellLifeLaboralTest(TestCase):
     def test_shell_interno(self):
         self.client.force_login(User.objects.get(username="analista"))
         html = self.client.get("/painel/").content.decode()
-        self.assertIn('class="sidebar"', html)
-        self.assertIn("img/razach/razach-combinado-gradiente.png", html)
-        self.assertIn("SST360 / <b>Painel</b>", html)
-        self.assertIn('class="menu__item ativo"', html)
+        self.assertIn('class="sb"', html)
+        self.assertIn("razach/img/razach-combinado-gradiente.png", html)
+        self.assertIn('<span class="tb-pagina">Painel</span>', html)
+        self.assertIn("01 · Gestão", html)
+        self.assertIn('class="sb-link is-active"', html)
+        self.assertIn('class="ic"', html)
 
     def test_busca_global(self):
         self.client.force_login(User.objects.get(username="analista"))
@@ -33,8 +35,9 @@ class ShellLifeLaboralTest(TestCase):
 
     def test_portal_e_login(self):
         html = self.client.get("/conta/entrar/").content.decode()
-        self.assertIn("cartao-publico__hero", html)
+        self.assertIn("lg-art", html)
         self.client.force_login(User.objects.get(username="cliente"))
         html = self.client.get("/portal/").content.decode()
         self.assertIn("portal-nav", html)
         self.assertIn("razach-combinado-gradiente.png", html)
+        self.assertIn("sb-link is-active", html)

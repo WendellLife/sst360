@@ -44,12 +44,13 @@ situação em SST e serviço de interesse.
 ## Stack
 
 Python 3.11+ · Django 5.2 · PostgreSQL (SQLite em desenvolvimento) · templates
-Django + HTMX · WhiteNoise. Identidade visual: design system Life Laboral, o mesmo do sistema interno
-(`WendellLife/sistema_interno`): Manrope + IBM Plex Mono para números, teal
-#43B5B6 e azul #0086C4, cards de raio 16px, só tema claro. Tokens em
-`static/css/tokens.css` (aliases semânticos `--color-primary`, `--text-body`,
-`--border-subtle`...), componentes em `static/css/sst360.css`, ícones em
-`templates/partials/icone.html`. Busca global no cabeçalho (`/busca/`, atalho `/`).
+Django + HTMX · WhiteNoise. Identidade visual: a mesma interface do Razach Tarefas Internas (design system
+Razach com o tema soft): Archivo e Montserrat servidas pelo próprio servidor,
+ícones Lucide locais, barra lateral e barra superior em vidro, cantos
+arredondados, status em pastel e temas claro e escuro (escolha guardada no
+navegador). Arquivos do design system em `static/razach/` (copiados sem
+alteração); a ponte das telas do SST360 para esse visual fica em
+`static/css/sst360-razach.css`. Busca global no cabeçalho (`/busca/`, atalho `/`).
 
 ## Como rodar
 

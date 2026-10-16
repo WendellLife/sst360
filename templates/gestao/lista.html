@@ -26,7 +26,7 @@
   <button class="btn" type="submit">Filtrar</button>
   {% if q or etapa_atual %}<a class="btn-texto" href="{% url 'gestao:lista' %}">limpar</a>{% endif %}
   <div class="espaco"></div>
-  <div class="resumo">{{ paginator.count|default:gestoes|length }} gestão(ões)</div>
+  <div class="resumo">{% if paginator %}{{ paginator.count }}{% else %}{{ gestoes|length }}{% endif %} gestão(ões)</div>
 </form>
 
 <div class="tabela">

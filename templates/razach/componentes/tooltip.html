@@ -1,0 +1,1 @@
+{% comment %}Tooltip, usado com {% bloco %}. Parâmetros: texto, posicao (top|bottom|left|right), conteudo.{% endcomment %}<span class="rz-c-tooltip-wrap">{{ conteudo }}<span role="tooltip" class="rz-c-tooltip{% if posicao and posicao != 'top' %} is-{{ posicao }}{% endif %}">{{ texto }}</span></span>

@@ -105,3 +105,20 @@ def iniciais(nome):
     if not partes:
         return "?"
     return (partes[0][0] + (partes[-1][0] if len(partes) > 1 else "")).upper()
+
+
+@register.filter(name="grupo_secao")
+def grupo_secao(secao):
+    """Grupo da barra lateral para a trilha do cabeçalho (01 · Gestão, 02 · Captação)."""
+    from apps.core.context_processors import SECAO_GRUPO
+
+    return SECAO_GRUPO.get(secao or "", "01 · Gestão")
+
+
+@register.filter(name="resto_pct")
+def resto_pct(pct):
+    """100 - pct, limitado a 0..100 (recorte do medidor)."""
+    try:
+        return max(0, min(100, 100 - int(pct)))
+    except (TypeError, ValueError):
+        return 100

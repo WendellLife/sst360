@@ -1,0 +1,259 @@
+/* Razach Technology — generated from tokens.json */
+:root, [data-theme="light"] {
+  --ciano-artico: #6fcbce; /* Ciano Ártico. Cor de topo da marca: primeira parada do gradiente, texto e ícones de marca no tema escuro, anel do glow. */
+  --turquesa: #35989f; /* Turquesa. Acento de interface: borda selecionada, anel de foco, texto de acento no tema claro. */
+  --petroleo: #1b6470; /* Petróleo. Segunda parada do gradiente, superfície de marca e texto de marca no tema claro. */
+  --petroleo-profundo: #10363b; /* Petróleo Profundo. Blocos escuros de destaque e primeira parada do gradiente profundo. */
+  --grafite: #0c1719; /* Grafite. Superfície escura e texto forte do tema claro. Nunca use preto puro no lugar dele. */
+  --nevoa: #f4f7f7; /* Névoa. Fundo de página clara e texto sobre superfícies escuras. */
+  --brand-100: #e4f4f5; /* Fundo de badge, tag e superfície sutil de marca. */
+  --brand-200: #c4e8e9; /* Borda de elementos de marca sutis e divisórias em superfície de marca. */
+  --brand-300: #9fdadc; /* Borda de info e realce de baixa ênfase. */
+  --brand-400: #6fcbce; /* Ciano Ártico da rampa: hover de superfícies de marca no tema escuro. */
+  --brand-500: #35989f; /* Turquesa da rampa: preenchimento de marca padrão em controles. */
+  --brand-600: #1b6470; /* Petróleo da rampa: hover de superfície de marca no tema claro. */
+  --brand-700: #154e58; /* Passo de press entre Petróleo e Petróleo Profundo. */
+  --brand-800: #10363b; /* Petróleo Profundo da rampa: superfície de marca sutil no tema escuro. */
+  --brand-900: #0c1719; /* Grafite da rampa: fundo de página do tema escuro. */
+  --neutral-0: #ffffff; /* Branco puro: superfície de card no tema claro. */
+  --neutral-50: #f4f7f7; /* Névoa: fundo de página clara. */
+  --neutral-100: #e8eded; /* Superfície rebaixada e divisória sutil no tema claro. */
+  --neutral-200: #d5dede; /* Borda padrão de campos e cards no tema claro. */
+  --neutral-300: #b6c3c4; /* Borda forte no tema claro; texto de corpo sobre Grafite no tema escuro. */
+  --neutral-400: #8c9c9e; /* Texto de apoio sobre superfícies escuras e legendas de card. */
+  --neutral-500: #66787a; /* Texto sutil em ambos os temas. */
+  --neutral-600: #4a5a5c; /* Texto atenuado no tema claro. */
+  --neutral-700: #334244; /* Borda forte no tema escuro. */
+  --neutral-800: #1f2e30; /* Texto de corpo no tema claro; borda sutil no tema escuro. */
+  --neutral-900: #121f21; /* Superfície de card no tema escuro. */
+  --neutral-950: #0c1719; /* Grafite: fundo de página do tema escuro e texto forte no tema claro. */
+  --surface-page: #f4f7f7; /* Fundo da página. Recebe text-body, text-strong e text-muted. */
+  --surface-card: #ffffff; /* Fundo de card, cabeçalho fixo, popover e diálogo. Recebe text-body e text-strong. */
+  --surface-sunken: #e8eded; /* Superfície rebaixada: hover de ghost e secondary, trilha de controle, células de tabela alternadas. */
+  --surface-inverse: #0c1719; /* Bloco invertido em relação à página: rodapé, tooltip, faixa escura. */
+  --surface-brand: #1b6470; /* Preenchimento sólido de marca em botão primário e chip ativo. Recebe text-on-brand. */
+  --surface-brand-subtle: #e4f4f5; /* Fundo de marca de baixa ênfase: badge de marca, faixa de info. Recebe text-brand. */
+  --text-strong: #0c1719; /* Títulos e números de destaque sobre surface-page e surface-card. */
+  --text-body: #1f2e30; /* Texto corrente sobre surface-page e surface-card. */
+  --text-muted: #4a5a5c; /* Texto secundário, hint e rótulo mono sobre surface-page e surface-card. */
+  --text-subtle: #66787a; /* Texto terciário — placeholder, contador, dado desativado — sobre surface-page e surface-card. Contraste 4,3:1 sobre surface-page no tema claro e 3,9:1 no escuro — abaixo de 4,5:1, e assim vem do sistema de origem. Não use em texto que precise ser lido: para hint e legenda, prefira text-muted. */
+  --text-on-brand: #ffffff; /* Texto e ícone sobre surface-brand e sobre o gradiente da marca. */
+  --text-brand: #1b6470; /* Link e texto de marca sobre surface-page, surface-card e surface-brand-subtle. */
+  --text-accent: #35989f; /* Acento tipográfico — descritor, hover de link — sobre surface-page e surface-card. Contraste 3,2:1 sobre surface-page e 3,4:1 sobre surface-card no tema claro: só em texto de 24px ou mais (ou 19px em negrito). Em corpo de texto use text-brand. */
+  --border-subtle: #e8eded; /* Divisória interna de card, lista e tabela. Sem papel semântico. */
+  --border-default: #d5dede; /* Borda de campo, card e botão secundário. Contraste 1,4:1 sobre surface-card nos dois temas — é um contorno de apoio, e vem assim do sistema de origem. Quando o contorno precisa ser percebido sozinho, use border-brand. */
+  --border-strong: #b6c3c4; /* Borda de controles que precisam se afirmar: checkbox, radio, switch desmarcados. Contraste 1,8:1 no tema claro e 1,6:1 no escuro sobre surface-card, abaixo dos 3:1 pedidos para contorno com significado — valor do sistema de origem, mantido exato. O estado marcado é indicado pelo preenchimento em gradiente, não pela borda. */
+  --border-brand: #35989f; /* Borda de estado selecionado, foco e tag ativa. */
+  --focus-ring: rgba(53,152,159,0.34); /* Cor do anel de foco de 3px (ring-focus). Nunca remova o foco visível. */
+  --overlay-scrim: rgba(12,23,25,0.62); /* Scrim de diálogo e painel, com blur-sm por cima. */
+  --scrim-glass: rgba(255,255,255,0.72); /* Fundo translúcido de cabeçalho fixo sobre conteúdo rolando. Uso funcional, nunca estético. */
+  --success: #1b7f63; /* Texto e ícone de sucesso sobre success-surface e surface-page. Adição intencional: não consta no manual. Sobre success-surface o contraste é 4,26:1 no tema claro — a menos de 4,5:1: acompanhe sempre de palavra ou ícone, nunca só da cor. */
+  --success-surface: #e3f2ec; /* Fundo de badge, toast e alerta de sucesso. */
+  --success-border: #a7d6c6; /* Borda e faixa de severidade de sucesso. */
+  --warning: #a9741a; /* Texto e ícone de atenção sobre warning-surface e surface-page. Adição intencional. Contraste 3,6:1 sobre warning-surface e 3,75:1 sobre surface-page no tema claro: só em texto de 24px ou mais, ou acompanhado de rótulo em text-body. */
+  --warning-surface: #fbf1de; /* Fundo de badge, toast e alerta de atenção. */
+  --warning-border: #e5cb93; /* Borda e faixa de severidade de atenção. */
+  --danger: #b03a32; /* Texto, ícone e botão destrutivo sobre danger-surface e sobre a página. Adição intencional. */
+  --danger-surface: #fbe9e7; /* Fundo de badge, toast e alerta de falha. */
+  --danger-border: #e9b4ae; /* Borda e faixa de severidade de falha. */
+  --info: #1b6470; /* Texto e ícone informativo sobre info-surface. É Petróleo: a informação neutra fala na cor da marca. */
+  --info-surface: #e4f4f5; /* Fundo de badge, toast e alerta informativo. */
+  --info-border: #9fdadc; /* Borda e faixa de severidade informativa. */
+  --shadow-none: none; /* Cabeçalho fixo e elementos que se apoiam só em borda. */
+  --shadow-xs: 0 1px 2px rgba(12,23,25,0.06); /* Controle em repouso: botão secundário, campo. */
+  --shadow-sm: 0 1px 3px rgba(12,23,25,0.08), 0 1px 2px rgba(12,23,25,0.04); /* Hover de controle e card plano sobre superfície rebaixada. */
+  --shadow-md: 0 4px 12px rgba(12,23,25,0.09), 0 1px 3px rgba(12,23,25,0.05); /* Card elevado e menu aberto. */
+  --shadow-lg: 0 12px 32px rgba(12,23,25,0.12), 0 2px 6px rgba(12,23,25,0.06); /* Toast e popover. */
+  --shadow-xl: 0 24px 60px rgba(12,23,25,0.18); /* Diálogo modal sobre o scrim. */
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.5); /* Brilho superior de 1px em superfícies de marca preenchidas. */
+  --glow-brand: 0 0 0 1px rgba(111,203,206,0.45), 0 0 28px rgba(111,203,206,0.22); /* Único efeito luminoso do sistema: elemento ativo sobre fundo escuro. Não é decoração ambiente. */
+  --ring-focus: 0 0 0 3px rgba(53,152,159,0.34); /* Anel de foco de 3px, aplicado em :focus-visible. Sempre visível, nunca removido. */
+}
+[data-theme="dark"] {
+  --surface-page: #0c1719;
+  --surface-card: #121f21;
+  --surface-sunken: #0a1416;
+  --surface-inverse: #f4f7f7;
+  --surface-brand: #35989f;
+  --surface-brand-subtle: #10363b;
+  --text-strong: #f4f7f7;
+  --text-body: #d5dede;
+  --text-muted: #8c9c9e;
+  --text-subtle: #66787a;
+  --text-on-brand: #0c1719;
+  --text-brand: #6fcbce;
+  --text-accent: #6fcbce;
+  --border-subtle: #1f2e30;
+  --border-default: #26383a;
+  --border-strong: #334244;
+  --border-brand: #35989f;
+  --focus-ring: rgba(111,203,206,0.4);
+  --overlay-scrim: rgba(6,12,13,0.74);
+  --scrim-glass: rgba(18,31,33,0.72);
+  --success: #5bc49f;
+  --success-surface: #0f2b23;
+  --success-border: #1f5747;
+  --warning: #dfae55;
+  --warning-surface: #2b2114;
+  --warning-border: #5a4520;
+  --danger: #e58a82;
+  --danger-surface: #2b1614;
+  --danger-border: #5c2c27;
+  --info: #6fcbce;
+  --info-surface: #10363b;
+  --info-border: #1b6470;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+  --shadow-md: 0 4px 14px rgba(0,0,0,0.55);
+  --shadow-lg: 0 14px 36px rgba(0,0,0,0.6);
+  --shadow-xl: 0 28px 64px rgba(0,0,0,0.7);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.06);
+  --ring-focus: 0 0 0 3px rgba(111,203,206,0.4);
+}
+:root {
+  --x: 16px; /* O módulo X do manual (¼ da altura do símbolo), materializado em 16px na densidade padrão. Todo espaçamento deriva dele. */
+  --x-quarter: 4px; /* ¼ X: passo mínimo da escala de UI. */
+  --x-half: 8px; /* ½ X: espaço entre ícone e rótulo dentro de um controle. */
+  --x-1-2: 19.2px; /* 1,2 X: distância do símbolo ao logotipo (0,3 × altura do símbolo). */
+  --x-2: 32px; /* 2 X: respiro entre blocos de uma mesma seção. */
+  --space-0: 0; /* Zero explícito, para anular espaçamento herdado. */
+  --space-1: 4px; /* Espaço entre ícone e texto em controles pequenos; altura da faixa de aba. */
+  --space-2: 8px; /* Espaço interno de badge e tag; espaço entre controles irmãos. */
+  --space-3: 12px; /* Padding horizontal de campo e botão sm. */
+  --space-4: 16px; /* Padding padrão de card e de botão md. Igual a 1 X. */
+  --space-5: 20px; /* Padding horizontal de botão lg. */
+  --space-6: 24px; /* Padding de card confortável e espaço entre campos de formulário. */
+  --space-7: 28px; /* Passo intermediário entre 6 e 8. */
+  --space-8: 32px; /* Espaço entre blocos de conteúdo e padding de diálogo. Igual a 2 X. */
+  --space-10: 40px; /* Espaço acima de uma nova seção dentro da página. */
+  --space-12: 48px; /* Espaço entre seções de página. */
+  --space-16: 64px; /* Respiro inferior de página e topo de bloco hero. */
+  --space-20: 80px; /* Espaço vertical de seção larga em página institucional. */
+  --space-24: 96px; /* Respiro de hero e de faixa escura de destaque. */
+  --space-32: 128px; /* Maior passo da escala: separação entre grandes regiões de página. */
+  --border-width: 1px; /* Espessura padrão de toda borda do sistema. */
+  --border-width-thick: 2px; /* Só o indicador de aba ativa, e ali em gradiente. */
+  --control-height-sm: 32px; /* Altura de botão, campo e select pequenos. */
+  --control-height-md: 40px; /* Altura padrão de botão, campo e select. */
+  --control-height-lg: 48px; /* Altura de botão e campo grandes, em hero e formulário principal. */
+  --container-sm: 640px; /* Largura máxima de coluna de texto longo. */
+  --container-md: 880px; /* Largura máxima de formulário e artigo. */
+  --container-lg: 1120px; /* Largura máxima de página de conteúdo. */
+  --container-xl: 1320px; /* Largura máxima de aplicação e cabeçalho fixo. */
+  --logo-min-width: 104px; /* Largura mínima do lockup combinado. Abaixo disso, troque pelo símbolo. */
+  --symbol-min-size: 24px; /* Tamanho mínimo do símbolo isolado. */
+  --radius-none: 0; /* Elementos coladas à borda da página e faixas de largura total. */
+  --radius-xs: 2px; /* Checkbox, badge e ponto de status quadrado. */
+  --radius-sm: 4px; /* Padrão do sistema: botão, campo, select e tag. */
+  --radius-md: 6px; /* Popover, menu e bloco de código. */
+  --radius-lg: 10px; /* Card, diálogo e toast. */
+  --radius-xl: 16px; /* Maior raio do sistema, raro: bloco hero de destaque. Nada passa disso. */
+  --radius-pill: 999px; /* Só o que é geometricamente circular: radio, trilha do switch, ponto de status. Botões nunca são pill. */
+  --gradient-brand: linear-gradient(120deg,#6fcbce 0%,#1b6470 100%); /* A versão principal da assinatura, 120°, Ciano Ártico → Petróleo. Na interface aparece em quatro lugares e mais nenhum: botão de ação principal, indicador de aba ativa (2px), preenchimento de controle marcado e faixa de 3px no topo de card ou diálogo com accent. */
+  --gradient-brand-soft: linear-gradient(120deg,rgba(111,203,206,0.16) 0%,rgba(27,100,112,0.16) 100%); /* Véu de marca sobre superfície clara: cabeçalho de tabela e faixa de seção. Nunca sob texto pequeno. */
+  --gradient-deep: linear-gradient(120deg,#10363b 0%,#0c1719 100%); /* Bloco escuro de destaque: card invertido, rodapé, hero. Um por página. */
+  --text-2xs: 0.6875rem; /* 11px. Rótulo mono em caixa alta (rz-label). */
+  --text-xs: 0.75rem; /* 12px. Dado técnico mono: HEX, ID, nome de arquivo (rz-data). */
+  --text-sm: 0.8125rem; /* 13px. Texto auxiliar, hint de campo e legenda. */
+  --text-md: 0.875rem; /* 14px. Rótulo de controle e texto denso de tabela. */
+  --text-base: 1rem; /* 16px. Corpo padrão, com leading-relaxed. */
+  --text-lg: 1.125rem; /* 18px. Primeiro parágrafo e texto de destaque. */
+  --text-xl: 1.25rem; /* 20px. Título de card. */
+  --text-2xl: 1.5rem; /* 24px. Título de seção interna. */
+  --text-3xl: 1.875rem; /* 30px. Título de página (rz-title). */
+  --text-4xl: 2.25rem; /* 36px. Título de abertura de seção larga. */
+  --text-5xl: 3rem; /* 48px. Display secundário. */
+  --text-6xl: 3.75rem; /* 60px. Display de hero (rz-display). */
+  --text-7xl: 4.75rem; /* 76px. Maior tamanho do sistema: número único ou palavra única. */
+  --leading-tight: 1.05; /* Entrelinha de display. Só em tamanhos de 48px ou mais. */
+  --leading-snug: 1.2; /* Entrelinha de título. */
+  --leading-normal: 1.5; /* Entrelinha de texto denso e de dado mono. */
+  --leading-relaxed: 1.65; /* Entrelinha do corpo padrão. */
+  --tracking-logo: 0.01em; /* Entreletra do logotipo RAZACH. */
+  --tracking-title: -0.01em; /* Entreletra negativa leve de títulos em Archivo. */
+  --tracking-text: 0; /* Entreletra de texto corrente: nenhuma. */
+  --tracking-label: 0.16em; /* Entreletra de rótulo mono em caixa alta. */
+  --tracking-descriptor: 0.42em; /* Entreletra do descritor TECHNOLOGY, justificado à largura do logotipo. O gesto tipográfico mais reconhecível da marca: só em rótulos curtos, nunca em frases. */
+  --weight-regular: 400; /* Peso de texto corrente. */
+  --weight-semibold: 600; /* Peso de rótulo, botão e ênfase. */
+  --weight-extrabold: 800; /* Peso de marca e títulos. Archivo, sempre com eixo de largura. */
+  --dur-instant: 80ms; /* Press de controle. */
+  --dur-fast: 140ms; /* Hover e transição de cor. */
+  --dur-base: 200ms; /* Switch, aba e checkbox. */
+  --dur-slow: 320ms; /* Diálogo e painel. */
+  --dur-slower: 520ms; /* Entrada de conteúdo em página, no máximo. */
+  --ease-standard: cubic-bezier(.2,0,.2,1); /* Curva padrão. Sem overshoot, sem elasticidade, sem bounce em nenhuma hipótese. */
+  --ease-out: cubic-bezier(.16,1,.3,1); /* Entrada de diálogo, toast e painel. */
+  --ease-in: cubic-bezier(.5,0,1,1); /* Saída de elemento que deixa a tela. */
+  --ease-linear: linear; /* Spinner e barra de progresso indeterminada. */
+  --blur-sm: blur(6px); /* Scrim de diálogo sobre o conteúdo. */
+  --blur-md: blur(14px); /* Cabeçalho fixo translúcido sobre conteúdo rolando. */
+  --blur-lg: blur(28px); /* Único uso decorativo tolerado: halo do símbolo em bloco escuro. */
+  --font-brand: "Archivo", "Archivo Expanded", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Archivo", "Archivo Expanded", "Helvetica Neue", Arial, sans-serif;
+  --text-rz-display: 800 3.75rem/1.05 var(--font-brand); /* Display de hero. Archivo wdth 110, wght 800. Só uma vez por página. */
+  --text-rz-title: 800 1.875rem/1.2 var(--font-brand); /* Título de página e de seção. Archivo wdth 110, wght 800. */
+  --text-rz-descriptor: 600 0.75rem/1.2 var(--font-brand); /* Descritor da assinatura, em caixa alta e justificado à largura do logotipo. Nunca em frases. */
+  --text-rz-body: 400 1rem/1.65 var(--font-brand); /* Corpo padrão. Archivo wdth 100, wght 400. */
+  --text-rz-body-strong: 600 1rem/1.65 var(--font-brand); /* Ênfase dentro do corpo e rótulo de controle grande. Archivo wdth 100, wght 600. */
+  --text-rz-aux: 400 0.8125rem/1.5 var(--font-brand); /* Texto auxiliar: hint de campo, legenda e nota de rodapé. */
+  --text-rz-label: 500 0.6875rem/1.2 var(--font-mono); /* Rótulo, eyebrow e cabeçalho de coluna, sempre em CAIXA ALTA. Montserrat Medium. */
+  --text-rz-data: 400 0.75rem/1.5 var(--font-mono); /* Dado técnico: HEX, CMYK, ID, IP, nome de arquivo, paginação. Números tabulares. */
+}
+.rz-display {
+  font-family: var(--font-brand);
+  font-size: 3.75rem;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.rz-title {
+  font-family: var(--font-brand);
+  font-size: 1.875rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.rz-descriptor {
+  font-family: var(--font-brand);
+  font-size: 0.75rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.42em;
+}
+.rz-body {
+  font-family: var(--font-brand);
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.rz-body-strong {
+  font-family: var(--font-brand);
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.rz-aux {
+  font-family: var(--font-brand);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.rz-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+}
+.rz-data {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0;
+}

@@ -1,0 +1,188 @@
+/* Componentes do design system Razach em HTML próprio (templates/razach/componentes/).
+   Valores traduzidos dos estilos inline de design-system/components/src/*.jsx.
+   O tema soft (app.css, seção 22) vem depois e ajusta raio, vidro e movimento. */
+
+/* Button */
+.rz-c-button{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);height:var(--control-height-md);padding:0 var(--space-5);font-family:var(--font-brand);font-variation-settings:var(--fv-text-semibold);font-weight:600;font-size:var(--text-md);letter-spacing:.01em;line-height:1;white-space:nowrap;text-decoration:none;border-radius:var(--radius-sm);background:var(--petroleo);color:#fff;border:1px solid var(--petroleo);box-shadow:var(--shadow-xs);cursor:pointer;transition:var(--transition-control),transform var(--dur-instant) var(--ease-standard),filter var(--dur-fast) var(--ease-standard);-webkit-tap-highlight-color:transparent}
+.rz-c-button:hover{color:#fff}
+.rz-c-button.is-sm{height:var(--control-height-sm);padding:0 var(--space-3);font-size:var(--text-sm)}
+.rz-c-button.is-lg{height:var(--control-height-lg);padding:0 var(--space-6);font-size:var(--text-base);gap:var(--space-3)}
+.rz-c-button.is-block{display:flex;width:100%}
+.rz-c-button.is-gradient{background:var(--gradient-brand);border-color:transparent;box-shadow:var(--shadow-sm)}
+.rz-c-button.is-secondary,.rz-c-button.is-secondary:hover{background:var(--surface-card);color:var(--text-brand);border-color:var(--border-strong)}
+.rz-c-button.is-ghost,.rz-c-button.is-ghost:hover{background:transparent;color:var(--text-brand);border-color:transparent;box-shadow:none}
+.rz-c-button.is-danger{background:var(--danger);border-color:var(--danger)}
+/* No escuro o tema soft deixa --danger em pastel: o texto passa a grafite (contraste de 4,5:1 ou mais). */
+[data-theme="dark"] .rz-c-button.is-danger,[data-theme="dark"] .rz-c-button.is-danger:hover{color:var(--grafite)}
+.rz-c-button:disabled,.rz-c-button[aria-disabled="true"]{cursor:not-allowed;opacity:.42}
+.rz-c-button.is-loading{cursor:progress;opacity:1;filter:saturate(.7)}
+.rz-c-button .rz-c-spin{animation:rz-spin 900ms linear infinite}
+.rz-c-button.is-loading .rz-c-icon-right{display:none}
+
+/* IconButton */
+.rz-c-iconbutton{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:40px;height:40px;padding:0;border-radius:var(--radius-sm);background:transparent;color:var(--text-muted);border:1px solid transparent;text-decoration:none;cursor:pointer;transition:var(--transition-control)}
+.rz-c-iconbutton.is-sm{width:32px;height:32px}
+.rz-c-iconbutton.is-lg{width:48px;height:48px}
+.rz-c-iconbutton.is-solid{background:var(--petroleo);color:#fff;border-color:var(--petroleo)}
+.rz-c-iconbutton.is-outline{background:var(--surface-card);color:var(--text-brand);border-color:var(--border-default)}
+.rz-c-iconbutton:disabled,.rz-c-iconbutton[aria-disabled="true"]{cursor:not-allowed;opacity:.42}
+@media (hover:hover) and (pointer:fine){.rz-c-iconbutton:not(:disabled):hover{background:var(--surface-sunken);color:var(--text-strong)}}
+
+/* Badge */
+.rz-c-badge{display:inline-flex;align-items:center;flex:0 0 auto;gap:var(--space-2);min-height:22px;padding:0 var(--space-2);white-space:nowrap;background:var(--surface-sunken);color:var(--text-muted);border:1px solid var(--border-default);border-radius:var(--radius-xs);font-family:var(--font-mono);font-weight:500;font-size:var(--text-2xs);text-transform:uppercase;letter-spacing:var(--tracking-label);line-height:1}
+.rz-c-badge.is-brand{background:var(--surface-brand-subtle);color:var(--text-brand);border-color:var(--info-border)}
+.rz-c-badge.is-success{background:var(--success-surface);color:var(--success);border-color:var(--success-border)}
+.rz-c-badge.is-warning{background:var(--warning-surface);color:var(--warning);border-color:var(--warning-border)}
+.rz-c-badge.is-danger{background:var(--danger-surface);color:var(--danger);border-color:var(--danger-border)}
+.rz-c-badge.is-solid{background:var(--petroleo-profundo);color:var(--nevoa);border-color:var(--petroleo-profundo)}
+.rz-c-badge-dot{width:5px;height:5px;border-radius:var(--radius-pill);background:currentColor}
+
+/* Tag */
+.rz-c-tag{display:inline-flex;align-items:center;flex:0 0 auto;gap:var(--space-2);min-height:28px;padding:0 var(--space-3);white-space:nowrap;background:var(--surface-card);color:var(--text-body);border:1px solid var(--border-default);border-radius:var(--radius-sm);font-family:var(--font-brand);font-variation-settings:var(--fv-text);font-size:var(--text-sm);line-height:1;transition:var(--transition-control)}
+.rz-c-tag.is-selected{background:var(--surface-brand-subtle);color:var(--text-brand);border-color:var(--border-brand)}
+.rz-c-tag-remove{display:inline-flex;padding:0;margin:0 -2px 0 0;background:none;border:0;color:inherit;opacity:.6;cursor:pointer}
+
+/* Card */
+.rz-c-card{position:relative;overflow:hidden;border-radius:var(--radius-lg);background:var(--surface-card);border:1px solid var(--border-subtle);box-shadow:none}
+.rz-c-card.is-raised{box-shadow:var(--shadow-md)}
+.rz-c-card.is-outline{background:transparent;border-color:var(--border-default)}
+.rz-c-card.is-inverse{background:var(--gradient-deep);border-color:var(--petroleo);box-shadow:var(--shadow-lg);color:var(--nevoa)}
+.rz-c-card-accent{position:absolute;inset:0 0 auto 0;height:3px;background:var(--gradient-brand)}
+.rz-c-card-body{padding:var(--space-6)}
+.rz-c-card-label{font-family:var(--font-mono);font-weight:500;font-size:var(--text-2xs);text-transform:uppercase;letter-spacing:var(--tracking-label);color:var(--text-muted);margin-bottom:var(--space-3)}
+.rz-c-card.is-inverse .rz-c-card-label{color:var(--ciano-artico)}
+.rz-c-card-title{font-size:var(--text-xl);margin-bottom:var(--space-3);color:var(--text-strong)}
+.rz-c-card.is-inverse .rz-c-card-title{color:var(--nevoa)}
+.rz-c-card-foot{padding:var(--space-4) var(--space-6);border-top:1px solid var(--border-subtle);background:var(--surface-page)}
+.rz-c-card.is-inverse .rz-c-card-foot{border-top-color:var(--petroleo);background:transparent}
+
+/* Checkbox e Radio: a caixa é o span logo depois do input */
+.rz-c-choice{position:relative;display:inline-flex;align-items:flex-start;gap:var(--space-3);cursor:pointer}
+.rz-c-choice.is-disabled{cursor:not-allowed;opacity:.45}
+.rz-c-checkbox,.rz-c-radio{position:absolute;opacity:0;width:0;height:0;margin:0}
+.rz-c-checkbox+span,.rz-c-radio+span{position:relative;display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:18px;height:18px;margin-top:2px;background:var(--surface-card);border:1px solid var(--border-strong);color:#fff;transition:var(--transition-control)}
+.rz-c-checkbox+span{border-radius:var(--radius-xs)}
+.rz-c-radio+span{border-radius:var(--radius-pill)}
+.rz-c-checkbox+span>*,.rz-c-radio+span>*{position:absolute;opacity:0;transform:scale(.6)}
+.rz-c-checkbox:checked+span,.rz-c-checkbox:indeterminate+span{background:var(--gradient-brand);border-color:transparent}
+.rz-c-checkbox:checked:not(:indeterminate)+span>.rz-c-mark-check,.rz-c-checkbox:indeterminate+span>.rz-c-mark-minus{opacity:1;transform:none}
+.rz-c-radio:checked+span{border-color:var(--turquesa)}
+.rz-c-radio-dot{width:9px;height:9px;border-radius:var(--radius-pill);background:var(--gradient-brand)}
+.rz-c-radio:checked+span>.rz-c-radio-dot{opacity:1;transform:none}
+.rz-c-checkbox:focus-visible+span,.rz-c-radio:focus-visible+span{box-shadow:var(--ring-focus)}
+.rz-c-choice-text{display:flex;flex-direction:column;gap:2px}
+.rz-c-choice-label{font-family:var(--font-brand);font-variation-settings:var(--fv-text);font-size:var(--text-md);line-height:1.4;color:var(--text-body)}
+.rz-c-choice-desc{font-size:var(--text-xs);color:var(--text-muted);line-height:1.45}
+
+/* Switch */
+.rz-c-switch-wrap{position:relative;display:inline-flex;align-items:center;gap:var(--space-3);cursor:pointer}
+.rz-c-switch{position:absolute;opacity:0;width:0;height:0;margin:0}
+.rz-c-switch+span{position:relative;flex:0 0 auto;width:44px;height:24px;border-radius:var(--radius-pill);background:var(--neutral-300);transition:background-color var(--dur-base) var(--ease-standard)}
+.rz-c-switch+span>span{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:var(--radius-pill);background:#fff;box-shadow:var(--shadow-sm);transition:transform var(--dur-base) var(--ease-out)}
+.rz-c-switch.is-sm+span{width:34px;height:20px}
+.rz-c-switch.is-sm+span>span{width:14px;height:14px}
+.rz-c-switch:checked+span{background:var(--gradient-brand)}
+.rz-c-switch:checked+span>span{transform:translateX(20px)}
+.rz-c-switch.is-sm:checked+span>span{transform:translateX(14px)}
+.rz-c-switch:focus-visible+span{box-shadow:var(--ring-focus)}
+.rz-c-switch-label{font-family:var(--font-brand);font-variation-settings:var(--fv-text);font-size:var(--text-md);color:var(--text-body)}
+.rz-c-switch-wrap.is-disabled{cursor:not-allowed;opacity:.45}
+.rz-c-switch-text{display:flex;flex-direction:column;gap:1px}
+.rz-c-switch-desc{font-size:var(--text-xs);line-height:1.45;color:var(--text-muted)}
+
+/* Input e Select */
+.rz-c-field{display:flex;flex-direction:column;gap:var(--space-2);min-width:0}
+.rz-c-field-label{font-family:var(--font-mono);font-weight:500;font-size:var(--text-2xs);text-transform:uppercase;letter-spacing:var(--tracking-label);color:var(--text-muted)}
+.rz-c-field-box{position:relative;display:flex;align-items:center}
+.rz-c-field-icon{position:absolute;left:var(--space-3);display:flex;color:var(--text-subtle);pointer-events:none}
+.rz-c-field-chev{position:absolute;right:var(--space-3);display:flex;color:var(--text-subtle);pointer-events:none}
+.rz-c-input,.rz-c-select{width:100%;height:var(--control-height-md);margin:0;padding:0 var(--space-3);background:var(--surface-card);color:var(--text-body);border:1px solid var(--border-default);border-radius:var(--radius-sm);font-family:var(--font-brand);font-variation-settings:var(--fv-text);font-size:var(--text-md);outline:none;transition:var(--transition-control)}
+.rz-c-input.is-sm,.rz-c-select.is-sm{height:var(--control-height-sm)}
+.rz-c-input.is-lg,.rz-c-select.is-lg{height:var(--control-height-lg)}
+.rz-c-input.has-icon{padding-left:36px}
+.rz-c-input.is-mono{font-family:var(--font-mono);font-variation-settings:normal}
+.rz-c-input::placeholder{color:var(--text-subtle)}
+/* No escuro, text-subtle fica em 3,9:1 (o design system avisa). O placeholder mostra formato
+   (dd/mm/aaaa) e precisa ser lido: passa a text-muted, ainda mais apagado que o texto digitado. */
+[data-theme="dark"] .rz-c-input::placeholder{color:var(--text-muted)}
+.rz-c-input:disabled,.rz-c-select:disabled{background:var(--surface-sunken);cursor:not-allowed}
+.rz-c-input[aria-invalid="true"],.rz-c-select[aria-invalid="true"]{border-color:var(--danger)}
+.rz-c-input:focus-visible,.rz-c-select:focus-visible{border-color:var(--border-brand)}
+.rz-c-select{padding-right:36px;appearance:none;cursor:pointer}
+.rz-c-field-error{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--danger)}
+/* Textarea: mesma caixa do Input, altura pelo número de linhas */
+.rz-c-input.rz-c-textarea,.rz-c-input.rz-c-textarea.is-sm,.rz-c-input.rz-c-textarea.is-lg{height:auto;min-height:88px;padding:var(--space-2) var(--space-3);line-height:var(--leading-normal);resize:vertical}
+/* Grupo de Radio (radio_grupo.html): legenda como rótulo de campo, erro e dica embaixo */
+.rz-c-radios{display:flex;flex-direction:column;gap:var(--space-2);min-width:0;margin:0;padding:0;border:0}
+.rz-c-radios>legend{padding:0;margin-bottom:var(--space-2)}
+.rz-c-radios-op{display:flex;flex-direction:column;gap:var(--space-3)}
+.rz-c-radios.is-row .rz-c-radios-op{flex-direction:row;flex-wrap:wrap;align-items:center;gap:var(--space-2) var(--space-4);min-height:40px}
+.rz-c-radios[aria-invalid="true"] .rz-c-radio+span{border-color:var(--danger)}
+.rz-c-field-hint{font-family:var(--font-brand);font-size:var(--text-xs);color:var(--text-muted)}
+
+/* Tabs */
+.rz-c-tabs{display:flex;align-items:stretch;gap:var(--space-6);padding:0;background:transparent;border:0;border-bottom:1px solid var(--border-default)}
+.rz-c-tab{position:relative;display:inline-flex;align-items:center;gap:var(--space-2);height:40px;margin:0;padding:0 0 var(--space-1);background:transparent;border:0;border-radius:0;box-shadow:none;font-family:var(--font-brand);font-variation-settings:var(--fv-text);font-weight:400;font-size:var(--text-md);line-height:1;white-space:nowrap;color:var(--text-muted);text-decoration:none;cursor:pointer;transition:var(--transition-control)}
+@media (hover:hover) and (pointer:fine){.rz-c-tab:hover{color:var(--text-strong)}}
+.rz-c-tab[aria-selected="true"]{font-variation-settings:var(--fv-text-semibold);font-weight:600;color:var(--text-strong)}
+.rz-c-tab-count{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--text-subtle)}
+.rz-c-tab-bar{display:none;position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--gradient-brand)}
+.rz-c-tabs:not(.is-segmented) .rz-c-tab[aria-selected="true"] .rz-c-tab-bar{display:block}
+.rz-c-tabs.is-segmented{gap:var(--space-1);padding:var(--space-1);background:var(--surface-sunken);border:1px solid var(--border-subtle);border-radius:var(--radius-md)}
+.rz-c-tabs.is-segmented .rz-c-tab{height:30px;padding:0 var(--space-4);border-radius:var(--radius-sm)}
+.rz-c-tabs.is-segmented .rz-c-tab[aria-selected="true"]{background:var(--surface-card);box-shadow:var(--shadow-xs)}
+
+/* Toast */
+.rz-c-toast{display:flex;align-items:flex-start;gap:var(--space-3);width:100%;max-width:380px;padding:var(--space-4);background:var(--surface-card);border:1px solid var(--info-border);border-left:3px solid var(--info);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg)}
+.rz-c-toast-icon{display:flex;color:var(--info);margin-top:1px}
+.rz-c-toast.is-success{border-color:var(--success-border);border-left-color:var(--success)}
+.rz-c-toast.is-success .rz-c-toast-icon{color:var(--success)}
+.rz-c-toast.is-warning{border-color:var(--warning-border);border-left-color:var(--warning)}
+.rz-c-toast.is-warning .rz-c-toast-icon{color:var(--warning)}
+.rz-c-toast.is-danger{border-color:var(--danger-border);border-left-color:var(--danger)}
+.rz-c-toast.is-danger .rz-c-toast-icon{color:var(--danger)}
+.rz-c-toast-main{flex:1;min-width:0}
+.rz-c-toast-title{font-family:var(--font-brand);font-variation-settings:var(--fv-text-semibold);font-weight:600;font-size:var(--text-md);color:var(--text-strong);margin-bottom:2px}
+.rz-c-toast-body{font-size:var(--text-sm);color:var(--text-muted);line-height:1.5}
+.rz-c-toast-close{display:flex;padding:0;background:none;border:0;color:var(--text-subtle);cursor:pointer;border-radius:var(--radius-xs)}
+
+/* Dialog */
+.rz-c-dialog-scrim{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:var(--space-6);background:var(--overlay-scrim);-webkit-backdrop-filter:var(--blur-sm);backdrop-filter:var(--blur-sm)}
+.rz-c-dialog{position:relative;width:100%;max-width:460px;max-height:100%;overflow:auto;background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);box-shadow:var(--shadow-xl)}
+.rz-c-dialog-accent{position:absolute;inset:0 0 auto 0;height:3px;background:var(--gradient-brand)}
+.rz-c-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-4);padding:var(--space-6) var(--space-6) var(--space-3)}
+.rz-c-dialog-label{font-family:var(--font-mono);font-weight:500;font-size:var(--text-2xs);text-transform:uppercase;letter-spacing:var(--tracking-label);color:var(--text-muted);margin-bottom:var(--space-2)}
+.rz-c-dialog-title{font-size:var(--text-xl)}
+.rz-c-dialog-head .rz-c-iconbutton{margin:-4px -4px 0 0}
+.rz-c-dialog-body{padding:0 var(--space-6) var(--space-6);font-size:var(--text-md);color:var(--text-muted);line-height:var(--leading-relaxed)}
+.rz-c-dialog footer{display:flex;justify-content:flex-end;gap:var(--space-3);padding:var(--space-4) var(--space-6);border-top:1px solid var(--border-subtle);background:var(--surface-page)}
+
+/* Tooltip */
+.rz-c-tooltip-wrap{position:relative;display:inline-flex}
+.rz-c-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);z-index:40;white-space:nowrap;padding:var(--space-2) var(--space-3);background:var(--grafite);color:var(--nevoa);border:1px solid var(--petroleo-profundo);border-radius:var(--radius-sm);box-shadow:var(--shadow-md);font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:.02em;line-height:1.4;opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--dur-fast) var(--ease-standard),visibility 0s linear var(--dur-fast)}
+.rz-c-tooltip.is-bottom{top:calc(100% + 8px);bottom:auto}
+.rz-c-tooltip.is-left{right:calc(100% + 8px);left:auto;top:50%;bottom:auto;transform:translateY(-50%)}
+.rz-c-tooltip.is-right{left:calc(100% + 8px);top:50%;bottom:auto;transform:translateY(-50%)}
+.rz-c-tooltip-wrap:hover>.rz-c-tooltip,.rz-c-tooltip-wrap:focus-within>.rz-c-tooltip,.rz-c-tooltip.is-open{opacity:1;visibility:visible;transition:opacity var(--dur-fast) var(--ease-standard),visibility 0s}
+
+/* MonoLabel */
+.rz-c-monolabel{display:inline-flex;align-items:center;gap:var(--space-2);font-family:var(--font-mono);font-weight:500;font-size:var(--text-xs);text-transform:uppercase;letter-spacing:var(--tracking-label);color:var(--text-muted)}
+.rz-c-monolabel.is-sm{font-size:var(--text-2xs)}
+.rz-c-monolabel.is-lg{font-size:var(--text-sm)}
+.rz-c-monolabel.is-accent{color:var(--text-accent)}
+.rz-c-monolabel.is-strong{color:var(--text-strong)}
+.rz-c-monolabel.is-inverse{color:var(--nevoa)}
+.rz-c-monolabel.is-brand{color:var(--text-brand)}
+.rz-c-monolabel-num{opacity:.55;font-variant-numeric:tabular-nums}
+
+/* Logo: uma imagem por tema, sem alterar o PNG */
+.rz-c-logo{display:inline-flex;align-items:center;justify-content:center;line-height:0}
+.rz-c-logo img{display:block;width:auto}
+[data-theme="dark"] .rz-c-logo .so-claro,html:not([data-theme="dark"]) .rz-c-logo .so-escuro{display:none}
+
+/* Lista aberta do select: com appearance:none o popup nativo fica branco, mas herda o texto claro do tema escuro.
+   --surface-card do tema soft é translúcido, então a lista usa cor sólida. */
+.rz-c-select option,.rz-c-select optgroup{background-color:#fff;color:#0c1719}
+[data-theme="dark"] .rz-c-select option,[data-theme="dark"] .rz-c-select optgroup{background-color:#121f21;color:#d5dede}
+.rz-c-select option:checked{background-color:#d6e4e6;color:#0c1719}
+[data-theme="dark"] .rz-c-select option:checked{background-color:#10363b;color:#f4f7f7}

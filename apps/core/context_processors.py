@@ -36,4 +36,61 @@ def branding(request):
         contexto["diagnosticos_abertos"] = Diagnostico.objects.filter(
             lead__isnull=True, atendido_em__isnull=True
         ).count()
+        contexto["menu"] = montar_menu(request, usuario, contexto)
+        contexto["barra"] = semana_de_prazos(hoje)
     return contexto
+
+
+# Barra lateral no padrão Razach Tarefas Internas: grupos numerados, ícone Lucide, contagem à direita.
+GRUPOS = [
+    ("01 · Gestão", [
+        ("painel", "Painel", "core:dashboard", "layout-dashboard", None),
+        ("indicadores", "Indicadores", "core:indicadores", "chart-column", None),
+        ("gestao", "Gestões de SST", "gestao:lista", "shield-check", None),
+        ("prazos", "Prazos", "gestao:agenda", "timer", "prazos_atrasados"),
+        ("vencimentos", "Vencimentos", "gestao:vencimentos", "calendar-x", "vencimentos_total"),
+        ("empresas", "Empresas", "empresas:lista", "building-2", None),
+    ]),
+    ("02 · Captação", [
+        ("funil", "Funil", "crm:funil", "filter", None),
+        ("diagnosticos", "Diagnósticos", "crm:diagnosticos", "list-checks", "diagnosticos_abertos"),
+        ("leads", "Leads", "crm:lista", "user-plus", "leads_atrasados_total"),
+        ("vendas", "Vendas", "vendas:lista", "handshake", None),
+        ("campanhas", "Campanhas", "campanhas:painel", "send", None),
+        ("fap", "FAP dos clientes", "gestao:fap_carteira", "gauge", None),
+    ]),
+]
+SECAO_GRUPO = {chave: rotulo for rotulo, itens in GRUPOS for chave, *_ in itens}
+SECAO_GRUPO.update({"busca": "01 · Gestão"})
+
+
+def montar_menu(request, usuario, contexto):
+    from django.urls import reverse
+
+    menu = []
+    for rotulo, itens in GRUPOS:
+        menu.append({"rotulo": rotulo, "itens": [
+            {"chave": chave, "rotulo": nome, "url": reverse(rota), "icone": ic,
+             "contagem": contexto.get(cont) if cont else None}
+            for chave, nome, rota, ic, cont in itens
+        ]})
+    if usuario.is_staff:
+        menu.append({"rotulo": "03 · Administração", "itens": [
+            {"chave": "admin", "rotulo": "Cadastros e acessos", "url": "/admin/", "icone": "user-cog", "contagem": None},
+        ]})
+    return menu
+
+
+def semana_de_prazos(hoje):
+    """Rodapé da barra lateral: prazos da semana corrente cumpridos até hoje."""
+    from datetime import timedelta
+
+    from apps.gestao.models import Prazo, StatusPrazo
+
+    inicio = hoje - timedelta(days=hoje.weekday())
+    fim = inicio + timedelta(days=6)
+    qs = Prazo.objects.filter(data_fim__range=(inicio, fim), gestao__encerrado_em__isnull=True)
+    total = qs.count()
+    feitos = qs.filter(status=StatusPrazo.CUMPRIDO).count()
+    pct = round(feitos * 100 / total) if total else 0
+    return {"semana": hoje.isocalendar()[1], "feitos": feitos, "total": total, "pct": pct}

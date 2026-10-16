@@ -29,7 +29,7 @@
   </label>
   <button class="btn" type="submit">Filtrar</button>
   <div class="espaco"></div>
-  <div class="resumo">{{ paginator.count|default:prazos|length }} prazo(s)</div>
+  <div class="resumo">{% if paginator %}{{ paginator.count }}{% else %}{{ prazos|length }}{% endif %} prazo(s)</div>
 </form>
 
 <div class="tabela">

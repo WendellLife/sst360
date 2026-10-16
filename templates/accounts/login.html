@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% block titulo %}Entrar - {{ APP_NOME }}{% endblock %}
 {% block conteudo_publico %}
-<h1 class="publico__titulo">Entrar</h1>
-<p class="publico__sub">Acesso da equipe interna. É cliente? Use o código por e-mail ou celular.</p>
+<div class="publico__cab">
+  <span class="rz-c-monolabel is-accent"><span class="rz-c-monolabel-num">01</span>· Acesso</span>
+  <h1 class="publico__titulo">Entrar</h1>
+  <p class="publico__sub">Acesso da equipe interna. É cliente? Use o código por e-mail ou celular.</p>
+</div>
 <form method="post">
   {% csrf_token %}
   <div class="campos" style="grid-template-columns:1fr">

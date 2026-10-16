@@ -21,7 +21,7 @@
   </select>
   <button class="btn" type="submit">Filtrar</button>
   <div class="espaco"></div>
-  <div class="resumo">{{ paginator.count|default:leads|length }} lead(s)</div>
+  <div class="resumo">{% if paginator %}{{ paginator.count }}{% else %}{{ leads|length }}{% endif %} lead(s)</div>
 </form>
 
 <div class="tabela">

@@ -15,7 +15,7 @@
   <button class="btn" type="submit">Buscar</button>
   {% if q or situacao %}<a class="btn-texto" href="{% url 'empresas:lista' %}">limpar</a>{% endif %}
   <div class="espaco"></div>
-  <div class="resumo">{{ paginator.count|default:empresas|length }} empresa(s)</div>
+  <div class="resumo">{% if paginator %}{{ paginator.count }}{% else %}{{ empresas|length }}{% endif %} empresa(s)</div>
 </form>
 
 <div class="tabela">

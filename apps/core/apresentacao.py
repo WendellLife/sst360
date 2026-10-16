@@ -19,27 +19,25 @@ from pptx.util import Emu, Inches, Pt
 from .indicadores import moeda
 
 # ---------------------------------------------------------------- identidade
-GRAFITE = RGBColor(0x12, 0x23, 0x2E)  # ll-ink
-MARINHO = RGBColor(0x08, 0x2C, 0x52)  # ll-navy-900, fundo dos slides escuros
-PETROLEO = RGBColor(0x2B, 0x82, 0x83)  # ll-teal-700
-TURQUESA = RGBColor(0x43, 0xB5, 0xB6)  # ll-teal
-AZUL = RGBColor(0x00, 0x86, 0xC4)  # ll-blue
-CIANO = RGBColor(0x7F, 0xCE, 0xCF)  # ll-teal-300
-NEVOA = RGBColor(0xF5, 0xF7, 0xF8)
+GRAFITE = RGBColor(0x0C, 0x17, 0x19)
+PETROLEO = RGBColor(0x1B, 0x64, 0x70)
+TURQUESA = RGBColor(0x35, 0x98, 0x9F)
+CIANO = RGBColor(0x6F, 0xCB, 0xCE)
+NEVOA = RGBColor(0xF4, 0xF7, 0xF7)
 BRANCO = RGBColor(0xFF, 0xFF, 0xFF)
-TINTA = RGBColor(0x33, 0x45, 0x4F)
-SUAVE = RGBColor(0x5B, 0x6B, 0x74)
-FRACA = RGBColor(0x84, 0x94, 0x9C)
-LINHA = RGBColor(0xD9, 0xE0, 0xE4)
-VERDE = RGBColor(0x2F, 0x9E, 0x6B)
-AMARELO = RGBColor(0xC0, 0x7A, 0x1C)
-VERMELHO = RGBColor(0xD2, 0x4B, 0x46)
-CINZA = RGBColor(0xB7, 0xC1, 0xC7)
-COR_NIVEL = {"BMAX": VERDE, "BON": VERDE, "NEU": RGBColor(0x5B, 0x6B, 0x74), "MAL": AMARELO, "MMAX": VERMELHO}
+TINTA = RGBColor(0x1F, 0x2E, 0x30)
+SUAVE = RGBColor(0x4A, 0x5A, 0x5C)
+FRACA = RGBColor(0x66, 0x78, 0x7A)
+LINHA = RGBColor(0xD5, 0xDE, 0xDE)
+VERDE = RGBColor(0x1B, 0x7F, 0x63)
+AMARELO = RGBColor(0xA9, 0x74, 0x1A)
+VERMELHO = RGBColor(0xB0, 0x3A, 0x32)
+CINZA = RGBColor(0xB6, 0xC3, 0xC4)
+COR_NIVEL = {"BMAX": VERDE, "BON": VERDE, "NEU": RGBColor(0x66, 0x78, 0x7A), "MAL": AMARELO, "MMAX": VERMELHO}
 FONTE = "Arial"
 L, A = Inches(13.333), Inches(7.5)
 MARGEM = Inches(0.6)
-IMG = Path(settings.BASE_DIR) / "static" / "img" / "razach"
+IMG = Path(settings.BASE_DIR) / "static" / "razach" / "img"
 
 
 # ---------------------------------------------------------------- utilitários
@@ -108,7 +106,7 @@ class Deck:
     def novo(self, titulo, mensagem="", *, escuro=False, notas=""):
         slide = self.prs.slides.add_slide(self.branco)
         self.n += 1
-        _fundo(slide, MARINHO if escuro else BRANCO)
+        _fundo(slide, GRAFITE if escuro else BRANCO)
         if titulo:
             _texto(slide, MARGEM, Inches(0.45), L - 2 * MARGEM, Inches(0.6), titulo, tam=30, negrito=True,
                    cor=BRANCO if escuro else GRAFITE, nome="Título")
@@ -254,14 +252,16 @@ class Deck:
 def _capa(dk):
     d = dk.d
     s = dk.novo("", escuro=True, notas="Abertura: período, quem preparou e o que a apresentação cobre.")
-    if (IMG / "razach-combinado-claro.png").exists():
-        s.shapes.add_picture(str(IMG / "razach-combinado-claro.png"), MARGEM, Inches(0.7), height=Inches(0.75))
+    if (IMG / "razach-simbolo-claro.png").exists():
+        s.shapes.add_picture(str(IMG / "razach-simbolo-claro.png"), MARGEM, Inches(0.7), height=Inches(0.7))
     _texto(s, MARGEM, Inches(2.2), Inches(10), Inches(0.4), "SST360 · UNIVERSO FX · LIFE LABORAL", tam=13, negrito=True, cor=CIANO)
     _texto(s, MARGEM, Inches(2.7), Inches(11), Inches(1.8), "Indicadores da carteira de saúde e segurança do trabalho", tam=40, negrito=True, cor=BRANCO)
     _texto(s, MARGEM, Inches(4.75), Inches(11), Inches(0.5), d["periodo"].rotulo, tam=20, cor=NEVOA)
     _texto(s, MARGEM, Inches(5.25), Inches(11), Inches(0.4),
            f"Comercial, conformidade, FAP e carteira · gerado em {d['gerado_em']:%d/%m/%Y %H:%M}" + (f" por {dk.autor}" if dk.autor else ""),
            tam=13, cor=CINZA)
+    if (IMG / "razach-combinado-claro.png").exists():
+        s.shapes.add_picture(str(IMG / "razach-combinado-claro.png"), L - MARGEM - Inches(1.9), A - Inches(1.0), height=Inches(0.52))
 
 
 def _resumo(dk):
@@ -492,7 +492,7 @@ def _proximos(dk):
         col, lin = i % 2, i // 2
         x = MARGEM + col * (w + Inches(0.4))
         y = Inches(2.0) + lin * Inches(1.5)
-        _caixa(s, x, y, w, Inches(1.25), RGBColor(0x0A, 0x3A, 0x6B))
+        _caixa(s, x, y, w, Inches(1.25), RGBColor(0x12, 0x1F, 0x21))
         _texto(s, x + Inches(0.3), y + Inches(0.22), Inches(0.8), Inches(0.8), f"{i + 1:02d}", tam=28, negrito=True, cor=CIANO)
         _texto(s, x + Inches(1.2), y, w - Inches(1.5), Inches(1.25), texto, tam=16, cor=BRANCO, ancora=MSO_ANCHOR.MIDDLE)
     if (IMG / "razach-combinado-claro.png").exists():

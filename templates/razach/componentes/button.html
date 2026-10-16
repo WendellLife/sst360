@@ -1,0 +1,5 @@
+{% comment %}
+Button. Parâmetros: texto, variante (primary|gradient|secondary|ghost|danger), tamanho (sm|md|lg),
+icone_esq, icone_dir, tipo (button|submit), bloco, desabilitado, carregando, href, classe, attrs.
+Tamanho do ícone: 15 (sm), 17 (md), 19 (lg).
+{% endcomment %}{% with t=tamanho|default:"md" v=variante|default:"primary" %}{% if t == "sm" %}{% firstof 15 as tam %}{% elif t == "lg" %}{% firstof 19 as tam %}{% else %}{% firstof 17 as tam %}{% endif %}{% if href %}<a href="{{ href }}"{% else %}<button type="{{ tipo|default:'button' }}"{% if desabilitado or carregando %} disabled{% endif %}{% endif %} class="rz-c-button is-{{ v }}{% if t != 'md' %} is-{{ t }}{% endif %}{% if bloco %} is-block{% endif %}{% if carregando %} is-loading{% endif %}{% if classe %} {{ classe }}{% endif %}"{% if attrs %} {{ attrs|safe }}{% endif %}>{% if carregando %}{% icone "loader-circle" tam "rz-c-spin" %}{% elif icone_esq %}{% icone icone_esq tam %}{% endif %}<span>{{ texto }}</span>{% if icone_dir %}{% icone icone_dir tam "rz-c-icon-right" %}{% endif %}{% if href %}</a>{% else %}</button>{% endif %}{% endwith %}
