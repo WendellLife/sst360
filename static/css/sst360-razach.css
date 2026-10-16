@@ -352,3 +352,13 @@ html.js .cabecalho .subtitulo { display: none; }
 .sb-user .av-lg { width: 34px; height: 34px; }
 @media (max-height: 820px) { .sb-week { display: none; } }
 @media (max-height: 700px) { .sb-link { height: 30px; } .sb-rolagem { gap: var(--space-2); } .rz-side .sb { gap: var(--space-3); } }
+
+/* Barra lateral do tamanho do conteúdo: sem faixa vazia entre o menu e o rodapé.
+   Continua fixa ao rolar; só rola por dentro se a janela for mais baixa que o menu. */
+@media (min-width: 900px) { .rz-side { align-self: flex-start; position: sticky; top: 0; } }
+.rz-side .sb { height: auto; min-height: 0; max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); }
+.sb-rolagem { flex: 0 1 auto; }
+.sb-foot { margin-top: var(--space-2); padding-top: var(--space-3); border-top: 1px solid var(--border-subtle); }
+.sb-link { height: 36px; }
+.sb-group + .sb-group { padding-top: var(--space-2); }
+@media (max-height: 760px) { .sb-link { height: 32px; } .sb-group + .sb-group { padding-top: 0; } }
