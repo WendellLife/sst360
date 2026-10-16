@@ -47,6 +47,7 @@
       {% if leads_atrasados_total %}<span class="contagem alerta">{{ leads_atrasados_total }}</span>{% endif %}
     </a>
     <a class="item-nav {% if secao == 'vendas' %}ativo{% endif %}" href="{% url 'vendas:lista' %}"><span>Vendas</span></a>
+    <a class="item-nav {% if secao == 'campanhas' %}ativo{% endif %}" href="{% url 'campanhas:painel' %}"><span>Campanhas</span></a>
     <a class="item-nav {% if secao == 'fap' %}ativo{% endif %}" href="{% url 'gestao:fap_carteira' %}"><span>FAP dos clientes</span></a>
 
     <div class="rodape">

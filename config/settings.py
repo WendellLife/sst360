@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "apps.publico",
     "apps.relacionamento",
     "apps.vendas",
+    "apps.campanhas",
 ]
 
 MIDDLEWARE = [

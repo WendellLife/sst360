@@ -14,6 +14,7 @@ urlpatterns = [
     path("portal/", include("apps.portal.urls")),
     path("relacionamento/", include("apps.relacionamento.urls")),
     path("vendas/", include("apps.vendas.urls")),
+    path("", include("apps.campanhas.urls")),
 ]
 
 if settings.DEBUG:

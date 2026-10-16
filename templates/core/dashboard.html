@@ -183,6 +183,35 @@
   {% endif %}
 </section>
 
+<div class="grade grade-2" style="margin-top:18px">
+  <section class="cartao">
+    <header class="cartao-cab"><h2>Renovações nos próximos 3 meses</h2><a href="{% url 'campanhas:painel' %}#renovacoes">campanhas</a></header>
+    <ul class="lista">
+      {% for x in renovacoes %}
+      <li class="linha-flex">
+        <div style="min-width:0"><a class="titulo" href="{{ x.lead.get_absolute_url }}">{{ x.lead }}</a><div class="texto-fraco">{{ x.lead.fornecedor_atual|default:"fornecedor não informado" }}</div></div>
+        <span class="etiqueta etiqueta--{% if x.distancia <= 1 %}vermelho{% elif x.distancia == 2 %}amarelo{% else %}azul{% endif %}">{{ x.lead.get_renovacao_mes_display }}{% if x.distancia == 0 %} · este mês{% endif %}</span>
+      </li>
+      {% empty %}
+      <li class="vazio">Nenhuma renovação próxima entre os leads. Registre o mês de renovação no cadastro do lead.</li>
+      {% endfor %}
+    </ul>
+  </section>
+  <section class="cartao">
+    <header class="cartao-cab"><h2>Pediram para entrar na cotação</h2><a href="{% url 'crm:lista' %}">leads</a></header>
+    <ul class="lista">
+      {% for lead in cotacoes_pedidas %}
+      <li class="linha-flex">
+        <div style="min-width:0"><a class="titulo" href="{{ lead.get_absolute_url }}">{{ lead }}</a><div class="texto-fraco">{{ lead.contato_nome|default:"—" }} · {{ lead.contato_telefone }}</div></div>
+        <span class="etiqueta etiqueta--verde">{{ lead.cotacao_pedida_em|date:"d/m H:i" }}</span>
+      </li>
+      {% empty %}
+      <li class="vazio">Ninguém pediu cotação pelas campanhas ainda.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
 <section class="cartao" style="margin-top:18px">
   <header class="cartao-cab">
     <div><h2>Oportunidades de FAP</h2><div class="texto-fraco">{{ fap_malus }} cliente(s) em malus · economia possível de <span class="num">{{ fap_potencial_total|moeda }}</span>/ano na carteira</div></div>

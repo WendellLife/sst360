@@ -75,6 +75,26 @@
       </form>
     </div></section>
 
+    <section class="cartao regua-lead" id="regua">
+      <header class="cartao-cab"><h2>Relacionamento</h2>{% if lead.cotacao_pedida_em %}<span class="etiqueta etiqueta--verde">pediu cotação {{ lead.cotacao_pedida_em|date:"d/m" }}</span>{% endif %}</header>
+      <div class="cartao-corpo">
+        <dl class="dl">
+          <div><dt>Renovação do contrato atual</dt><dd>{% if lead.renovacao_mes %}{{ lead.get_renovacao_mes_display }}{% if regua.proxima %} · <span class="num">{{ regua.proxima|date:"m/Y" }}</span>{% endif %}{% else %}<span class="destaque-alerta">não informada</span> · pergunte no próximo contato{% endif %}</dd></div>
+          <div><dt>Fornecedor atual</dt><dd>{{ lead.fornecedor_atual|default:"—" }}</dd></div>
+          <div><dt>Mensagem deste mês</dt><dd>{% if lead.descadastrado_em %}<span class="etiqueta etiqueta--cinza">pediu para sair em {{ lead.descadastrado_em|date:"d/m/Y" }}</span>{% elif not regua.no_publico %}<span class="texto-fraco">fora da régua (cliente)</span>{% else %}<span class="etiqueta etiqueta--{% if regua.etapa == 'MEN' %}cinza{% elif regua.etapa == 'R90' %}azul{% elif regua.etapa == 'R60' %}amarelo{% else %}vermelho{% endif %}">{% if regua.etapa == 'MEN' %}Conteúdo do mês{% elif regua.etapa == 'R90' %}Renovação em 3 meses{% elif regua.etapa == 'R60' %}Renovação em 2 meses{% elif regua.etapa == 'R30' %}Renovação no próximo mês{% else %}Mês da renovação{% endif %}</span>{% endif %}</dd></div>
+          <div><dt>Canais</dt><dd>E-mail {% if regua.email %}<span class="etiqueta etiqueta--verde">sim</span>{% else %}<span class="etiqueta etiqueta--cinza">não</span>{% endif %} · WhatsApp {% if regua.whatsapp %}<span class="etiqueta etiqueta--verde">sim</span>{% else %}<span class="etiqueta etiqueta--cinza">não</span>{% endif %}</dd></div>
+        </dl>
+      </div>
+      <ul class="lista">
+        {% for e in regua.envios %}
+        <li class="linha-flex"><span><span class="texto-fraco num">{{ e.campanha.rotulo }}</span> · {{ e.get_canal_display }}</span><span class="etiqueta etiqueta--{{ e.cor_status }}">{{ e.get_status_display }}{% if e.clicado_em %} · clicou{% elif e.aberto_em %} · abriu{% endif %}</span></li>
+        {% empty %}
+        <li class="vazio">Nenhuma mensagem de campanha ainda.</li>
+        {% endfor %}
+      </ul>
+      <div class="cartao-rodape"><a href="{% url 'crm:editar' lead.pk %}">Editar renovação e canais</a> · <a href="{% url 'campanhas:painel' %}">Campanhas</a></div>
+    </section>
+
     {% if lead.observacoes %}
     <section class="cartao"><div class="cartao-corpo">
       <div class="sobretitulo" style="margin-bottom:8px">03 · Observações</div>

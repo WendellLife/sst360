@@ -1,0 +1,25 @@
+{% extends "publico/base_site.html" %}
+{% block titulo %}Participar da cotação · {{ APP_NOME }}{% endblock %}
+{% block conteudo_site %}
+<section class="site-secao">
+  <div class="quiz resultado" style="max-width:640px">
+    <div class="cartao"><div class="cartao-corpo" style="padding:28px">
+      {% if confirmado %}
+      <div class="sobretitulo">Pedido recebido</div>
+      <h1 style="font-size:28px;margin:6px 0 12px">Obrigado, {{ lead.contato_nome|default:lead }}</h1>
+      <p class="texto-suave">Registramos que a {{ lead }} quer receber a nossa proposta de SST. Quem cuida da sua conta entra em contato em até 1 dia útil para entender o cenário atual e preparar a cotação.</p>
+      <div class="form-acoes"><a class="btn" href="{% url 'core:home' %}">Conhecer a Universo FX · Life Laboral</a></div>
+      {% else %}
+      <div class="sobretitulo">Cotação de SST</div>
+      <h1 style="font-size:28px;margin:6px 0 12px">Quer receber a nossa proposta?</h1>
+      <p class="texto-suave">Confirme abaixo e a equipe comercial entra em contato com a {{ lead }} para entender o contrato atual{% if lead.renovacao_mes %} (renovação em {{ lead.get_renovacao_mes_display|lower }}){% endif %} e preparar uma proposta, sem custo.</p>
+      <form method="post" class="form-acoes">
+        {% csrf_token %}
+        <button class="btn btn-primario btn-grande" type="submit">Sim, quero participar da cotação</button>
+      </form>
+      <p class="texto-fraco" style="margin-top:18px;font-size:13px">Prefere não receber mais nossas mensagens? <a href="{% url 'campanhas:descadastrar' token %}">Cancelar o recebimento</a>.</p>
+      {% endif %}
+    </div></div>
+  </div>
+</section>
+{% endblock %}

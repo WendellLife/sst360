@@ -1,3 +1,4 @@
+import uuid
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
@@ -56,6 +57,10 @@ class ServicoInteresse(models.TextChoices):
     ESOCIAL = "ESO", "Gestão do eSocial"
     FAP = "FAP", "Redução do FAP"
     PERICIAL = "PER", "Assistência jurídica e pericial"
+
+
+MESES = [(1, "Janeiro"), (2, "Fevereiro"), (3, "Março"), (4, "Abril"), (5, "Maio"), (6, "Junho"),
+         (7, "Julho"), (8, "Agosto"), (9, "Setembro"), (10, "Outubro"), (11, "Novembro"), (12, "Dezembro")]
 
 
 class Urgencia(models.TextChoices):
@@ -127,6 +132,18 @@ class Lead(TimeStampedModel):
         blank=True,
     )
     observacoes = models.TextField("observacoes", blank=True)
+
+    # régua de relacionamento (campanhas mensais por e-mail e WhatsApp)
+    renovacao_mes = models.PositiveSmallIntegerField(
+        "mês de renovação do contrato atual", choices=MESES, null=True, blank=True,
+        help_text="Quando vence o contrato de SST que a empresa tem hoje. A régua acelera 3, 2 e 1 mês antes.",
+    )
+    fornecedor_atual = models.CharField("fornecedor atual de SST", max_length=150, blank=True)
+    aceita_email = models.BooleanField("aceita e-mail com conteúdo e ofertas", default=True)
+    aceita_whatsapp = models.BooleanField("aceita mensagem no WhatsApp", default=True)
+    descadastrado_em = models.DateTimeField("pediu para não receber em", null=True, blank=True)
+    cotacao_pedida_em = models.DateTimeField("pediu para participar da cotação em", null=True, blank=True)
+    token = models.UUIDField("token dos links públicos", default=uuid.uuid4, unique=True, editable=False)
 
     class Meta:
         verbose_name = "lead"

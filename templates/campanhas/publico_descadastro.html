@@ -1,0 +1,24 @@
+{% extends "publico/base_site.html" %}
+{% block titulo %}Cancelar recebimento · {{ APP_NOME }}{% endblock %}
+{% block conteudo_site %}
+<section class="site-secao">
+  <div class="quiz resultado" style="max-width:640px">
+    <div class="cartao"><div class="cartao-corpo" style="padding:28px">
+      {% if feito %}
+      <div class="sobretitulo">Pronto</div>
+      <h1 style="font-size:28px;margin:6px 0 12px">Você não vai mais receber nossas mensagens</h1>
+      <p class="texto-suave">O contato da {{ lead }} saiu das campanhas por e-mail e WhatsApp. Se mudar de ideia, é só responder qualquer mensagem antiga ou falar com a gente pelo site.</p>
+      {% else %}
+      <div class="sobretitulo">Cancelar recebimento</div>
+      <h1 style="font-size:28px;margin:6px 0 12px">Deixar de receber as mensagens?</h1>
+      <p class="texto-suave">Enviamos uma vez por mês um assunto de SST e, perto da renovação do contrato, um convite para participar da cotação. Confirme para não receber mais por e-mail nem por WhatsApp.</p>
+      <form method="post" class="form-acoes">
+        {% csrf_token %}
+        <button class="btn" type="submit">Sim, não quero mais receber</button>
+        <a class="btn-texto" href="{% url 'core:home' %}">Continuar recebendo</a>
+      </form>
+      {% endif %}
+    </div></div>
+  </div>
+</section>
+{% endblock %}

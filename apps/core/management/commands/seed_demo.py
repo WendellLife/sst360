@@ -108,6 +108,7 @@ class Command(BaseCommand):
         self._leads(analista, engenheiro)
         self._diagnosticos()
         self._vendas(metalurgica, supermercado, construtora, analista, engenheiro)
+        self._campanhas()
         self._fap(metalurgica, supermercado, construtora)
 
         self.stdout.write(self.style.SUCCESS("Dados de demonstração prontos."))
@@ -188,6 +189,70 @@ class Command(BaseCommand):
                     "valor_unitario": Decimal(valor), "cobranca": cobranca, "status": status, "vendedor": vendedor,
                 },
             )
+
+    def _campanhas(self):
+        """Régua de relacionamento: renovação dos leads relativa a hoje, histórico do mês passado e do atual."""
+        from django.utils import timezone as tz
+
+        from apps.campanhas import regua
+        from apps.campanhas.models import Canal, StatusEnvio
+        from apps.crm.models import Lead
+
+        def mes_mais(n):
+            return (self.hoje.month - 1 + n) % 12 + 1
+
+        dados = {
+            "Transportadora Rota Sul Ltda": (1, "SegurMed Consultoria", "Carla Nunes", "carla.nunes@rotasul.exemplo.com.br", "(19) 99812-3344"),
+            "Hospital Santa Clara": (2, "Clínica Ocupar", "Dr. Marcelo Reis", "marcelo.reis@santaclara.exemplo.com.br", "(19) 99734-5521"),
+            "Plásticos Vale Verde": (3, "Prevenir SST", "Juliana Costa", "juliana@valeverde.exemplo.com.br", "(19) 99611-2087"),
+            "Logística Expressa Brasil": (0, "Ocupacional Prime", "Renato Alves", "renato.alves@expressabr.exemplo.com.br", "(11) 98877-6655"),
+            "Escola Novo Saber": (None, "", "Patrícia Lima", "secretaria@novosaber.exemplo.com.br", "(19) 99555-1200"),
+            "Indústria de Alimentos Sabor & Cia": (5, "SegurMed Consultoria", "Fernando Dias", "fernando.dias@saborecia.exemplo.com.br", "(19) 99444-9087"),
+            "Metalúrgica Aço Forte": (1, "Prevenir SST", "Rogério Prado", "rogerio@acoforte.exemplo.com.br", "(19) 99321-4455"),
+        }
+        for nome, (meses, fornecedor, contato, email, telefone) in dados.items():
+            Lead.objects.filter(razao_social=nome).update(
+                renovacao_mes=mes_mais(meses) if meses is not None else None, fornecedor_atual=fornecedor,
+                contato_nome=contato, contato_email=email, contato_telefone=telefone,
+                aceita_email=True, aceita_whatsapp=True, descadastrado_em=None,
+            )
+        regua.garantir_modelos()
+        if regua.campanha_atual().envios.exists():
+            return
+        # mês passado: tudo enviado, parte aberta
+        ano, mes = (self.hoje.year, self.hoje.month - 1) if self.hoje.month > 1 else (self.hoje.year - 1, 12)
+        anterior = regua.garantir_campanha(ano, mes)
+        regua.gerar_envios(anterior)
+        quando = tz.now() - timedelta(days=self.hoje.day + 20)
+        for i, envio in enumerate(anterior.envios.all()):
+            envio.status, envio.enviado_em = StatusEnvio.ENVIADO, quando
+            if envio.canal == Canal.EMAIL and i % 2 == 0:
+                envio.aberto_em = quando + timedelta(hours=3)
+            envio.save()
+        anterior.emails_enviados_em = quando
+        anterior.save()
+        # mês atual: envios gerados, alguns já feitos, um pedido de cotação
+        atual = regua.campanha_atual()
+        regua.gerar_envios(atual)
+        agora = tz.now()
+        for i, envio in enumerate(atual.envios.filter(canal=Canal.EMAIL).order_by("lead__razao_social")[:4]):
+            envio.status, envio.enviado_em = StatusEnvio.ENVIADO, agora - timedelta(hours=30)
+            envio.aberto_em = agora - timedelta(hours=26) if i % 2 == 0 else None
+            envio.save()
+        rota = atual.envios.filter(lead__razao_social="Transportadora Rota Sul Ltda", canal=Canal.EMAIL).first()
+        if rota:
+            rota.status, rota.enviado_em = StatusEnvio.ENVIADO, agora - timedelta(hours=30)
+            rota.aberto_em, rota.clicado_em = agora - timedelta(hours=26), agora - timedelta(hours=25)
+            rota.save()
+            lead = rota.lead
+            lead.cotacao_pedida_em = agora - timedelta(hours=25)
+            lead.save(update_fields=["cotacao_pedida_em"])
+            Atividade.objects.create(lead=lead, tipo=TipoAtividade.NOTA, titulo="Pediu para participar da cotação",
+                                     descricao=f"Confirmou pelo e-mail da campanha de {atual.rotulo}.", autor=None)
+        wpp = atual.envios.filter(canal=Canal.WHATSAPP, lead__razao_social="Hospital Santa Clara").first()
+        if wpp:
+            wpp.status, wpp.enviado_em = StatusEnvio.ENVIADO, agora - timedelta(hours=5)
+            wpp.save()
 
     # ------------------------------------------------------------- basicos
 

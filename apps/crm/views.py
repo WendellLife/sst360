@@ -82,6 +82,17 @@ class LeadDetailView(EquipeInternaMixin, DetailView):
         contexto["atividades"] = self.object.atividades.select_related("autor")
         contexto["form_atividade"] = AtividadeForm()
         contexto["estagios"] = Estagio.choices
+        from apps.campanhas import regua
+
+        hoje = timezone.localdate()
+        lead = self.object
+        contexto["regua"] = {
+            "no_publico": lead.empresa_id is None and lead.estagio != Estagio.GANHO and not lead.descadastrado_em,
+            "etapa": regua.etapa_do_lead(lead, hoje.year, hoje.month),
+            "proxima": regua.proxima_renovacao(lead, hoje),
+            "email": regua.pode_receber(lead, "EML"), "whatsapp": regua.pode_receber(lead, "WPP"),
+            "envios": lead.envios.select_related("campanha").order_by("-campanha__ano", "-campanha__mes", "canal")[:6],
+        }
         return contexto
 
 

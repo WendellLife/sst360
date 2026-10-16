@@ -961,3 +961,18 @@ a:hover { color: var(--link-hover); }
 @media (min-width: 1000px) and (max-width: 1279px) {
   .grade-3 { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ===== Campanhas ===== */
+.fila-wpp.feita { opacity: .6; }
+.fila-wpp .acoes-fila { display: grid; justify-items: end; gap: 4px; flex-shrink: 0; }
+.fila-wpp .acoes-fila form { margin: 0; }
+.previa-wpp summary { cursor: pointer; color: var(--acento); font-size: 13px; margin-top: 6px; }
+.previa-wpp p { margin: 8px 0 0; padding: 10px 12px; background: var(--superficie-2); border-radius: var(--raio); font-size: 13px; color: var(--tinta-media); max-width: 640px; }
+code.campo-modelo { font-family: var(--mono); font-size: 12px; background: var(--superficie); border: 1px solid var(--linha); border-radius: 4px; padding: 1px 6px; margin: 2px 4px 2px 0; display: inline-block; }
+.previa-modelo { display: grid; gap: 12px; align-content: start; }
+.previa-email { border: 1px solid var(--linha); border-radius: var(--raio); padding: 16px 18px; background: var(--superficie); font-size: 13.5px; color: var(--tinta-media); }
+.previa-email .assunto { font-weight: 700; color: var(--tinta); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--linha-suave); }
+.previa-email p { margin: 0 0 10px; }
+.previa-email .botao-previa { display: inline-block; background: var(--acento); color: #fff; font-weight: 700; padding: 8px 14px; border-radius: 6px; font-size: 13px; }
+.previa-zap { background: #dcf8c6; color: #111b21; border-radius: 8px 8px 8px 0; padding: 10px 12px; font-size: 13.5px; line-height: 1.45; max-width: 92%; justify-self: start; }
+.regua-lead .linha-flex { gap: 10px; }

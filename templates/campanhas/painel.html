@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load sst_extras %}
+{% block titulo %}Campanhas - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+{% with r=resumo %}
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Captação · régua de relacionamento</div>
+    <h1>Campanha de {{ campanha.rotulo }}</h1>
+    <p class="subtitulo">Todo mês os leads que ainda não são clientes recebem um assunto útil de SST. Perto da renovação do contrato deles, a mensagem pede para participarmos da cotação.</p>
+  </div>
+  <div class="acoes">
+    <a class="btn" href="?mes={{ anterior }}" aria-label="Mês anterior">←</a>
+    <a class="btn" href="?mes={{ proximo }}" aria-label="Próximo mês">→</a>
+    <a class="btn" href="{% url 'campanhas:modelos' %}">Modelos de mensagem</a>
+  </div>
+</div>
+
+<div class="kpis kpis-4">
+  <div class="kpi destaque"><div class="rotulo">Pedidos de cotação</div><div class="valor">{{ r.cotacoes }}</div><div class="sub">no mês · {{ r.cliques }} clique(s) nos links</div></div>
+  <div class="kpi"><div class="rotulo">E-mails enviados</div><div class="valor">{{ r.emails_enviados }}</div><div class="sub">{{ r.taxa_abertura }}% abertos · {{ r.emails_pendentes }} pendente(s){% if r.emails_falhas %} · <span class="destaque-alerta">{{ r.emails_falhas }} falha(s)</span>{% endif %}</div></div>
+  <div class="kpi"><div class="rotulo">WhatsApp enviados</div><div class="valor">{{ r.whats_enviados }}</div><div class="sub">{{ r.whats_pendentes }} na fila</div></div>
+  <div class="kpi"><div class="rotulo">Público da régua</div><div class="valor">{{ r.publico }}</div><div class="sub">leads que não são clientes · {{ r.descadastros }} saíram no mês</div></div>
+</div>
+
+<form method="post" class="filtros" style="margin-bottom:18px">
+  {% csrf_token %}
+  <input type="hidden" name="mes" value="{{ campanha.chave }}">
+  <button class="btn" type="submit" formaction="{% url 'campanhas:gerar' %}">{% if gerada %}Atualizar envios do mês{% else %}Gerar envios do mês{% endif %}</button>
+  <button class="btn btn-primario" type="submit" formaction="{% url 'campanhas:enviar_emails' %}" {% if gerada and not r.emails_pendentes %}disabled{% endif %}>Enviar e-mails pendentes{% if r.emails_pendentes %} ({{ r.emails_pendentes }}){% endif %}</button>
+  <div class="espaco"></div>
+  <span class="texto-fraco" style="font-size:13px">{% if campanha.emails_enviados_em %}E-mails enviados em {{ campanha.emails_enviados_em|date:"d/m H:i" }}{% elif gerada %}Envios gerados em {{ campanha.envios_gerados_em|date:"d/m H:i" }}{% else %}O envio automático roda no dia 1º; aqui dá para adiantar.{% endif %}</span>
+</form>
+
+{% if r.sem_renovacao %}
+<div class="aviso aviso--info" style="margin-bottom:18px"><strong>{{ r.sem_renovacao }} lead(s) sem mês de renovação.</strong> Eles recebem só o conteúdo do mês. Pergunte no próximo contato: “quando vence o contrato de SST de vocês?” e registre no lead.</div>
+{% endif %}
+
+<div class="grade grade-2-1">
+  <section class="cartao" id="renovacoes">
+    <header class="cartao-cab"><h2>Renovações nos próximos 3 meses</h2><span class="texto-fraco">ligar antes da mensagem</span></header>
+    {% if atual %}
+    <div class="tabela" style="border:0;border-radius:0">
+      <table>
+        <thead><tr><th>Lead</th><th>Renovação</th><th>Etapa</th><th>Fornecedor atual</th><th></th></tr></thead>
+        <tbody>
+          {% for x in renovacoes %}
+          <tr>
+            <td><a class="principal" href="{{ x.lead.get_absolute_url }}">{{ x.lead }}</a><div class="apoio">{{ x.lead.contato_nome|default:"sem contato" }}{% if x.lead.cotacao_pedida_em %} · <span class="etiqueta etiqueta--verde">pediu cotação</span>{% endif %}</div></td>
+            <td class="num">{{ x.lead.get_renovacao_mes_display }}<div class="apoio">{% if x.distancia == 0 %}este mês{% else %}em {{ x.distancia }} mês(es){% endif %}</div></td>
+            <td><span class="etiqueta etiqueta--{% if x.distancia <= 1 %}vermelho{% elif x.distancia == 2 %}amarelo{% else %}azul{% endif %}">{% if x.distancia == 0 %}Mês da renovação{% elif x.distancia == 1 %}Próximo mês{% else %}Em {{ x.distancia }} meses{% endif %}</span></td>
+            <td class="texto-suave">{{ x.lead.fornecedor_atual|default:"—" }}</td>
+            <td class="direita">{% if x.envio_wpp %}<a class="btn btn-p" href="{% url 'campanhas:whatsapp' x.envio_wpp.pk %}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="vazio">Nenhuma renovação nos próximos 3 meses entre os leads com o mês informado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="cartao-corpo texto-suave">A lista de renovações olha a partir de hoje. Volte ao mês atual para vê-la.</div>
+    {% endif %}
+  </section>
+
+  <section class="cartao" id="conteudo">
+    <header class="cartao-cab"><h2>Conteúdo do mês</h2><span class="texto-fraco">vai em todas</span></header>
+    <div class="cartao-corpo">
+      <form method="post" action="{% url 'campanhas:conteudo' %}">
+        {% csrf_token %}
+        <input type="hidden" name="mes" value="{{ campanha.chave }}">
+        <div class="campos" style="grid-template-columns:1fr">
+          <div class="campo"><label for="c-tema">Tema</label><input type="text" id="c-tema" name="tema" value="{{ campanha.tema }}" maxlength="150" required></div>
+          <div class="campo"><label for="c-conteudo">Conteúdo</label><textarea id="c-conteudo" name="conteudo" rows="7" required>{{ campanha.conteudo }}</textarea><p class="ajuda">Um parágrafo útil: norma, prazo, multa ou dica. Evite só “lembre de nós”.</p></div>
+        </div>
+        <div class="form-acoes"><button class="btn" type="submit">Salvar conteúdo</button></div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<section class="cartao" id="whatsapp" style="margin-top:18px">
+  <header class="cartao-cab"><h2>Fila de WhatsApp</h2><span class="texto-fraco">abre a conversa com a mensagem pronta; envie pelo seu WhatsApp</span></header>
+  <ul class="lista">
+    {% for e in fila %}
+    <li class="linha-flex topo fila-wpp{% if e.status != 'PEND' %} feita{% endif %}">
+      <div style="min-width:0">
+        <a class="titulo" href="{{ e.lead.get_absolute_url }}">{{ e.lead }}</a>
+        <span class="etiqueta etiqueta--{{ e.cor_etapa }}">{{ e.get_etapa_display }}</span>
+        {% if e.status != 'PEND' %}<span class="etiqueta etiqueta--{{ e.cor_status }}">{{ e.get_status_display }}{% if e.enviado_em %} · {{ e.enviado_em|date:"d/m H:i" }}{% endif %}</span>{% endif %}
+        <div class="texto-fraco">{{ e.lead.contato_nome|default:"—" }} · {{ e.lead.contato_telefone }}</div>
+        <details class="previa-wpp"><summary>Ver mensagem</summary><p>{{ e.texto|linebreaksbr }}</p></details>
+      </div>
+      {% if e.status == 'PEND' %}
+      <div class="acoes-fila">
+        <a class="btn btn-p btn-primario" href="{% url 'campanhas:whatsapp' e.pk %}" target="_blank" rel="noopener">Abrir no WhatsApp</a>
+        <form method="post" action="{% url 'campanhas:pular' e.pk %}">{% csrf_token %}<button class="btn-texto" type="submit">pular</button></form>
+      </div>
+      {% endif %}
+    </li>
+    {% empty %}
+    <li class="vazio">{% if gerada %}Nenhum lead com WhatsApp autorizado.{% else %}Gere os envios do mês para montar a fila.{% endif %}</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="cartao" id="emails" style="margin-top:18px">
+  <header class="cartao-cab"><h2>E-mails do mês</h2><span class="texto-fraco">{{ r.emails_enviados }} enviado(s) · {{ r.abertos }} aberto(s)</span></header>
+  <div class="tabela" style="border:0;border-radius:0">
+    <table>
+      <thead><tr><th>Lead</th><th>Etapa</th><th>Status</th><th>Abriu</th><th>Clicou</th><th></th></tr></thead>
+      <tbody>
+        {% for e in emails %}
+        <tr>
+          <td><a class="principal" href="{{ e.lead.get_absolute_url }}">{{ e.lead }}</a><div class="apoio">{{ e.lead.contato_email }}</div></td>
+          <td><span class="etiqueta etiqueta--{{ e.cor_etapa }}">{{ e.get_etapa_display }}</span></td>
+          <td><span class="etiqueta etiqueta--{{ e.cor_status }}">{{ e.get_status_display }}</span>{% if e.erro %}<div class="apoio destaque-alerta" title="{{ e.erro }}">{{ e.erro|truncatechars:60 }}</div>{% endif %}</td>
+          <td class="num">{{ e.aberto_em|date:"d/m H:i"|default:"—" }}</td>
+          <td class="num">{{ e.clicado_em|date:"d/m H:i"|default:"—" }}</td>
+          <td class="direita"><a href="{% url 'campanhas:previa' e.pk %}" target="_blank" rel="noopener">prévia</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="vazio">{% if gerada %}Nenhum lead com e-mail autorizado.{% else %}Gere os envios do mês para listar os e-mails.{% endif %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endwith %}
+{% endblock %}

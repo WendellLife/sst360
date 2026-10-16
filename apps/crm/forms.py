@@ -11,7 +11,8 @@ class LeadForm(forms.ModelForm):
             "grau_risco", "cidade", "uf",
             "contato_nome", "contato_cargo", "contato_email", "contato_telefone",
             "origem", "situacao_sst", "servico_interesse", "estagio", "urgencia", "valor_estimado",
-            "responsavel", "proximo_contato", "motivo_perda", "observacoes",
+            "responsavel", "proximo_contato", "motivo_perda",
+            "renovacao_mes", "fornecedor_atual", "aceita_email", "aceita_whatsapp", "observacoes",
         ]
         widgets = {
             "proximo_contato": forms.DateInput(attrs={"type": "date"}),

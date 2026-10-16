@@ -62,6 +62,10 @@ class DashboardView(EquipeInternaMixin, TemplateView):
 
         gestoes = Gestao.objects.filter(encerrado_em__isnull=True)
 
+        from apps.campanhas.regua import renovacoes_proximas
+
+        contexto["renovacoes"] = renovacoes_proximas(hoje)[:6]
+        contexto["cotacoes_pedidas"] = Lead.objects.filter(cotacao_pedida_em__isnull=False, estagio__in=[Estagio.NOVO, Estagio.CONTATO, Estagio.DIAGNOSTICO]).order_by("-cotacao_pedida_em")[:5]
         carteira_fap = panorama_carteira()
         contexto["fap_oportunidades"] = [x for x in carteira_fap if x["potencial"]][:5]
         contexto["fap_potencial_total"] = sum((x["potencial"] for x in carteira_fap), 0)

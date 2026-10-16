@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titulo %}Modelos de mensagem - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<a class="voltar" href="{% url 'campanhas:painel' %}">← Campanhas</a>
+<div class="cabecalho">
+  <div>
+    <div class="sobretitulo">Campanhas · modelos</div>
+    <h1>Modelos de mensagem</h1>
+    <p class="subtitulo">Um texto por etapa da régua. Os campos entre chaves são trocados pelos dados de cada lead.{% if exemplo %} A prévia usa {{ exemplo }} e o conteúdo de {{ campanha.rotulo }}.{% endif %}</p>
+  </div>
+</div>
+
+<div class="aviso aviso--info" style="margin-bottom:18px">
+  <strong>Campos disponíveis:</strong>
+  {% for c in campos %}<code class="campo-modelo">{{ "{" }}{{ c }}{{ "}" }}</code>{% endfor %}
+  <br>O e-mail ganha sozinho o botão de cotação e o link de descadastro. No WhatsApp, mantenha {{ "{" }}link_proposta{{ "}" }} e a frase de como sair.
+</div>
+
+{% for i in itens %}
+<section class="cartao" id="etapa-{{ i.etapa }}" style="margin-top:18px">
+  <header class="cartao-cab"><h2>{{ i.rotulo }}</h2><span class="etiqueta etiqueta--{{ i.cor }}">{% if i.etapa == "MEN" %}todo mês{% elif i.etapa == "R90" %}3 meses antes{% elif i.etapa == "R60" %}2 meses antes{% elif i.etapa == "R30" %}1 mês antes{% else %}no mês{% endif %}</span></header>
+  <div class="cartao-corpo">
+    <div class="grade grade-2">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="etapa" value="{{ i.etapa }}">
+        <div class="campos" style="grid-template-columns:1fr">
+          <div class="campo"><label for="a-{{ i.etapa }}">Assunto do e-mail</label><input type="text" id="a-{{ i.etapa }}" name="assunto" value="{{ i.modelo.assunto }}" maxlength="200" required></div>
+          <div class="campo"><label for="e-{{ i.etapa }}">E-mail</label><textarea id="e-{{ i.etapa }}" name="email" rows="9" required>{{ i.modelo.email }}</textarea></div>
+          <div class="campo"><label for="w-{{ i.etapa }}">WhatsApp</label><textarea id="w-{{ i.etapa }}" name="whatsapp" rows="6" required>{{ i.modelo.whatsapp }}</textarea></div>
+        </div>
+        <div class="form-acoes"><button class="btn btn-primario" type="submit">Salvar modelo</button></div>
+      </form>
+      <div class="previa-modelo">
+        <div class="sobretitulo" style="margin-bottom:8px">Prévia</div>
+        {% if i.previa %}
+        <div class="previa-email"><div class="assunto">{{ i.previa.assunto }}</div>{{ i.previa.email|linebreaks }}<span class="botao-previa">Quero participar da cotação</span></div>
+        <div class="previa-zap">{{ i.previa.whatsapp|linebreaksbr }}</div>
+        {% else %}
+        <p class="texto-fraco">Cadastre um lead para ver a prévia.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endfor %}
+{% endblock %}
