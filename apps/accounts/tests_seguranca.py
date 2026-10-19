@@ -35,9 +35,14 @@ class LoginComLimiteTest(_Base):
     def test_bloqueia_o_usuario_depois_de_varias_falhas_mesmo_com_a_senha_certa(self):
         for _ in range(limites.LOGIN_POR_USUARIO):
             self.assertEqual(self.tentar().status_code, 200)
-        r = self.tentar(senha="senha-certa-123", ip="10.0.0.2")
+        r = self.tentar(senha="senha-certa-123")
         self.assertEqual(r.status_code, 429)
         self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_erros_de_outro_ip_nao_trancam_o_usuario_para_o_dono(self):
+        for _ in range(limites.LOGIN_POR_USUARIO + 2):
+            self.tentar(ip="10.0.0.9")
+        self.assertEqual(self.tentar(senha="senha-certa-123", ip="10.0.0.2").status_code, 302)
 
     def test_bloqueia_o_ip_que_testa_muitos_usuarios(self):
         for i in range(limites.LOGIN_POR_IP):
@@ -105,16 +110,27 @@ class PedirCodigoUniformeTest(_Base):
         r = self.client.post(reverse("accounts:codigo_pedir"), {"contato": "cli@t.com.br"}, REMOTE_ADDR="10.5.5.5")
         self.assertEqual(r.status_code, 429)
         for _ in range(limites.CODIGO_POR_CONTATO):
-            self.client.post(reverse("accounts:codigo_pedir"), {"contato": "alvo@t.com.br"}, REMOTE_ADDR=f"10.6.6.{_}")
-        r = self.client.post(reverse("accounts:codigo_pedir"), {"contato": "alvo@t.com.br"}, REMOTE_ADDR="10.7.7.7")
+            self.client.post(reverse("accounts:codigo_pedir"), {"contato": "alvo@t.com.br"}, REMOTE_ADDR="10.6.6.6")
+        r = self.client.post(reverse("accounts:codigo_pedir"), {"contato": "alvo@t.com.br"}, REMOTE_ADDR="10.6.6.6")
         self.assertEqual(r.status_code, 429)
+        r = self.client.post(reverse("accounts:codigo_pedir"), {"contato": "alvo@t.com.br"}, REMOTE_ADDR="10.7.7.7")
+        self.assertEqual(r.status_code, 302)  # outro IP não é afetado
 
-    def test_falha_de_smtp_nao_vira_500_e_avisa(self):
-        with mock.patch("apps.accounts.codigos.send_mail", side_effect=SMTPException("fora do ar")):
+    def test_falha_de_smtp_nao_vira_500_nem_diferenca_visivel(self):
+        with mock.patch("apps.accounts.codigos.send_mail", side_effect=SMTPException("fora do ar")), self.assertLogs(
+            "apps.accounts.codigos", level="ERROR"
+        ):
             r = self.pedir("cli@t.com.br")
         self.assertEqual(r.status_code, 200)
-        self.assertTrue(any("Não conseguimos enviar" in t for t in self.textos(r)))
+        self.client.cookies.clear()
+        self.assertEqual(self.textos(r), self.textos(self.pedir("ninguem@t.com.br")))
         self.assertEqual(CodigoAcesso.objects.filter(usuario=self.cliente).count(), 0)  # não gasta o limite
+
+    def test_envio_roda_em_thread_fora_dos_testes(self):
+        with self.settings(CODIGO_ENVIO_EM_THREAD=True), mock.patch("apps.accounts.views.threading.Thread") as th,                 mock.patch("apps.accounts.views.criar_e_enviar") as envio:
+            self.pedir("cli@t.com.br")
+        th.assert_called_once()
+        envio.assert_not_called()  # só é chamado quando a thread executa
 
     def test_confirmacao_de_pedido_sem_usuario_imita_codigo_errado(self):
         self.pedir("ninguem@t.com.br")
@@ -129,6 +145,13 @@ class PedirCodigoUniformeTest(_Base):
         self.pedir("cli@t.com.br", ip="10.0.0.2")
         real = self.client.post(url, {"codigo": "000000"}, REMOTE_ADDR="10.0.0.2").context["erro"]
         self.assertEqual(real, textos[0])
+
+    def test_codigo_expirado_responde_como_codigo_errado(self):
+        self.pedir("cli@t.com.br")
+        CodigoAcesso.objects.filter(usuario=self.cliente).update(expira_em=timezone.now() - timedelta(minutes=1))
+        r = self.client.post(reverse("accounts:codigo_confirmar"), {"codigo": "123456"}, REMOTE_ADDR="10.0.0.1")
+        self.assertIn("Restam 4", r.context["erro"])
+        self.assertNotIn("expirou", r.context["erro"])
 
 
 class ConfereAtomicoTest(TransactionTestCase):

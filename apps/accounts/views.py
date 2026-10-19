@@ -4,7 +4,11 @@ from django.contrib.auth import get_user_model, login
 from django.shortcuts import redirect, render
 from django.views.generic import View
 
-from django.contrib.auth.hashers import make_password
+import threading
+
+from django import db
+from django.conf import settings
+from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.views import LoginView
 
 from . import limites
@@ -27,6 +31,25 @@ def _somente_digitos(valor: str) -> str:
     return "".join(c for c in valor if c.isdigit())
 
 
+_HASH_FALSO = make_password("000000")
+
+
+def _enviar_codigo(usuario):
+    def executar():
+        try:
+            criar_e_enviar(usuario)  # None: limite por usuário; o aviso ao cliente é o mesmo
+        except EnvioCodigoFalhou:
+            pass  # já registrado em log por criar_e_enviar
+        finally:
+            if settings.CODIGO_ENVIO_EM_THREAD:
+                db.connection.close()
+
+    if settings.CODIGO_ENVIO_EM_THREAD:
+        threading.Thread(target=executar, daemon=True).start()
+    else:
+        executar()
+
+
 MSG_BLOQUEIO = "Muitas tentativas. Aguarde alguns minutos e tente de novo."
 
 
@@ -40,7 +63,7 @@ class EntrarView(LoginView):
         ip = limites.ip_do_pedido(request)
         nome = (request.POST.get("username") or "").strip()
         if limites.bloqueado("login-ip", ip, limites.LOGIN_POR_IP) or (
-            nome and limites.bloqueado("login-usuario", nome, limites.LOGIN_POR_USUARIO)
+            nome and limites.bloqueado("login-ip-usuario", f"{ip}|{nome}", limites.LOGIN_POR_USUARIO)
         ):
             form = self.get_form()
             form.add_error(None, MSG_BLOQUEIO)
@@ -48,14 +71,17 @@ class EntrarView(LoginView):
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        limites.zerar("login-usuario", (self.request.POST.get("username") or "").strip())
+        ip = limites.ip_do_pedido(self.request)
+        limites.zerar("login-ip-usuario", f"{ip}|{(self.request.POST.get('username') or '').strip()}")
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        limites.registrar("login-ip", limites.ip_do_pedido(self.request))
+        ip = limites.ip_do_pedido(self.request)
+        limites.registrar("login-ip", ip)
         nome = (self.request.POST.get("username") or "").strip()
         if nome:
-            limites.registrar("login-usuario", nome)
+            # chave ip+usuário: quem erra a senha de alguém não consegue trancar o login dessa pessoa para todos
+            limites.registrar("login-ip-usuario", f"{ip}|{nome}")
         return super().form_invalid(form)
 
 
@@ -75,27 +101,20 @@ class PedirCodigoView(View):
         ip = limites.ip_do_pedido(request)
         chave_contato = _somente_digitos(contato) if "@" not in contato else contato
         if limites.bloqueado("codigo-ip", ip, limites.CODIGO_POR_IP) or limites.bloqueado(
-            "codigo-contato", chave_contato, limites.CODIGO_POR_CONTATO
+            "codigo-ip-contato", f"{ip}|{chave_contato}", limites.CODIGO_POR_CONTATO
         ):
             return render(request, self.template_name, {"erro": MSG_BLOQUEIO}, status=429)
         limites.registrar("codigo-ip", ip)
-        limites.registrar("codigo-contato", chave_contato)
+        limites.registrar("codigo-ip-contato", f"{ip}|{chave_contato}")
 
         # A resposta e a sessão são as mesmas exista o contato ou não (0 = pedido sem usuário).
         usuario = self._encontrar(contato)
         request.session[SESSAO_USUARIO] = usuario.pk if usuario else 0
         request.session.pop(SESSAO_FALSAS, None)
         if usuario:
-            try:
-                criar_e_enviar(usuario)  # None: limite por usuário; segue com o mesmo aviso
-            except EnvioCodigoFalhou:
-                messages.warning(
-                    request,
-                    "Não conseguimos enviar o código agora. Tente de novo em alguns minutos ou fale com a equipe.",
-                )
-                return redirect("accounts:codigo_pedir")
-        else:
-            make_password("000000")  # gasta um tempo parecido com o de gerar um código de verdade
+            # O envio (SMTP) roda fora do pedido: o tempo de resposta não revela se o contato existe,
+            # nem uma falha de envio vira diferença visível (ela fica no log).
+            _enviar_codigo(usuario)
 
         messages.info(request, AVISO_ENVIO)
         return redirect("accounts:codigo_confirmar")
@@ -144,9 +163,8 @@ class ConfirmarCodigoView(View):
             .order_by("-criado_em").first()
         )
         if registro is None or registro.expirado:
-            return render(request, self.template_name, {
-                "erro": "Esse código expirou. Peça um novo.", "expirado": True,
-            })
+            # mesma resposta de um pedido sem usuário: não revela se o contato existe
+            return self._falso(request)
         if registro.tentativas >= MAX_TENTATIVAS:
             return render(request, self.template_name, {
                 "erro": "Tentativas demais para esse código. Peça um novo.", "expirado": True,
@@ -165,7 +183,8 @@ class ConfirmarCodigoView(View):
 
 
     def _falso(self, request):
-        """Pedido sem usuário: devolve as mesmas respostas de um código real errado."""
+        """Pedido sem usuário (ou sem código vigente): devolve as mesmas respostas de um código real errado."""
+        check_password("000000", _HASH_FALSO)  # custo parecido com o da conferência real
         feitas = request.session.get(SESSAO_FALSAS, 0)
         if feitas >= MAX_TENTATIVAS:
             return render(request, self.template_name, {
