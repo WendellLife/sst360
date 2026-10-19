@@ -131,3 +131,42 @@ def link_gestao(context, gestao, ancora=""):
     if pode.get("tecnico"):
         return gestao.get_absolute_url() + ancora
     return gestao.empresa.get_absolute_url()
+
+
+def _id_ajuda(campo):
+    return f"{campo.auto_id}_helptext" if campo.auto_id else ""
+
+
+def _id_erro(campo):
+    return f"{campo.auto_id}_error" if campo.auto_id else ""
+
+
+@register.filter(name="id_ajuda")
+def id_ajuda(campo):
+    """Id do texto de ajuda do campo (o mesmo que o Django usa em aria-describedby)."""
+    return _id_ajuda(campo)
+
+
+@register.filter(name="id_erro")
+def id_erro(campo):
+    return _id_erro(campo)
+
+
+@register.filter(name="campo_aria")
+def campo_aria(campo):
+    """Renderiza o campo ligando ajuda e erros por aria-describedby, com aria-required.
+
+    O Django já marca required e aria-invalid; aqui entram o id do bloco de erros (sempre) e a
+    ajuda em campos de fieldset (RadioSelect, grupos de checkbox), que ele deixa sem descrição.
+    """
+    ids = []
+    if campo.help_text and _id_ajuda(campo):
+        ids.append(_id_ajuda(campo))
+    if campo.errors and _id_erro(campo):
+        ids.append(_id_erro(campo))
+    attrs = {}
+    if ids:
+        attrs["aria-describedby"] = " ".join(ids)
+    if campo.field.required and not campo.field.widget.is_hidden and getattr(campo.field.widget, "input_type", "") != "checkbox":
+        attrs["aria-required"] = "true"
+    return campo.as_widget(attrs=attrs)
