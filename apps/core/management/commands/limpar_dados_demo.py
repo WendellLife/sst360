@@ -5,11 +5,14 @@ vendas, campanhas, relacionamento e avisos, além dos usuários de exemplo (anal
 e de todos os usuários de portal. Superusuários e demais pessoas da equipe interna continuam.
 
 Uso: python manage.py limpar_dados_demo --confirmar
+Com DEBUG=False: python manage.py limpar_dados_demo --confirmar --banco <nome do banco configurado>
 """
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+
+from apps.core.management import travas
 
 # Ordem: quem aponta para os outros sai primeiro (há FKs com PROTECT).
 APPS = ["campanhas", "vendas", "relacionamento", "notificacoes", "publico", "crm", "gestao"]
@@ -21,10 +24,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--confirmar", action="store_true", help="Obrigatório: confirma que os dados serão apagados.")
+        parser.add_argument(
+            "--banco", help="Com DEBUG=False: nome do banco configurado, repetido por extenso para confirmar.",
+        )
 
     def handle(self, *args, **opts):
         if not opts["confirmar"]:
             raise CommandError("Nada foi apagado. Rode de novo com --confirmar para apagar os dados de exemplo.")
+        travas.exigir_para_limpeza(opts["banco"])
         User = get_user_model()
         resumo = {}
         with transaction.atomic():
