@@ -33,7 +33,7 @@
       </div>
       <p>{{ exposicao.riscos }} risco{{ exposicao.riscos|pluralize }} identificado{{ exposicao.riscos|pluralize }}{% if exposicao.altos %}, {{ exposicao.altos }} de gravidade alta{% endif %}. Soma das multas de referência de cada risco, considerando uma autuação por item.</p>
       <div class="acoes-whatsapp">
-        <a class="btn btn-primario btn-grande" href="{{ whatsapp }}" target="_blank" rel="noopener">Quero eliminar esses riscos</a>
+        <form method="post" action="{{ whatsapp }}" target="_blank" style="display:inline">{% csrf_token %}<button class="btn btn-primario btn-grande" type="submit">Quero eliminar esses riscos</button></form>
         <span class="nota">Abre o WhatsApp da equipe comercial com o resumo do diagnóstico.</span>
       </div>
       <details class="resumo-whatsapp">
@@ -105,7 +105,7 @@
       <p class="texto-suave">A equipe técnica fala com você em até {{ prazo }} com a leitura destes riscos e o plano para eliminá-los.</p>
       <div class="form-acoes">
         <a class="btn" href="{% url 'core:home' %}">Voltar ao início</a>
-        <a class="btn btn-primario" href="{{ whatsapp }}" target="_blank" rel="noopener">Adiantar pelo WhatsApp</a>
+        <form method="post" action="{{ whatsapp }}" target="_blank" style="display:inline">{% csrf_token %}<button class="btn btn-primario" type="submit">Adiantar pelo WhatsApp</button></form>
       </div>
     {% else %}
       <h2 style="font-size:19px">Receba o plano para eliminar esses riscos</h2>
@@ -116,7 +116,7 @@
         {% include "partials/form_grid.html" with form=form %}
         <div class="form-acoes">
           <button class="btn btn-primario btn-grande" type="submit">Quero o plano de regularização</button>
-          <a class="btn" href="{{ whatsapp }}" target="_blank" rel="noopener">Prefiro o WhatsApp</a>
+          <button class="btn" type="submit" formaction="{{ whatsapp }}" formtarget="_blank" formnovalidate>Prefiro o WhatsApp</button>
           <a class="btn-texto" href="{% url 'publico:quiz' %}?reiniciar=1">refazer diagnóstico</a>
         </div>
       </form>

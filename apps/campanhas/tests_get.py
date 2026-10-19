@@ -30,16 +30,23 @@ class GetSemEfeitoTest(TestCase):
         self.assertNotIn(f'href="/campanhas/envios/{envio.pk}/whatsapp/"', html)
         self.assertEqual(envio.status, StatusEnvio.PENDENTE)
 
-    def test_whatsapp_do_diagnostico_ignora_prefetch_e_marca_so_a_primeira_vez(self):
+    def test_whatsapp_do_diagnostico_so_grava_em_post(self):
         d = Diagnostico.objects.create(urgencia="ALTA")
         url = f"/diagnostico/{d.token}/whatsapp/"
-        self.client.get(url, HTTP_SEC_PURPOSE="prefetch")
+        for extra in ({}, {"HTTP_SEC_PURPOSE": "prefetch"}):
+            self.assertEqual(self.client.get(url, **extra).status_code, 302)
         d.refresh_from_db()
         self.assertIsNone(d.whatsapp_em)
-        self.assertEqual(self.client.get(url).status_code, 302)
+        self.assertEqual(self.client.post(url).status_code, 302)
         d.refresh_from_db()
         primeira = d.whatsapp_em
         self.assertIsNotNone(primeira)
         self.client.post(url)
         d.refresh_from_db()
         self.assertEqual(d.whatsapp_em, primeira)
+
+    def test_resultado_usa_form_post_com_csrf_para_o_whatsapp(self):
+        from django.template.loader import get_template
+        fonte = get_template("publico/resultado.html").template.source
+        self.assertNotIn('href="{{ whatsapp }}"', fonte)
+        self.assertIn('method="post" action="{{ whatsapp }}"', fonte)
