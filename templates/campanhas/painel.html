@@ -50,7 +50,7 @@
             <td class="num">{{ x.lead.get_renovacao_mes_display }}<div class="apoio">{% if x.distancia == 0 %}este mês{% else %}em {{ x.distancia }} mês(es){% endif %}</div></td>
             <td><span class="etiqueta etiqueta--{% if x.distancia <= 1 %}vermelho{% elif x.distancia == 2 %}amarelo{% else %}azul{% endif %}">{% if x.distancia == 0 %}Mês da renovação{% elif x.distancia == 1 %}Próximo mês{% else %}Em {{ x.distancia }} meses{% endif %}</span></td>
             <td class="texto-suave">{{ x.lead.fornecedor_atual|default:"—" }}</td>
-            <td class="direita">{% if x.envio_wpp %}<a class="btn btn-p" href="{% url 'campanhas:whatsapp' x.envio_wpp.pk %}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}</td>
+            <td class="direita">{% if x.envio_wpp %}<form method="post" action="{% url 'campanhas:whatsapp' x.envio_wpp.pk %}" target="_blank" style="display:inline">{% csrf_token %}<button class="btn btn-p" type="submit">WhatsApp</button></form>{% endif %}</td>
           </tr>
           {% empty %}
           <tr><td colspan="5" class="vazio">Nenhuma renovação nos próximos 3 meses entre os leads com o mês informado.</td></tr>
@@ -93,7 +93,7 @@
       </div>
       {% if e.status == 'PEND' %}
       <div class="acoes-fila">
-        <a class="btn btn-p btn-primario" href="{% url 'campanhas:whatsapp' e.pk %}" target="_blank" rel="noopener">Abrir no WhatsApp</a>
+        <form method="post" action="{% url 'campanhas:whatsapp' e.pk %}" target="_blank" style="display:inline">{% csrf_token %}<button class="btn btn-p btn-primario" type="submit">Abrir no WhatsApp</button></form>
         <form method="post" action="{% url 'campanhas:pular' e.pk %}">{% csrf_token %}<button class="btn-texto" type="submit">pular</button></form>
       </div>
       {% endif %}
