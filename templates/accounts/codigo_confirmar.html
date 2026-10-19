@@ -2,14 +2,14 @@
 {% block titulo %}Código de acesso - {{ APP_NOME }}{% endblock %}
 {% block conteudo_publico %}
 {% if sem_pedido %}
-<div class="aviso aviso--warning">Peça o código antes de continuar.</div>
+<div class="aviso aviso--warning" role="alert">Peça o código antes de continuar.</div>
 <a class="btn btn-primario btn-largo" href="{% url 'accounts:codigo_pedir' %}">Pedir código</a>
 
 {% else %}
 <h1 style="font-size:20px;margin-bottom:6px">Chegou o código</h1>
 <p class="texto-suave" style="margin-top:0">Ele expira em 10 minutos e só funciona uma vez.</p>
 
-{% if erro %}<div class="aviso aviso--error">{{ erro }}</div>{% endif %}
+{% if erro %}<div class="aviso aviso--error" role="alert">{{ erro }}</div>{% endif %}
 
 {% if expirado %}
 <a class="btn btn-primario btn-largo" href="{% url 'accounts:codigo_pedir' %}">Pedir um novo código</a>
@@ -18,7 +18,7 @@
   {% csrf_token %}
   <div class="campo">
     <label for="codigo">Código de 6 dígitos</label>
-    <input type="text" id="codigo" name="codigo" inputmode="numeric" pattern="[0-9]*"
+    <input type="text" id="codigo" name="codigo" inputmode="numeric" pattern="[0-9]{6}" title="6 dígitos"
            maxlength="6" autocomplete="one-time-code" required
            style="font-family:var(--serif);font-size:26px;letter-spacing:.3em;text-align:center">
   </div>
