@@ -1,0 +1,16 @@
+[run]
+source = apps
+branch = False
+omit =
+    */migrations/*
+    */tests*.py
+    apps/core/bugs_conhecidos.py
+    */__init__.py
+
+[report]
+show_missing = False
+skip_empty = True
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError
+    if __name__ == .__main__.:
