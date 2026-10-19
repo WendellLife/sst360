@@ -1,12 +1,14 @@
 {% load static %}<!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
   <title>{% block titulo %}{{ APP_NOME }} · Gestão de saúde e segurança do trabalho{% endblock %}</title>
   <meta name="description" content="{% block descricao %}Gestão integrada de SST: documentos, plano de ação, treinamentos, exames e eSocial num portal só, com equipe técnica multidisciplinar.{% endblock %}">
   <script>(function(){var d=document.documentElement,t=null;try{t=localStorage.getItem("rz-tema")}catch(e){}if(t!=="light"&&t!=="dark")t=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";d.setAttribute("data-theme",t)})();</script>
   <link rel="preload" href="{% static 'razach/fonts/archivo-latin.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'razach/fonts/montserrat-latin.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{% static 'razach/css/fonts.css' %}">
   <link rel="stylesheet" href="{% static 'razach/ds/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'razach/ds/base.css' %}">
@@ -22,7 +24,7 @@
     <div class="faixa">
       <div>
         <a class="marca-linha" href="{% url 'core:home' %}" style="text-decoration:none">
-          <img class="so-claro" src="{% static 'razach/img/razach-combinado-gradiente.png' %}" alt="Razach Technology" style="height:36px;width:auto"><img class="so-escuro" src="{% static 'razach/img/razach-combinado-claro.png' %}" alt="Razach Technology" style="height:36px;width:auto">
+          <img class="so-claro" src="{% static 'razach/img/razach-combinado-gradiente.png' %}" alt="Razach Technology" width="132" height="36" style="height:36px;width:auto"><img class="so-escuro" src="{% static 'razach/img/razach-combinado-claro.png' %}" alt="Razach Technology" width="132" height="36" style="height:36px;width:auto">
         </a>
       </div>
       <nav class="site-nav">
@@ -51,7 +53,7 @@
         Tratamento de dados conforme a LGPD.
       </div>
       <div class="tecnologia">
-        <img src="{% static 'razach/img/razach-combinado-claro.png' %}" alt="Razach Technology" style="height:40px;width:auto">
+        <img src="{% static 'razach/img/razach-combinado-claro.png' %}" alt="Razach Technology" width="147" height="40" style="height:40px;width:auto">
       </div>
     </div>
   </footer>

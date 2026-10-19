@@ -7,19 +7,21 @@
       <span class="rotulo-mono">{{ bloco_numero|stringformat:"02d" }} · {{ bloco }}</span>
       <span class="dado texto-suave">Pergunta {{ numero }} de {{ total }}</span>
     </div>
-    <div class="quiz-progresso"><span style="width:{{ percentual }}%"></span></div>
+    <div class="quiz-progresso" role="progressbar" aria-label="Progresso do diagnóstico" aria-valuenow="{{ numero }}" aria-valuemin="1" aria-valuemax="{{ total }}" aria-valuetext="Pergunta {{ numero }} de {{ total }}"><span style="width:{{ percentual }}%"></span></div>
 
-    {% if erro %}<div class="aviso aviso--error">{{ erro }}</div>{% endif %}
+    {% if erro %}<div class="aviso aviso--error" role="alert">{{ erro }}</div>{% endif %}
 
-    <h1>{{ pergunta.texto }}</h1>
-    {% if pergunta.ajuda %}<p class="quiz-ajuda">{{ pergunta.ajuda }}</p>{% endif %}
     <form method="post" class="opcoes">
       {% csrf_token %}
-      {% for indice, opcao in opcoes %}
-      <div class="opcao">
-        <button type="submit" name="opcao" value="{{ indice }}">{{ opcao.0 }}</button>
-      </div>
-      {% endfor %}
+      <fieldset class="opcoes-grupo"{% if pergunta.ajuda %} aria-describedby="quiz-ajuda"{% endif %}>
+        <legend><h1>{{ pergunta.texto }}</h1></legend>
+        {% if pergunta.ajuda %}<p class="quiz-ajuda" id="quiz-ajuda">{{ pergunta.ajuda }}</p>{% endif %}
+        {% for indice, opcao in opcoes %}
+        <div class="opcao">
+          <button type="submit" name="opcao" value="{{ indice }}">{{ opcao.0 }}</button>
+        </div>
+        {% endfor %}
+      </fieldset>
     </form>
 
     <div class="quiz-rodape">
