@@ -74,7 +74,8 @@ No `.env` de desenvolvimento deixe `DJANGO_DEBUG=True`. Sem essa linha o sistema
 produção e exige `DJANGO_SECRET_KEY` própria.
 
 O `seed_demo` cria três clientes com gestões em etapas diferentes, leads e
-diagnósticos. Senha `sst360demo`:
+diagnósticos. Senha `sst360demo`. Só roda com `DJANGO_DEBUG=True`; com `DEBUG=False` ele recusa, a menos que
+você passe `--senha <senha forte> --permitir-producao` (os usuários de exemplo incluem contas internas):
 
 | usuário      | perfil         | vê                               |
 |--------------|----------------|----------------------------------|
@@ -139,6 +140,8 @@ Os dados do `seed_demo` são fictícios. Para começar a usar com os dados reais
 
 ```
 python manage.py limpar_dados_demo --confirmar      # apaga empresas, gestões, leads, vendas e usuários de exemplo
+# com DJANGO_DEBUG=False (banco real!) exige também o nome do banco configurado:
+python manage.py limpar_dados_demo --confirmar --banco nome_do_banco
 python manage.py createsuperuser                    # se não houver um administrador
 python manage.py importar_tarefas --responsavel seu@email.com.br   # clientes do Tarefas viram leads
 ```
@@ -165,13 +168,32 @@ Antes de subir:
    python manage.py collectstatic --noinput
    python manage.py check --deploy
    ```
-3. Inicie com `gunicorn config.wsgi --bind 0.0.0.0:8000 --workers 3`, atrás de um proxy com HTTPS que envie `X-Forwarded-Proto`.
+3. Inicie com `gunicorn config.wsgi --bind 127.0.0.1:8000 --workers 3`, atrás de um proxy com HTTPS. O proxy deve
+   **sobrescrever** o `X-Forwarded-Proto` (nunca repassar o valor que veio do cliente; no nginx:
+   `proxy_set_header X-Forwarded-Proto $scheme;`) e o `X-Forwarded-For`, e só ele deve alcançar o gunicorn.
+   Com um proxy na frente, defina `DJANGO_NUM_PROXIES=1` para o limite de tentativas de login usar o IP real.
+   Com mais de um worker, defina também `DJANGO_CACHE_DIR` (pasta gravável e compartilhada) para o limite de
+   tentativas valer para todos os workers; sem isso cada worker conta sozinho.
 4. Configure o cron:
    ```
    0 7 * * *  cd /caminho/sst360 && python manage.py alertar_prazos
    0 9 1 * *  cd /caminho/sst360 && python manage.py regua_mensal --enviar
    ```
 5. Para receber por e-mail os erros 500, preencha `DJANGO_ADMINS`.
+6. **Arquivos enviados**: documentos técnicos, pedidos do portal e planilhas ficam em `media/` e saem apenas
+   pelas telas autenticadas (`/arquivos/...`), que conferem a permissão e entregam como anexo. **Não exponha
+   `/media/` no proxy** (nenhum `location /media/` ou `alias`) e mantenha a pasta fora da raiz pública. Faça
+   backup da pasta `media/` junto com o banco.
+7. **Tarefas (somente leitura)**: crie no Postgres do Tarefas um usuário só de leitura e use-o em
+   `TAREFAS_DATABASE_URL`:
+   ```sql
+   CREATE ROLE sst360_leitura LOGIN PASSWORD '...';
+   GRANT CONNECT ON DATABASE razach_tarefas TO sst360_leitura;
+   GRANT USAGE ON SCHEMA public TO sst360_leitura;
+   GRANT SELECT ON equipe_pessoa, clientes_cliente, clientes_contato, projetos_projeto, tarefas_tarefa, agenda_turma TO sst360_leitura;
+   ```
+   Além disso o SST360 abre a sessão com `default_transaction_read_only=on` e recusa qualquer escrita nos models do Tarefas.
+8. Nunca rode `seed_demo` em produção. O `limpar_dados_demo` só deve rodar uma vez, na virada para dados reais.
 
 `python manage.py test` percorre todas as telas com os quatro perfis (administração, comercial, técnico e
 cliente). O teste falha quando uma tela dá erro, quando há link sem destino ou quando há link ou botão
