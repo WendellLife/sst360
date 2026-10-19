@@ -33,8 +33,8 @@ def _em_teste() -> bool:
     """`manage.py test`, `python -m django test`, pytest ou DJANGO_TESTING=1."""
     if env_bool("DJANGO_TESTING", False):
         return True
-    argumentos = sys.argv[1:3]
-    if "test" in argumentos:
+    # Só o subcomando é "test" (manage.py test, python -m django test); `changepassword test` não conta.
+    if len(sys.argv) > 1 and sys.argv[1] == "test":
         return True
     programa = os.path.basename(sys.argv[0]).lower() if sys.argv else ""
     return "pytest" in sys.modules or programa.startswith(("pytest", "py.test")) or "PYTEST_CURRENT_TEST" in os.environ
@@ -157,12 +157,18 @@ if os.getenv("TAREFAS_DATABASE_URL"):
     DATABASES["tarefas"] = dj_database_url.parse(os.getenv("TAREFAS_DATABASE_URL"), conn_max_age=600)
     if DATABASES["tarefas"]["ENGINE"].endswith("postgresql"):
         # Segunda trava: mesmo que o código tentasse escrever, a sessão do Postgres recusa.
-        DATABASES["tarefas"].setdefault("OPTIONS", {})["options"] = "-c default_transaction_read_only=on"
+        # PgBouncer em modo transaction rejeita esse parâmetro de startup: use TAREFAS_DB_OPTIONS= (vazio)
+        # e garanta a leitura só pelo GRANT SELECT do usuário (README).
+        opcoes = os.getenv("TAREFAS_DB_OPTIONS", "-c default_transaction_read_only=on").strip()
+        if opcoes:
+            DATABASES["tarefas"].setdefault("OPTIONS", {})["options"] = opcoes
 if EM_TESTE:
     # Nos testes, o Tarefas é um SQLite em memória com as tabelas criadas pelo próprio teste.
     DATABASES["tarefas"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:", "TEST": {"NAME": ":memory:"}}
 # Só os testes (que montam um SQLite próprio para o Tarefas) podem gravar nos models de tarefas_ext.
 TAREFAS_ESCRITA_PARA_TESTES = EM_TESTE
+# Envio do código de acesso fora do pedido (iguala o tempo de resposta); nos testes roda na hora.
+CODIGO_ENVIO_EM_THREAD = not EM_TESTE
 DATABASE_ROUTERS = ["apps.tarefas_ext.roteador.RoteadorTarefas"]
 TAREFAS_URL = os.getenv("TAREFAS_URL", "")
 

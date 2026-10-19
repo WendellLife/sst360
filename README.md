@@ -173,7 +173,12 @@ Antes de subir:
    `proxy_set_header X-Forwarded-Proto $scheme;`) e o `X-Forwarded-For`, e só ele deve alcançar o gunicorn.
    Com um proxy na frente, defina `DJANGO_NUM_PROXIES=1` para o limite de tentativas de login usar o IP real.
    Com mais de um worker, defina também `DJANGO_CACHE_DIR` (pasta gravável e compartilhada) para o limite de
-   tentativas valer para todos os workers; sem isso cada worker conta sozinho.
+   tentativas valer para todos os workers; sem isso cada worker conta sozinho. Mesmo assim, o `FileBasedCache`
+   não faz o incremento de forma atômica: com vários workers a contagem pode perder alguns acertos (o limite
+   continua valendo, só fica um pouco mais folgado). Para contagem exata use um cache compartilhado (Redis/Memcached).
+   O limite de login conta por IP e por IP+usuário, então quem erra a senha de outra pessoa não a tranca para todos.
+   **`DJANGO_TESTING` nunca vai no `.env` de produção**: ele liga o modo de teste (hash fraco de senha e escrita
+   liberada no Tarefas). O modo de teste só é ativado por `manage.py test`, pytest ou essa variável.
 4. Configure o cron:
    ```
    0 7 * * *  cd /caminho/sst360 && python manage.py alertar_prazos
@@ -193,7 +198,11 @@ Antes de subir:
    GRANT SELECT ON equipe_pessoa, clientes_cliente, clientes_contato, projetos_projeto, tarefas_tarefa, agenda_turma TO sst360_leitura;
    ```
    Além disso o SST360 abre a sessão com `default_transaction_read_only=on` e recusa qualquer escrita nos models do Tarefas.
-8. Nunca rode `seed_demo` em produção. O `limpar_dados_demo` só deve rodar uma vez, na virada para dados reais.
+   Atrás de PgBouncer em modo transaction esse parâmetro é rejeitado: defina `TAREFAS_DB_OPTIONS=` (vazio) no `.env`
+   e confie no `GRANT SELECT` acima como trava de leitura.
+8. **`/media/`**: o Django só serve `/media/` publicamente com `DJANGO_DEBUG=True` (conveniência de desenvolvimento).
+   Produção exige `DJANGO_DEBUG=False`; os arquivos saem só pelas views autenticadas.
+9. Nunca rode `seed_demo` em produção. O `limpar_dados_demo` só deve rodar uma vez, na virada para dados reais.
 
 `python manage.py test` percorre todas as telas com os quatro perfis (administração, comercial, técnico e
 cliente). O teste falha quando uma tela dá erro, quando há link sem destino ou quando há link ou botão

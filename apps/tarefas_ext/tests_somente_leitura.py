@@ -82,6 +82,25 @@ class ConfiguracaoTest(SimpleTestCase):
         self.assertFalse(self.configuracao()[0])
 
 
+    def em_teste_com_argv(self, *argv):
+        base = {k: v for k, v in os.environ.items() if k not in ("TAREFAS_DATABASE_URL", "DJANGO_TESTING", "DATABASE_URL")}
+        base.update({"DJANGO_DEBUG": "True", "DJANGO_SETTINGS_MODULE": "config.settings", "PYTHONUTF8": "1"})
+        codigo = f"import sys; sys.argv = {list(argv)!r}; from config import settings as s; print(s.EM_TESTE)"
+        saida = subprocess.run([sys.executable, "-c", codigo], cwd=settings.BASE_DIR, env=base,
+                               capture_output=True, text=True, check=True, timeout=60)
+        return saida.stdout.strip().splitlines()[-1] == "True"
+
+    def test_so_o_subcomando_test_liga_o_modo_de_teste(self):
+        self.assertTrue(self.em_teste_com_argv("manage.py", "test"))
+        self.assertTrue(self.em_teste_com_argv("manage.py", "test", "apps.core"))
+        self.assertFalse(self.em_teste_com_argv("manage.py", "changepassword", "test"))
+        self.assertFalse(self.em_teste_com_argv("manage.py", "createsuperuser", "test"))
+
+    def test_opcoes_da_conexao_configuraveis_por_env(self):
+        _, opcoes = self.configuracao(TAREFAS_DATABASE_URL="postgres://u:p@h:5432/tarefas", TAREFAS_DB_OPTIONS="")
+        self.assertIsNone(opcoes)
+
+
 class StatusGenericoTest(SimpleTestCase):
     databases = {"default", "tarefas"}
 
