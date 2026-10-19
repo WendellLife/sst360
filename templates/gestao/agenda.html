@@ -32,10 +32,10 @@
   <div class="resumo">{% if paginator %}{{ paginator.count }}{% else %}{{ prazos|length }}{% endif %} prazo(s)</div>
 </form>
 
-<div class="tabela">
+<div class="tabela" role="region" tabindex="0" aria-label="Agenda de prazos">
   <table>
     <thead>
-      <tr><th>Prazo</th><th>Empresa</th><th>Vencimento</th><th>Responsável</th><th>Status</th><th></th></tr>
+      <tr><th scope="col">Prazo</th><th scope="col">Empresa</th><th scope="col">Vencimento</th><th scope="col">Responsável</th><th scope="col">Status</th><th scope="col"><span class="so-leitor">Ações</span></th></tr>
     </thead>
     <tbody>
       {% for prazo in prazos %}

@@ -50,7 +50,7 @@
     <section class="cartao">
       <header class="cartao-cab"><h2>Vendas por mês</h2><span class="texto-fraco">ticket médio {{ v.ticket_medio|moeda }}</span></header>
       <div class="cartao-corpo">{{ graficos.vendas_mes }}</div>
-      <details class="tabela-grafico"><summary>Ver em tabela</summary><table><tr><th>Mês</th><th>Vendido</th><th>Recebido</th><th>Vendas</th></tr>{% for m in v.por_mes %}<tr><td>{{ m.rotulo }}</td><td class="num">{{ m.total|moeda }}</td><td class="num">{{ m.recebido|moeda }}</td><td class="num">{{ m.qtd }}</td></tr>{% endfor %}</table></details>
+      <details class="tabela-grafico"><summary>Ver em tabela</summary><table><tr><th scope="col">Mês</th><th scope="col">Vendido</th><th scope="col">Recebido</th><th scope="col">Vendas</th></tr>{% for m in v.por_mes %}<tr><td>{{ m.rotulo }}</td><td class="num">{{ m.total|moeda }}</td><td class="num">{{ m.recebido|moeda }}</td><td class="num">{{ m.qtd }}</td></tr>{% endfor %}</table></details>
     </section>
     <section class="cartao"><div class="cartao-corpo">
       <dl class="numeros-grandes" style="grid-template-columns:1fr 1fr">
@@ -128,9 +128,9 @@
 <section id="clientes" class="secao-indicadores">
   <h2 class="titulo-secao">Por cliente</h2>
   <p class="mensagem-secao">Quem tem mais pendências aparece primeiro.</p>
-  <div class="tabela">
+  <div class="tabela" role="region" tabindex="0" aria-label="Carteira de clientes">
     <table>
-      <thead><tr><th>Cliente</th><th>Etapa</th><th>Documentos em dia</th><th>Plano de ação</th><th>Pendências</th><th>FAP</th></tr></thead>
+      <thead><tr><th scope="col">Cliente</th><th scope="col">Etapa</th><th scope="col">Documentos em dia</th><th scope="col">Plano de ação</th><th scope="col">Pendências</th><th scope="col">FAP</th></tr></thead>
       <tbody>
         {% for cl in clientes %}
         <tr>

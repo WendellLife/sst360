@@ -41,7 +41,7 @@
 </div>
 
 {% if resultado.invalidas %}
-<div class="aviso aviso--error" style="margin-bottom:18px">
+<div class="aviso aviso--error" role="alert" style="margin-bottom:18px">
   <strong>{{ resultado.invalidas|length }} linha(s) com problema</strong> ficam de fora. Corrija a planilha e envie de novo, ou siga sem elas.
   <ul style="margin:8px 0 0;padding-left:18px">
     {% for linha in resultado.invalidas %}
@@ -53,10 +53,10 @@
 
 <section class="cartao">
   <header class="cartao-cab"><h2>Prévia · {{ resultado.validas|length }} ação(ões)</h2></header>
-  <div class="tabela" style="border:0;border-radius:0;max-height:28rem;overflow-y:auto">
+  <div class="tabela" role="region" tabindex="0" aria-label="Prévia do plano de ação importado" style="border:0;border-radius:0;max-height:28rem;overflow-y:auto">
     <table>
       <thead>
-        <tr><th>#</th><th>Ação</th><th>Risco</th><th>Setor</th><th>Prioridade</th><th>Prazo</th><th>Status</th></tr>
+        <tr><th scope="col">#</th><th scope="col">Ação</th><th scope="col">Risco</th><th scope="col">Setor</th><th scope="col">Prioridade</th><th scope="col">Prazo</th><th scope="col">Status</th></tr>
       </thead>
       <tbody>
         {% for linha in resultado.validas %}

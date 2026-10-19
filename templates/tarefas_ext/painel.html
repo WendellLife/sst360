@@ -48,9 +48,9 @@ TAREFAS_URL=https://tarefas.seu-dominio.com.br</pre>
         <a href="?vinculo=cliente"{% if vinculo == "cliente" %} class="is-on"{% endif %}>Clientes de SST</a>
       </nav>
     </div>
-    <div class="tabela">
+    <div class="tabela" role="region" tabindex="0" aria-label="Clientes do sistema Tarefas">
       <table>
-        <thead><tr><th>Cliente no Tarefas</th><th>CNPJ</th><th class="direita">Abertas</th><th>Último serviço</th><th>Próximo serviço</th><th>No {{ APP_NOME }}</th></tr></thead>
+        <thead><tr><th scope="col">Cliente no Tarefas</th><th scope="col">CNPJ</th><th scope="col" class="direita">Abertas</th><th scope="col">Último serviço</th><th scope="col">Próximo serviço</th><th scope="col">No {{ APP_NOME }}</th></tr></thead>
         <tbody>
           {% for l in linhas %}{% with c=l.cliente %}
           <tr>

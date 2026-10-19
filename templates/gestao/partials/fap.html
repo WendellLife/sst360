@@ -55,9 +55,9 @@
   {% endif %}
 
   {% if fichas_fap %}
-  <div class="tabela fap-tabela" style="border-left:0;border-right:0;border-radius:0">
+  <div class="tabela fap-tabela" role="region" tabindex="0" aria-label="Histórico do FAP" style="border-left:0;border-right:0;border-radius:0">
     <table>
-      <thead><tr><th>Vigência</th><th>Grau RAT</th><th>Percentis G · F · C</th><th>Pontuação</th><th>FAP</th><th>Nível</th><th class="direita">RAT ajustado</th><th class="direita">Custo anual</th><th></th></tr></thead>
+      <thead><tr><th scope="col">Vigência</th><th scope="col">Grau RAT</th><th scope="col">Percentis G · F · C</th><th scope="col">Pontuação</th><th scope="col">FAP</th><th scope="col">Nível</th><th scope="col" class="direita">RAT ajustado</th><th scope="col" class="direita">Custo anual</th><th scope="col"><span class="so-leitor">Ações</span></th></tr></thead>
       <tbody>
         {% for f in fichas_fap %}
         <tr>
