@@ -25,7 +25,6 @@
 <link rel="stylesheet" href="{% static 'css/sst360.css' %}">
 <link rel="stylesheet" href="{% static 'css/sst360-razach.css' %}">
 <link rel="icon" type="image/png" href="{% static 'razach/img/razach-simbolo-gradiente.png' %}">
-<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js" defer></script>
 <script src="{% static 'js/sst360.js' %}" defer></script>
 </head>
 <body>
@@ -36,15 +35,16 @@
     <div class="rz-side">
       <nav class="sb" aria-label="Navegação principal">
         <div class="sb-brand">
-          <a href="{% url 'core:dashboard' %}" class="sb-marca" aria-label="Painel">
+          <a href="{{ inicio_url }}" class="sb-marca" aria-label="Início">
             <img class="so-claro sb-logo" src="{% static 'razach/img/razach-combinado-gradiente.png' %}" alt="Razach Technology" width="117" height="32">
             <img class="so-escuro sb-logo" src="{% static 'razach/img/razach-combinado-claro.png' %}" alt="Razach Technology" width="117" height="32">
             <img class="so-claro sb-simbolo" src="{% static 'razach/img/razach-simbolo-gradiente.png' %}" alt="Razach Technology" width="32" height="32">
             <img class="so-escuro sb-simbolo" src="{% static 'razach/img/razach-simbolo-claro.png' %}" alt="Razach Technology" width="32" height="32">
           </a>
           <button class="ib sb-recolher" type="button" aria-expanded="true" aria-label="Recolher barra lateral" title="Recolher barra lateral" data-barra-recolher>{% icone "panel-left" 18 %}</button>
+          <button class="ib sb-menu" type="button" aria-expanded="false" aria-controls="sb-rolagem" aria-label="Abrir menu" data-menu-alternar>{% icone "menu" 20 "sb-menu-abrir" %}{% icone "x" 20 "sb-menu-fechar" %}</button>
         </div>
-        <div class="sb-rolagem">
+        <div class="sb-rolagem" id="sb-rolagem">
           {% for grupo in menu %}
           <div class="sb-group" role="group" aria-labelledby="sb-grupo-{{ forloop.counter }}">
             <span class="rz-label sb-label" id="sb-grupo-{{ forloop.counter }}">{{ grupo.rotulo }}</span>
@@ -68,13 +68,13 @@
             <span class="sb-week-txt">Prazos da semana, cumpridos até hoje</span>
           </div>
           <div class="sb-user">
-            <span class="sb-user-link">
+            <a class="sb-user-link" href="{% url 'accounts:password_change' %}" title="Trocar senha"{% if secao == "conta" %} aria-current="page"{% endif %}>
               <span class="av av-lg" aria-hidden="true">{{ user.get_full_name|default:user.username|iniciais }}</span>
               <span class="sb-user-text">
                 <span class="sb-user-name">{{ user.get_full_name|default:user.username }}</span>
-                <span class="sb-user-role">Equipe interna{% if user.is_staff %} · admin{% endif %}</span>
+                <span class="sb-user-role">{% for m in user.modulos %}{% if m == "tecnico" %}técnico{% elif m == "admin" %}administração{% else %}{{ m }}{% endif %}{% if not forloop.last %} · {% endif %}{% empty %}sem módulo{% endfor %}</span>
               </span>
-            </span>
+            </a>
             <form class="sb-sair" method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
               <button class="ib" type="submit" aria-label="Sair" title="Sair">{% icone "log-out" 16 %}</button>
             </form>
@@ -94,13 +94,15 @@
             <form class="tb-search-form" method="get" action="{% url 'core:busca' %}" role="search">
               <div class="rz-c-field" style="width: 280px; max-width: 100%"><div class="rz-c-field-box"><span class="rz-c-field-icon">{% icone "search" 16 %}</span><input class="rz-c-input is-sm has-icon is-search" type="search" id="tb-busca" name="q" value="{{ q_busca|default:'' }}" placeholder="Buscar empresa, gestão ou lead" aria-label="Buscar" enterkeyhint="search" data-atalho="/"></div></div>
             </form>
-            <a class="ib" href="{% url 'gestao:agenda' %}" aria-label="Prazos atrasados: {{ prazos_atrasados|default:0 }}" title="Prazos atrasados">
+            {% if pode.tecnico %}<a class="ib" href="{% url 'gestao:agenda' %}" aria-label="Prazos atrasados: {{ prazos_atrasados|default:0 }}" title="Prazos atrasados">
               {% icone "bell" 18 %}{% if prazos_atrasados %}<span class="ib-count" aria-hidden="true">{% if prazos_atrasados > 9 %}9+{% else %}{{ prazos_atrasados }}{% endif %}</span>{% endif %}
-            </a>
+            </a>{% elif pode.comercial %}<a class="ib" href="{% url 'crm:lista' %}?atrasados=1" aria-label="Leads com contato atrasado: {{ leads_atrasados_total|default:0 }}" title="Leads com contato atrasado">
+              {% icone "bell" 18 %}{% if leads_atrasados_total %}<span class="ib-count" aria-hidden="true">{% if leads_atrasados_total > 9 %}9+{% else %}{{ leads_atrasados_total }}{% endif %}</span>{% endif %}
+            </a>{% endif %}
             <button class="ib" type="button" data-tema-alternar aria-label="Alternar tema" title="Alternar tema">{% icone "moon" 18 "so-claro" %}{% icone "sun" 18 "so-escuro" %}</button>
             <span class="tb-div" aria-hidden="true"></span>
-            {% if user.acesso_comercial or user.is_superuser %}<a class="rz-c-button is-gradient is-sm" href="{% url 'crm:novo' %}">{% icone "plus" 15 %}<span>Novo lead</span></a>
-            {% elif user.acesso_tecnico %}<a class="rz-c-button is-gradient is-sm" href="{% url 'gestao:nova' %}">{% icone "plus" 15 %}<span>Nova gestão</span></a>{% endif %}
+            {% if pode.comercial %}<a class="rz-c-button is-gradient is-sm" href="{% url 'crm:novo' %}">{% icone "plus" 15 %}<span>Novo lead</span></a>
+            {% elif pode.tecnico %}<a class="rz-c-button is-gradient is-sm" href="{% url 'gestao:nova' %}">{% icone "plus" 15 %}<span>Nova gestão</span></a>{% endif %}
           </div>
         </header>
       </div>

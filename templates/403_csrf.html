@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Formulário expirado - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho"><div><div class="sobretitulo">Erro 403</div><h1>Formulário expirado</h1></div></div>
+<div class="cartao"><div class="cartao-corpo">
+  <p>A página ficou aberta muito tempo ou a sessão mudou. Volte, recarregue a página e envie de novo.</p>
+</div></div>
+{% endblock %}
+{% block conteudo_portal %}
+<div class="cartao"><div class="cartao-corpo">
+  <h1 style="font-size: var(--text-xl)">Formulário expirado</h1>
+  <p class="texto-suave" style="margin-top: var(--space-3)">Volte, recarregue a página e envie de novo.</p>
+</div></div>
+{% endblock %}
+{% block conteudo_publico %}
+<div class="publico__cab"><h1 class="publico__titulo">Formulário expirado</h1><p class="publico__sub">A página ficou aberta muito tempo. Recarregue e tente de novo.</p></div>
+<a class="btn btn-primario btn-largo" href="{% url 'accounts:login' %}">Entrar</a>
+{% endblock %}

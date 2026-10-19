@@ -104,7 +104,7 @@ def _enviar(usuario, codigo: str) -> None:
     if canal == "email" and usuario.email:
         contexto = {"codigo": codigo, "minutos": VALIDADE_MINUTOS, "usuario": usuario}
         send_mail(
-            subject=f"Seu codigo de acesso: {codigo}",
+            subject=f"Código de acesso ao portal: {codigo}",
             message=render_to_string("accounts/email_codigo.txt", contexto),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[usuario.email],

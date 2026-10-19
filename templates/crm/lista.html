@@ -19,6 +19,10 @@
     <option value="">Todos os estágios</option>
     {% for valor, rotulo in estagios %}<option value="{{ valor }}" {% if estagio_atual == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
   </select>
+  <label class="campo marcavel">
+    <input type="checkbox" name="atrasados" value="1" {% if atrasados %}checked{% endif %}>
+    <span>contato atrasado</span>
+  </label>
   <button class="btn" type="submit">Filtrar</button>
   <div class="espaco"></div>
   <div class="resumo">{% if paginator %}{{ paginator.count }}{% else %}{{ leads|length }}{% endif %} lead(s)</div>

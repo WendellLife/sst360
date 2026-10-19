@@ -50,7 +50,7 @@
   <article class="fap-linha{% if c and c.nivel.codigo == 'MMAX' %} critico{% endif %}">
     <div class="fap-linha-cliente">
       <a class="titulo" href="{{ x.empresa.get_absolute_url }}">{{ x.empresa }}</a>
-      <div class="texto-fraco"><a class="dado" href="{{ g.get_absolute_url }}#fap">{{ g.codigo }}</a>{% if f %} · RAT {{ f.grau_rat }}% · vigência {{ f.vigencia }}{% endif %}</div>
+      <div class="texto-fraco">{% if pode.tecnico %}<a class="dado" href="{{ g.get_absolute_url }}#fap">{{ g.codigo }}</a>{% else %}<span class="dado">{{ g.codigo }}</span>{% endif %}{% if f %} · RAT {{ f.grau_rat }}% · vigência {{ f.vigencia }}{% endif %}</div>
       <div class="chips" style="margin-top:8px">
         {% if c %}<span class="etiqueta {{ c.nivel.cor|badge_cor }}">{{ c.nivel.rotulo }}</span>{% else %}<span class="etiqueta etiqueta--cinza">Sem FAP</span>{% endif %}
         {% if x.contratado %}<span class="etiqueta etiqueta--azul">Redução do FAP contratada</span>{% else %}<span class="etiqueta etiqueta--amarelo">Redução do FAP não contratada</span>{% endif %}
@@ -77,7 +77,7 @@
       <div class="rotulo">Economia possível</div>
       <div class="valor num {% if x.potencial %}positivo{% else %}texto-fraco{% endif %}">{% if x.potencial %}{{ x.potencial|moeda }}<span class="texto-fraco">/ano</span>{% else %}—{% endif %}</div>
       <div class="acoes-fap">
-        <a class="btn btn-p" href="{{ g.get_absolute_url }}#fap">{% if f %}Abrir FAP{% else %}Lançar FAP{% endif %}</a>
+        {% if pode.tecnico %}<a class="btn btn-p" href="{{ g.get_absolute_url }}#fap">{% if f %}Abrir FAP{% else %}Lançar FAP{% endif %}</a>{% endif %}
         {% if not x.contratado %}<a class="btn btn-p btn-primario" href="{% url 'vendas:nova' %}?empresa={{ x.empresa.pk }}&servico=FAP&next={{ x.empresa.get_absolute_url|urlencode }}%23vendas">Vender redução</a>{% endif %}
       </div>
     </div>

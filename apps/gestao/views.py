@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, UpdateView, View
 
 from apps.accounts.mixins import ComercialMixin, TecnicoMixin
+from apps.core.navegacao import destino_seguro
 
 from .fap import NIVEIS, economia_meta, panorama
 from .forms import (
@@ -353,7 +354,7 @@ class AcaoEventoView(TecnicoMixin, View):
             acao.save(update_fields=[*campos, "atualizado_em"])
         if descricao or campos:
             messages.success(request, "Ação do plano atualizada.")
-        destino = request.POST.get("next") or acao.gestao.get_absolute_url()
+        destino = destino_seguro(request, acao.gestao.get_absolute_url())
         return redirect(destino)
 
 
@@ -382,10 +383,8 @@ class PrazoConcluirView(TecnicoMixin, View):
         prazo.status = StatusPrazo.CUMPRIDO
         prazo.concluido_em = timezone.localdate()
         prazo.save(update_fields=["status", "concluido_em", "atualizado_em"])
-        if request.headers.get("HX-Request"):
-            return render(request, "gestao/partials/linha_prazo.html", {"prazo": prazo})
         messages.success(request, "Prazo marcado como cumprido.")
-        return redirect(request.POST.get("next") or prazo.gestao.get_absolute_url())
+        return redirect(destino_seguro(request, prazo.gestao.get_absolute_url()))
 
 
 class AgendaPrazosView(TecnicoMixin, ListView):

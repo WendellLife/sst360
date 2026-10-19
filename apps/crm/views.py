@@ -7,6 +7,7 @@ from django.views.generic import CreateView, DetailView, ListView, TemplateView,
 from apps.publico.models import Diagnostico, Urgencia as UrgenciaDiagnostico
 
 from apps.accounts.mixins import ComercialMixin
+from apps.core.navegacao import destino_seguro
 from apps.core.templatetags.sst_extras import moeda
 
 from .forms import AtividadeForm, LeadForm
@@ -61,10 +62,15 @@ class LeadListView(ComercialMixin, ListView):
             )
         if estagio:
             qs = qs.filter(estagio=estagio)
+        if self.request.GET.get("atrasados") == "1":
+            qs = qs.exclude(estagio__in=[Estagio.GANHO, Estagio.PERDIDO]).filter(
+                proximo_contato__lt=timezone.localdate()
+            )
         return qs
 
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
+        contexto["atrasados"] = self.request.GET.get("atrasados") == "1"
         contexto["q"] = self.request.GET.get("q", "")
         contexto["estagio_atual"] = self.request.GET.get("estagio", "")
         contexto["estagios"] = Estagio.choices
@@ -147,7 +153,7 @@ class MoverEstagioView(ComercialMixin, View):
             messages.success(request, f"Lead movido para {lead.get_estagio_display()}.")
         else:
             messages.error(request, "Estágio inválido.")
-        destino = request.POST.get("next") or lead.get_absolute_url()
+        destino = destino_seguro(request, lead.get_absolute_url())
         return redirect(destino)
 
 

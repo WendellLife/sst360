@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block titulo %}Página não encontrada - {{ APP_NOME }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho"><div><div class="sobretitulo">Erro 404</div><h1>Página não encontrada</h1></div></div>
+<div class="cartao"><div class="cartao-corpo">
+  <p>O endereço não existe ou o registro foi removido.</p>
+  <div class="form-acoes" style="margin-top: var(--space-4)"><a class="btn btn-primario" href="{{ inicio_url|default:'/' }}">Voltar ao início</a></div>
+</div></div>
+{% endblock %}
+{% block conteudo_portal %}
+<div class="cartao"><div class="cartao-corpo">
+  <h1 style="font-size: var(--text-xl)">Página não encontrada</h1>
+  <p class="texto-suave" style="margin-top: var(--space-3)">O endereço não existe ou o registro foi removido.</p>
+  <div class="form-acoes" style="margin-top: var(--space-4)"><a class="btn btn-primario" href="{% url 'portal:home' %}">Voltar ao início</a></div>
+</div></div>
+{% endblock %}
+{% block conteudo_publico %}
+<div class="publico__cab"><h1 class="publico__titulo">Página não encontrada</h1><p class="publico__sub">O endereço não existe ou o registro foi removido.</p></div>
+<a class="btn btn-primario btn-largo" href="{% url 'accounts:login' %}">Entrar</a>
+{% endblock %}

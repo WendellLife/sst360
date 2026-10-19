@@ -69,9 +69,9 @@ class ConferirDocumentoView(TecnicoMixin, View):
         form = ConferenciaDocumentoForm(request.POST, instance=solicitacao)
         if form.is_valid():
             form.save()
-            messages.success(request, "Conferencia registrada.")
+            messages.success(request, "Conferência registrada.")
         else:
-            messages.error(request, "Nao foi possivel registrar a conferencia.")
+            messages.error(request, "Não foi possível registrar a conferência.")
         return redirect("relacionamento:painel", pk=solicitacao.gestao_id)
 
 
@@ -85,7 +85,7 @@ class ReuniaoCreateView(TecnicoMixin, View):
             reuniao.save()
             messages.success(request, "Visita registrada.")
         else:
-            messages.error(request, "Confira os dados da reuniao.")
+            messages.error(request, "Confira os dados da reunião.")
         return redirect("relacionamento:painel", pk=gestao.pk)
 
 

@@ -122,3 +122,12 @@ def resto_pct(pct):
         return max(0, min(100, 100 - int(pct)))
     except (TypeError, ValueError):
         return 100
+
+
+@register.simple_tag(takes_context=True)
+def link_gestao(context, gestao, ancora=""):
+    """Endereço de uma gestão para quem tem o módulo técnico; para os demais, a página da empresa."""
+    pode = context.get("pode") or {}
+    if pode.get("tecnico"):
+        return gestao.get_absolute_url() + ancora
+    return gestao.empresa.get_absolute_url()

@@ -11,7 +11,7 @@
   <div class="acoes">
     <a class="btn" href="{% url 'core:indicadores' %}">Indicadores</a>
     <a class="btn" href="{% url 'crm:novo' %}">Novo lead</a>
-    <a class="btn btn-primario" href="{% url 'gestao:nova' %}">Nova gestão</a>
+    {% if pode.tecnico %}<a class="btn btn-primario" href="{% url 'gestao:nova' %}">Nova gestão</a>{% endif %}
   </div>
 </div>
 
@@ -69,13 +69,13 @@
   <section class="cartao">
     <header class="cartao-cab">
       <h2>Prazos críticos</h2>
-      <a href="{% url 'gestao:agenda' %}">abrir agenda</a>
+      {% if pode.tecnico %}<a href="{% url 'gestao:agenda' %}">abrir agenda</a>{% endif %}
     </header>
     <ul class="lista">
       {% for prazo in prazos_criticos %}
       <li class="linha-flex">
         <div style="min-width:0">
-          <a class="titulo" href="{{ prazo.gestao.get_absolute_url }}">{{ prazo.titulo }}</a>
+          <a class="titulo" href="{% link_gestao prazo.gestao %}">{{ prazo.titulo }}</a>
           <div class="texto-fraco">{{ prazo.gestao.empresa }} · {{ prazo.base_legal|default:prazo.get_tipo_display }}</div>
         </div>
         <span class="etiqueta {{ prazo.cor|badge_cor }} num">
@@ -107,13 +107,13 @@
   <section class="cartao">
     <header class="cartao-cab">
       <h2>Documentos a revisar</h2>
-      <a href="{% url 'gestao:vencimentos' %}">ver todos</a>
+      {% if pode.tecnico %}<a href="{% url 'gestao:vencimentos' %}">ver todos</a>{% endif %}
     </header>
     <ul class="lista">
       {% for documento in documentos_alerta %}
       <li>
         <div class="linha-flex">
-          <a class="titulo" href="{{ documento.gestao.get_absolute_url }}">{{ documento.sigla }}</a>
+          <a class="titulo" href="{% link_gestao documento.gestao %}">{{ documento.sigla }}</a>
           <span class="etiqueta {{ documento.cor|badge_cor }}">{{ documento.situacao_rotulo }}</span>
         </div>
         <div class="texto-fraco">{{ documento.gestao.empresa }} · até {{ documento.valido_ate|date:"d/m/Y" }}</div>
@@ -127,13 +127,13 @@
   <section class="cartao">
     <header class="cartao-cab">
       <h2>Reciclagens</h2>
-      <a href="{% url 'gestao:vencimentos' %}">ver todas</a>
+      {% if pode.tecnico %}<a href="{% url 'gestao:vencimentos' %}">ver todas</a>{% endif %}
     </header>
     <ul class="lista">
       {% for treinamento in treinamentos_alerta %}
       <li>
         <div class="linha-flex">
-          <a class="titulo" href="{{ treinamento.gestao.get_absolute_url }}">{{ treinamento.get_tipo_display }}</a>
+          <a class="titulo" href="{% link_gestao treinamento.gestao %}">{{ treinamento.get_tipo_display }}</a>
           <span class="etiqueta {{ treinamento.cor|badge_cor }}">{{ treinamento.valido_ate|date:"d/m/Y" }}</span>
         </div>
         <div class="texto-fraco">{{ treinamento.gestao.empresa }} · {{ treinamento.participantes }} participante(s)</div>
@@ -149,7 +149,7 @@
     <ul class="lista">
       {% for visita in proximas_visitas %}
       <li>
-        <a class="titulo" href="{% url 'relacionamento:painel' visita.gestao.pk %}">{{ visita.gestao.empresa }}</a>
+        <a class="titulo" href="{% if pode.tecnico %}{% url 'relacionamento:painel' visita.gestao.pk %}{% else %}{{ visita.gestao.empresa.get_absolute_url }}{% endif %}">{{ visita.gestao.empresa }}</a>
         <div class="texto-fraco num">{{ visita.get_tipo_display }} · {{ visita.quando|date:"d/m H:i" }}</div>
         <div class="texto-suave">{{ visita.titulo }}</div>
       </li>

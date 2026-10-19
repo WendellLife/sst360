@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.shortcuts import redirect
 from django.db.models import Count, Q
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
@@ -88,6 +89,7 @@ class EmpresaDetailView(EquipeInternaMixin, DetailView):
             contato.empresa = self.object
             contato.save()
             messages.success(request, "Contato adicionado.")
+            return redirect(self.object.get_absolute_url())
         else:
             messages.error(request, "Verifique os dados do contato.")
         contexto = self.get_context_data(object=self.object)

@@ -84,7 +84,7 @@ def converter_valor(bruto) -> Decimal | None:
         return Decimal(str(bruto)).quantize(Decimal("0.01"))
     texto = re.sub(r"[^\d,.\-]", "", str(bruto).strip())
     if not re.search(r"\d", texto):
-        raise ValueError(f"valor invalido: {bruto!r}")
+        raise ValueError(f"valor inválido: {bruto!r}")
     if "," in texto and "." in texto:
         if texto.rfind(",") > texto.rfind("."):
             texto = texto.replace(".", "").replace(",", ".")
@@ -95,7 +95,7 @@ def converter_valor(bruto) -> Decimal | None:
     try:
         return Decimal(texto).quantize(Decimal("0.01"))
     except InvalidOperation as erro:
-        raise ValueError(f"valor invalido: {bruto!r}") from erro
+        raise ValueError(f"valor inválido: {bruto!r}") from erro
 
 
 def converter_data(bruto) -> date | None:
@@ -124,7 +124,7 @@ def _buscar(mapa: dict, bruto, padrao, nome: str):
     for apelido, valor in mapa.items():
         if chave.startswith(apelido):
             return valor
-    raise ValueError(f"{nome} nao reconhecido(a): {bruto!r}")
+    raise ValueError(f"{nome} não reconhecido(a): {bruto!r}")
 
 
 def converter_risco(bruto) -> str:
@@ -207,7 +207,7 @@ def _linhas_do_arquivo(arquivo, nome_arquivo: str) -> list[list]:
             except UnicodeDecodeError:
                 continue
         else:
-            raise PlanilhaInvalida("Nao foi possivel ler o arquivo de texto.")
+            raise PlanilhaInvalida("Não foi possível ler o arquivo de texto.")
         amostra = texto[:2048]
         try:
             dialeto = csv.Sniffer().sniff(amostra, delimiters=";,\t")
@@ -222,11 +222,11 @@ def _linhas_do_arquivo(arquivo, nome_arquivo: str) -> list[list]:
         try:
             planilha = load_workbook(io.BytesIO(conteudo), data_only=True, read_only=True)
         except Exception as erro:
-            raise PlanilhaInvalida(f"Nao foi possivel abrir a planilha: {erro}") from erro
+            raise PlanilhaInvalida(f"Não foi possível abrir a planilha: {erro}") from erro
         aba = planilha[planilha.sheetnames[0]]
         return [list(linha) for linha in aba.iter_rows(values_only=True)]
 
-    raise PlanilhaInvalida("Formato nao suportado. Envie um arquivo .xlsx ou .csv.")
+    raise PlanilhaInvalida("Formato não suportado. Envie um arquivo .xlsx ou .csv.")
 
 
 def _mapear_cabecalho(cabecalho: list) -> tuple[dict[str, int], list[str]]:

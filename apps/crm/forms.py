@@ -15,7 +15,7 @@ class LeadForm(forms.ModelForm):
             "renovacao_mes", "fornecedor_atual", "aceita_email", "aceita_whatsapp", "observacoes",
         ]
         widgets = {
-            "proximo_contato": forms.DateInput(attrs={"type": "date"}),
+            "proximo_contato": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
             "observacoes": forms.Textarea(attrs={"rows": 3}),
         }
 
@@ -25,6 +25,6 @@ class AtividadeForm(forms.ModelForm):
         model = Atividade
         fields = ["data", "tipo", "titulo", "descricao"]
         widgets = {
-            "data": forms.DateInput(attrs={"type": "date"}),
+            "data": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
             "descricao": forms.Textarea(attrs={"rows": 3}),
         }

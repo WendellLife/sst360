@@ -13,7 +13,7 @@ SESSAO_USUARIO = "codigo_usuario_id"
 
 # Mensagem unica: nao dizemos se o contato existe ou nao.
 AVISO_ENVIO = (
-    "Se esse contato estiver cadastrado, o codigo chega em instantes. "
+    "Se esse contato estiver cadastrado, o código chega em instantes. "
     f"Ele vale por {VALIDADE_MINUTOS} minutos."
 )
 
@@ -76,7 +76,7 @@ class ConfirmarCodigoView(View):
         usuario_id = request.session.get(SESSAO_USUARIO)
 
         if len(digitado) != 6:
-            return render(request, self.template_name, {"erro": "Digite os 6 digitos do codigo."})
+            return render(request, self.template_name, {"erro": "Digite os 6 dígitos do código."})
         if not usuario_id:
             return render(request, self.template_name, {"sem_pedido": True})
 
@@ -86,22 +86,22 @@ class ConfirmarCodigoView(View):
         )
         if registro is None or registro.expirado:
             return render(request, self.template_name, {
-                "erro": "Esse codigo expirou. Peca um novo.", "expirado": True,
+                "erro": "Esse código expirou. Peça um novo.", "expirado": True,
             })
         if registro.tentativas >= MAX_TENTATIVAS:
             return render(request, self.template_name, {
-                "erro": "Tentativas demais para esse codigo. Peca um novo.", "expirado": True,
+                "erro": "Tentativas demais para esse código. Peça um novo.", "expirado": True,
             })
 
         if not registro.confere(digitado):
             restantes = max(0, MAX_TENTATIVAS - registro.tentativas)
             return render(request, self.template_name, {
-                "erro": f"Codigo invalido. Voce ainda tem {restantes} tentativa(s).",
+                "erro": f"Código inválido. Restam {restantes} tentativa(s).",
                 "expirado": restantes == 0,
             })
 
         request.session.pop(SESSAO_USUARIO, None)
-        login(request, registro.usuario, backend="django.contrib.auth.backends.ModelBackend")
+        login(request, registro.usuario, backend="apps.accounts.backends.UsuarioOuEmailBackend")
         return redirect("portal:home")
 
 

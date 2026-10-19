@@ -21,7 +21,7 @@ class SolicitacaoDocumentoForm(forms.ModelForm):
     class Meta:
         model = DocumentoSolicitado
         fields = ["titulo", "motivo", "prazo"]
-        widgets = {"prazo": forms.DateInput(attrs={"type": "date"})}
+        widgets = {"prazo": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d")}
 
 
 class ConferenciaDocumentoForm(forms.ModelForm):

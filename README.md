@@ -44,7 +44,7 @@ situação em SST e serviço de interesse.
 ## Stack
 
 Python 3.11+ · Django 5.2 · PostgreSQL (SQLite em desenvolvimento) · templates
-Django + HTMX · WhiteNoise. Identidade visual: a mesma interface do Razach Tarefas Internas (design system
+Django com JavaScript próprio e pequeno, sem CDN · WhiteNoise. Identidade visual: a mesma interface do Razach Tarefas Internas (design system
 Razach com o tema soft): Archivo e Montserrat servidas pelo próprio servidor,
 ícones Lucide locais, barra lateral e barra superior em vidro, cantos
 arredondados, status em pastel e temas claro e escuro (escolha guardada no
@@ -70,13 +70,16 @@ python manage.py seed_demo
 python manage.py runserver
 ```
 
+No `.env` de desenvolvimento deixe `DJANGO_DEBUG=True`. Sem essa linha o sistema sobe em modo de
+produção e exige `DJANGO_SECRET_KEY` própria.
+
 O `seed_demo` cria três clientes com gestões em etapas diferentes, leads e
 diagnósticos. Senha `sst360demo`:
 
 | usuário      | perfil         | vê                               |
 |--------------|----------------|----------------------------------|
 | `analista`   | equipe interna | tudo (também é admin)            |
-| `engenheiro` | equipe interna | tudo                             |
+| `engenheiro` | equipe interna | só o módulo técnico              |
 | `cliente`    | portal         | só a Metalúrgica Exemplo         |
 
 - Site público: http://localhost:8000/
@@ -142,3 +145,34 @@ python manage.py importar_tarefas --responsavel seu@email.com.br   # clientes do
 
 O `importar_tarefas` pode rodar de novo a qualquer momento: só cria lead para quem ainda não é empresa
 nem lead no SST360. A mesma importação está no botão "Trazer para o funil" da tela Sistema Tarefas.
+
+## Produção
+
+Antes de subir:
+
+1. No `.env` do servidor:
+   - `DJANGO_DEBUG=False`;
+   - `DJANGO_SECRET_KEY` com 50 caracteres ou mais, gerada com `python -c "import secrets; print(secrets.token_urlsafe(64))"`. Sem ela, o sistema não sobe;
+   - `DJANGO_ALLOWED_HOSTS` e `DJANGO_CSRF_TRUSTED_ORIGINS` com o domínio (`https://...`);
+   - `DATABASE_URL` do Postgres;
+   - `SITE_URL`;
+   - SMTP;
+   - `DJANGO_STATIC_MANIFEST=True`.
+2. Rode, nesta ordem:
+   ```
+   pip install -r requirements.txt
+   python manage.py migrate
+   python manage.py collectstatic --noinput
+   python manage.py check --deploy
+   ```
+3. Inicie com `gunicorn config.wsgi --bind 0.0.0.0:8000 --workers 3`, atrás de um proxy com HTTPS que envie `X-Forwarded-Proto`.
+4. Configure o cron:
+   ```
+   0 7 * * *  cd /caminho/sst360 && python manage.py alertar_prazos
+   0 9 1 * *  cd /caminho/sst360 && python manage.py regua_mensal --enviar
+   ```
+5. Para receber por e-mail os erros 500, preencha `DJANGO_ADMINS`.
+
+`python manage.py test` percorre todas as telas com os quatro perfis (administração, comercial, técnico e
+cliente). O teste falha quando uma tela dá erro, quando há link sem destino ou quando há link ou botão
+para uma área que o perfil não pode abrir.

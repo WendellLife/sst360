@@ -5,10 +5,10 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView, ListView, UpdateView, View
 
 from apps.accounts.mixins import ComercialMixin
+from apps.core.navegacao import destino_seguro
 from apps.empresas.models import Empresa
 
 from .forms import VendaForm
@@ -16,11 +16,6 @@ from .models import SERVICOS_VENDA, StatusVenda, Venda
 from .services import totais
 
 
-def destino_seguro(request, padrao):
-    proximo = request.POST.get("next") or request.GET.get("next")
-    if proximo and url_has_allowed_host_and_scheme(proximo, allowed_hosts={request.get_host()}):
-        return proximo
-    return padrao
 
 
 class VendaListView(ComercialMixin, ListView):

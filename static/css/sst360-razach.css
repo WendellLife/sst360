@@ -395,3 +395,16 @@ html .sb-brand .sb-logo { width: min(184px, calc(100% - 40px)); height: auto; }
 @media (max-height: 700px) { html .sb-brand .sb-logo { width: min(128px, calc(100% - 40px)); } .rz-side .sb { gap: var(--space-3); } }
 @media (max-height: 700px) { .rz-side .sb { padding-top: var(--space-3); padding-bottom: var(--space-2); } }
 .tarefas-datas { margin: 0 0 var(--space-3); }
+
+/* Tela estreita (barra empilhada no alto): o menu fica atrás de um botão, para o conteúdo aparecer
+   logo no primeiro quadro. Sem JS, o menu continua aberto. */
+.sb-menu { display: none; }
+@container side (min-width: 320px) {
+  .sb-brand { flex-direction: row; align-items: center; justify-content: space-between; }
+  .sb-brand .sb-marca { align-self: center; }
+  .sb-menu { display: inline-grid; place-items: center; }
+  html.js:not([data-menu="aberto"]) .sb-rolagem { display: none; }
+  html.js:not([data-menu="aberto"]) .rz-side .sb { gap: var(--space-3); }
+  .sb-menu .sb-menu-fechar, html[data-menu="aberto"] .sb-menu .sb-menu-abrir { display: none; }
+  html[data-menu="aberto"] .sb-menu .sb-menu-fechar { display: block; }
+}

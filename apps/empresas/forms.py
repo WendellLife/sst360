@@ -13,7 +13,7 @@ class EmpresaForm(forms.ModelForm):
             "telefone", "email", "site", "responsavel", "inicio_contrato", "observacoes",
         ]
         widgets = {
-            "inicio_contrato": forms.DateInput(attrs={"type": "date"}),
+            "inicio_contrato": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
             "observacoes": forms.Textarea(attrs={"rows": 3}),
         }
 

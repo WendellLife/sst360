@@ -14,6 +14,14 @@
       guardar("rz-tema", novo);
       return;
     }
+    var menu = ev.target.closest("[data-menu-alternar]");
+    if (menu) {
+      var abrir = d.getAttribute("data-menu") !== "aberto";
+      if (abrir) d.setAttribute("data-menu", "aberto"); else d.removeAttribute("data-menu");
+      menu.setAttribute("aria-expanded", abrir ? "true" : "false");
+      menu.setAttribute("aria-label", abrir ? "Fechar menu" : "Abrir menu");
+      return;
+    }
     var barra = ev.target.closest("[data-barra-recolher]");
     if (barra) {
       var recolher = d.getAttribute("data-barra") !== "recolhida";

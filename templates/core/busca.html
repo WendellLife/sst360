@@ -34,7 +34,7 @@
     <div class="cartao-cab"><h2>Gestões de SST</h2><span class="etiqueta etiqueta--marca">{{ gestoes|length }}</span></div>
     <ul class="lista">
       {% for g in gestoes %}
-      <li><a class="titulo" href="{{ g.get_absolute_url }}"><span class="mono">{{ g.codigo }}</span> · {{ g.empresa.nome_fantasia|default:g.empresa.razao_social }}</a>
+      <li><a class="titulo" href="{% link_gestao g %}"><span class="mono">{{ g.codigo }}</span> · {{ g.empresa.nome_fantasia|default:g.empresa.razao_social }}</a>
         <div class="texto-fraco">{{ g.get_etapa_display }}{% if g.encerrado_em %} · encerrada{% endif %}</div></li>
       {% empty %}<li class="texto-fraco">Nenhuma gestão.</li>{% endfor %}
     </ul>

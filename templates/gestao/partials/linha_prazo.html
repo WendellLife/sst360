@@ -14,10 +14,10 @@
   <td class="texto-suave">{{ prazo.get_status_display }}</td>
   <td class="direita">
     {% if prazo.status == 'PEND' %}
-    <button class="btn btn-p" type="button"
-            hx-post="{% url 'gestao:prazo_concluir' prazo.pk %}"
-            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-            hx-target="#prazo-{{ prazo.pk }}" hx-swap="outerHTML">Cumprido</button>
+    <form method="post" action="{% url 'gestao:prazo_concluir' prazo.pk %}">{% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}#prazos">
+      <button class="btn btn-p" type="submit">Cumprido</button>
+    </form>
     {% endif %}
   </td>
 </tr>

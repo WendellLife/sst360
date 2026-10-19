@@ -134,7 +134,7 @@
       <tbody>
         {% for cl in clientes %}
         <tr>
-          <td><a class="principal" href="{{ cl.gestao.get_absolute_url }}">{{ cl.nome }}</a><div class="apoio">{{ cl.gestao.codigo }}</div></td>
+          <td><a class="principal" href="{% link_gestao cl.gestao %}">{{ cl.nome }}</a><div class="apoio">{{ cl.gestao.codigo }}</div></td>
           <td class="texto-suave">{{ cl.etapa }} · {{ cl.etapa_rotulo }}</td>
           <td style="min-width:150px"><div class="medidor-linha"><span class="trilho"><span style="width:{{ cl.pct_docs|unlocalize }}%"></span></span><span class="num">{{ cl.pct_docs }}%</span></div></td>
           <td style="min-width:150px"><div class="medidor-linha"><span class="trilho"><span style="width:{{ cl.ind.acoes_percentual|unlocalize }}%"></span></span><span class="num">{{ cl.ind.acoes_percentual }}%</span></div></td>

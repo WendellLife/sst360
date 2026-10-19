@@ -12,8 +12,8 @@
   </div>
   <div class="acoes">
     <a class="btn" href="{% url 'empresas:editar' empresa.pk %}">Editar</a>
-    <a class="btn" href="{% url 'vendas:nova' %}?empresa={{ empresa.pk }}&next={{ request.path|urlencode }}%23vendas">Nova venda</a>
-    <a class="btn btn-primario" href="{% url 'gestao:nova' %}?empresa={{ empresa.pk }}">Nova gestão de SST</a>
+    {% if pode.comercial %}<a class="btn" href="{% url 'vendas:nova' %}?empresa={{ empresa.pk }}&next={{ request.path|urlencode }}%23vendas">Nova venda</a>{% endif %}
+    {% if pode.tecnico %}<a class="btn btn-primario" href="{% url 'gestao:nova' %}?empresa={{ empresa.pk }}">Nova gestão de SST</a>{% endif %}
   </div>
 </div>
 
@@ -25,7 +25,7 @@
         {% for gestao in gestoes %}
         <li class="linha-flex">
           <div>
-            <a class="dado" href="{{ gestao.get_absolute_url }}">{{ gestao.codigo }}</a>
+            {% if pode.tecnico %}<a class="dado" href="{{ gestao.get_absolute_url }}">{{ gestao.codigo }}</a>{% else %}<span class="dado">{{ gestao.codigo }}</span>{% endif %}
             <div class="texto-fraco">{{ gestao.get_modelo_display }} · desde {{ gestao.inicio|date:"d/m/Y" }}{% if gestao.encerrado_em %} · encerrada em {{ gestao.encerrado_em|date:"d/m/Y" }}{% endif %}</div>
           </div>
           <span class="etiqueta {{ gestao.cor_etapa|badge_cor }}">{{ gestao.etapa }} · {{ gestao.get_etapa_display }}</span>
@@ -36,7 +36,7 @@
       </ul>
     </section>
 
-    <section class="cartao" id="vendas">
+    {% if pode.comercial %}<section class="cartao" id="vendas">
       <header class="cartao-cab">
         <h2>Vendas de serviços</h2>
         <span class="texto-fraco">{{ totais_vendas.quantidade }} venda(s) · <span class="num">{{ totais_vendas.total|moeda }}</span>{% if totais_vendas.recorrente %} · <span class="num">{{ totais_vendas.recorrente|moeda }}</span>/mês recorrente{% endif %}</span>
@@ -84,6 +84,7 @@
         </details>
       </div>
     </section>
+    {% endif %}
 
     <section class="cartao">
       <header class="cartao-cab"><h2>Contatos</h2></header>
@@ -126,8 +127,8 @@
         {% endif %}
         <p class="fap-argumento" style="margin:12px 0 0;padding:0;border:0">{{ x.argumento }}</p>
         <div class="form-acoes" style="margin-top:12px">
-          <a class="btn btn-p" href="{{ g.get_absolute_url }}#fap">{% if x.vigente %}Abrir FAP{% else %}Lançar FAP{% endif %}</a>
-          {% if not x.contratado %}<a class="btn btn-p btn-primario" href="{% url 'vendas:nova' %}?empresa={{ empresa.pk }}&servico=FAP&next={{ request.path|urlencode }}%23vendas">Vender redução do FAP</a>{% endif %}
+          {% if pode.tecnico %}<a class="btn btn-p" href="{{ g.get_absolute_url }}#fap">{% if x.vigente %}Abrir FAP{% else %}Lançar FAP{% endif %}</a>{% endif %}
+          {% if not x.contratado and pode.comercial %}<a class="btn btn-p btn-primario" href="{% url 'vendas:nova' %}?empresa={{ empresa.pk }}&servico=FAP&next={{ request.path|urlencode }}%23vendas">Vender redução do FAP</a>{% endif %}
         </div>
       </div>
     </section>

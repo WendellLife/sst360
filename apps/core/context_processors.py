@@ -13,6 +13,9 @@ def branding(request):
     }
     usuario = getattr(request, "user", None)
     if usuario is not None and usuario.is_authenticated and getattr(usuario, "is_interno", False):
+        # O que o usuário pode abrir: os templates escondem links e botões das áreas sem acesso.
+        contexto["pode"] = {m: usuario.tem_modulo(m) for m in ("comercial", "tecnico", "admin")}
+        contexto["inicio_url"] = _url_inicio(usuario)
         from datetime import timedelta
 
         from apps.crm.models import Estagio, Lead
@@ -39,6 +42,12 @@ def branding(request):
         contexto["menu"] = montar_menu(request, usuario, contexto)
         contexto["barra"] = semana_de_prazos(hoje)
     return contexto
+
+
+def _url_inicio(usuario):
+    from django.urls import reverse
+
+    return reverse(usuario.pagina_inicial())
 
 
 # Barra lateral no padrão Razach Tarefas Internas: grupos numerados, ícone Lucide, contagem à direita.

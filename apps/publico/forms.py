@@ -13,7 +13,7 @@ class ContatoDiagnosticoForm(forms.ModelForm):
             "nome": forms.TextInput(attrs={"placeholder": "Seu nome"}),
             "empresa": forms.TextInput(attrs={"placeholder": "Nome da empresa"}),
             "telefone": forms.TextInput(attrs={"placeholder": "(00) 00000-0000"}),
-            "email": forms.EmailInput(attrs={"placeholder": "voce@empresa.com.br"}),
+            "email": forms.EmailInput(attrs={"placeholder": "nome@empresa.com.br"}),
         }
 
     def clean(self):

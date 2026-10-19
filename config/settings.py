@@ -23,8 +23,18 @@ def env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-insecure-key-trocar-em-producao")
-DEBUG = env_bool("DJANGO_DEBUG", True)
+CHAVE_DE_DESENVOLVIMENTO = "dev-insecure-key-trocar-em-producao"
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", CHAVE_DE_DESENVOLVIMENTO)
+# Desligado por padrão: o modo de desenvolvimento precisa ser pedido (DJANGO_DEBUG=True no .env).
+DEBUG = env_bool("DJANGO_DEBUG", False)
+EM_TESTE = len(sys.argv) > 1 and sys.argv[1] == "test"
+if not DEBUG and not EM_TESTE and (SECRET_KEY == CHAVE_DE_DESENVOLVIMENTO or len(SECRET_KEY) < 50):
+    from django.core.exceptions import ImproperlyConfigured
+
+    raise ImproperlyConfigured(
+        "Em produção defina DJANGO_SECRET_KEY com pelo menos 50 caracteres aleatórios "
+        "(gere com: python -c \"import secrets; print(secrets.token_urlsafe(64))\")."
+    )
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
@@ -132,7 +142,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Sem TAREFAS_DATABASE_URL, a área "Sistema Tarefas" mostra como ligar. TAREFAS_URL abre o sistema no navegador.
 if os.getenv("TAREFAS_DATABASE_URL"):
     DATABASES["tarefas"] = dj_database_url.parse(os.getenv("TAREFAS_DATABASE_URL"), conn_max_age=600)
-if len(sys.argv) > 1 and sys.argv[1] == "test":
+if EM_TESTE:
     # Nos testes, o Tarefas é um SQLite em memória com as tabelas criadas pelo próprio teste.
     DATABASES["tarefas"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:", "TEST": {"NAME": ":memory:"}}
 DATABASE_ROUTERS = ["apps.tarefas_ext.roteador.RoteadorTarefas"]
@@ -191,10 +201,27 @@ CONSULTORIA_SITE = os.getenv("CONSULTORIA_SITE", "www.universofx.com.br · www.l
 # Documentos e treinamentos entram no alerta de vencimento com esta antecedencia.
 VENCIMENTO_ALERTA_DIAS = int(os.getenv("VENCIMENTO_ALERTA_DIAS", "60"))
 
-if not DEBUG:
+if not DEBUG and not EM_TESTE:
     SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", True)
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_HSTS_SECONDS", str(60 * 60 * 24 * 30)))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("DJANGO_HSTS_SUBDOMINIOS", False)
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_REFERRER_POLICY = "same-origin"
+
+# Erros e avisos saem no terminal (o servidor de aplicação ou o systemd guardam o registro).
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"simples": {"format": "{asctime} {levelname} {name}: {message}", "style": "{"}},
+    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "simples"}},
+    "root": {"handlers": ["console"], "level": "WARNING"},
+    "loggers": {
+        "django": {"handlers": ["console"], "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"), "propagate": False},
+        # 404 e 403 são do dia a dia; erros 500 continuam no registro.
+        "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+    },
+}
+# Quem recebe por e-mail os erros 500 em produção (separe por vírgula: "Nome <email>" ou só o e-mail).
+ADMINS = [(e.split("<")[0].strip() or e, e.split("<")[-1].strip(">").strip()) for e in env_list("DJANGO_ADMINS")]
