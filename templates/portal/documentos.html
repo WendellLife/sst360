@@ -22,7 +22,7 @@
           <td class="num texto-suave">{{ documento.emitido_em|date:"d/m/Y"|default:"—" }}</td>
           <td class="num texto-suave">{{ documento.valido_ate|date:"d/m/Y"|default:"—" }}</td>
           <td><span class="etiqueta {{ documento.cor|badge_cor }}">{{ documento.situacao_rotulo }}</span></td>
-          <td class="direita">{% if documento.arquivo %}<a class="btn btn-p" href="{{ documento.arquivo.url }}" target="_blank" rel="noopener">Baixar</a>{% endif %}</td>
+          <td class="direita">{% if documento.arquivo %}<a class="btn btn-p" href="{% url 'core:arquivo_documento' documento.pk %}" target="_blank" rel="noopener">Baixar</a>{% endif %}</td>
         </tr>
         {% empty %}
         <tr><td colspan="5" class="vazio">Nenhum documento emitido ainda.</td></tr>
@@ -75,7 +75,7 @@
     <li style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <div>
         <div class="titulo">
-          {% if pedido.arquivo %}<a href="{{ pedido.arquivo.url }}" target="_blank" rel="noopener">{{ pedido.titulo }}</a>{% else %}{{ pedido.titulo }}{% endif %}
+          {% if pedido.arquivo %}<a href="{% url 'core:arquivo_solicitado' pedido.pk %}" target="_blank" rel="noopener">{{ pedido.titulo }}</a>{% else %}{{ pedido.titulo }}{% endif %}
         </div>
         <div class="texto-fraco num">enviado em {{ pedido.enviado_em|date:"d/m/Y" }}</div>
       </div>

@@ -109,7 +109,7 @@
               <td class="num texto-suave">{{ documento.emitido_em|date:"d/m/Y"|default:"—" }}</td>
               <td class="num texto-suave">{{ documento.valido_ate|date:"d/m/Y"|default:"—" }}</td>
               <td><span class="etiqueta {{ documento.cor|badge_cor }}">{{ documento.situacao_rotulo }}</span>{% if not documento.visivel_cliente %} <span class="apoio">interno</span>{% endif %}</td>
-              <td class="direita">{% if documento.arquivo %}<a href="{{ documento.arquivo.url }}" target="_blank" rel="noopener">arquivo</a>{% endif %}</td>
+              <td class="direita">{% if documento.arquivo %}<a href="{% url 'core:arquivo_documento' documento.pk %}" target="_blank" rel="noopener">arquivo</a>{% endif %}</td>
             </tr>
             {% empty %}
             <tr><td colspan="5" class="vazio">Nenhum documento cadastrado.</td></tr>

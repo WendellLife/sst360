@@ -9,6 +9,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from apps.core.arquivos import CaminhoUuid, validar_documento, validar_planilha
 from apps.core.models import TimeStampedModel
 
 
@@ -305,8 +306,7 @@ class StatusDocumento(models.TextChoices):
     SUBSTITUIDO = "SUBS", "Substituído"
 
 
-def caminho_documento(instance, filename: str) -> str:
-    return f"gestoes/{instance.gestao_id}/documentos/{filename}"
+caminho_documento = CaminhoUuid("gestoes/documentos")
 
 
 class Documento(TimeStampedModel):
@@ -326,7 +326,7 @@ class Documento(TimeStampedModel):
         help_text="Em branco, é calculado pela periodicidade do tipo de documento.",
     )
     responsavel_tecnico = models.CharField("responsável técnico", max_length=150, blank=True)
-    arquivo = models.FileField("arquivo", upload_to=caminho_documento, blank=True)
+    arquivo = models.FileField("arquivo", upload_to=caminho_documento, blank=True, validators=[validar_documento])
     visivel_cliente = models.BooleanField("visível no portal do cliente", default=True)
     enviado_por = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name="enviado por",
@@ -637,8 +637,7 @@ class StatusImportacao(models.TextChoices):
     CANCELADA = "CANC", "Cancelada"
 
 
-def caminho_importacao(instance, filename: str) -> str:
-    return f"importacoes/{instance.gestao_id}/{filename}"
+caminho_importacao = CaminhoUuid("importacoes")
 
 
 class ImportacaoPlano(TimeStampedModel):
@@ -647,7 +646,7 @@ class ImportacaoPlano(TimeStampedModel):
     gestao = models.ForeignKey(
         Gestao, verbose_name="gestão", related_name="importacoes", on_delete=models.CASCADE
     )
-    arquivo = models.FileField("arquivo", upload_to=caminho_importacao)
+    arquivo = models.FileField("arquivo", upload_to=caminho_importacao, validators=[validar_planilha])
     enviado_por = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name="enviado por",
         related_name="importacoes", on_delete=models.SET_NULL, null=True, blank=True,

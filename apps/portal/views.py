@@ -235,6 +235,9 @@ class EnviarDocumentoView(ClienteMixin, View):
         solicitacao = get_object_or_404(DocumentoSolicitado, pk=pk)
         if solicitacao.gestao.empresa_id != request.user.empresa_id:
             raise Http404("Documento não encontrado.")
+        if solicitacao.status == StatusPedido.VALIDADO:
+            messages.error(request, "Esse documento já foi validado pela equipe e não aceita novo envio.")
+            return redirect("portal:documentos")
 
         form = EnvioDocumentoForm(request.POST, request.FILES, instance=solicitacao)
         if form.is_valid():

@@ -4,11 +4,11 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
+from apps.core.arquivos import CaminhoUuid, validar_documento
 from apps.core.models import TimeStampedModel
 
 
-def caminho_documento_cliente(instance, filename: str) -> str:
-    return f"solicitacoes/{instance.gestao_id}/{filename}"
+caminho_documento_cliente = CaminhoUuid("solicitacoes")
 
 
 class StatusDocumento(models.TextChoices):
@@ -43,7 +43,7 @@ class DocumentoSolicitado(TimeStampedModel):
     status = models.CharField(
         "status", max_length=4, choices=StatusDocumento.choices, default=StatusDocumento.SOLICITADO
     )
-    arquivo = models.FileField("arquivo enviado", upload_to=caminho_documento_cliente, blank=True)
+    arquivo = models.FileField("arquivo enviado", upload_to=caminho_documento_cliente, blank=True, validators=[validar_documento])
     enviado_em = models.DateTimeField("enviado em", null=True, blank=True)
     observacao_equipe = models.CharField("observacao da equipe", max_length=250, blank=True)
     solicitado_por = models.ForeignKey(

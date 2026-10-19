@@ -189,6 +189,9 @@ class ResultadoLeitura:
         return sum(1 for linha in self.validas if linha.prioridade == Prioridade.ALTA)
 
 
+MAX_LINHAS = 5000  # linhas lidas de uma planilha (cabeçalho incluso); acima disso o arquivo é recusado
+
+
 class PlanilhaInvalida(Exception):
     """A planilha nao pode ser lida (formato ou cabecalho)."""
 
@@ -214,7 +217,12 @@ def _linhas_do_arquivo(arquivo, nome_arquivo: str) -> list[list]:
         except csv.Error:
             dialeto = csv.excel
             dialeto.delimiter = ";" if amostra.count(";") > amostra.count(",") else ","
-        return [linha for linha in csv.reader(io.StringIO(texto), dialeto)]
+        linhas = []
+        for linha in csv.reader(io.StringIO(texto), dialeto):
+            linhas.append(linha)
+            if len(linhas) > MAX_LINHAS:
+                raise PlanilhaInvalida(f"A planilha tem linhas demais (limite de {MAX_LINHAS}).")
+        return linhas
 
     if nome.endswith((".xlsx", ".xlsm")):
         from openpyxl import load_workbook
@@ -224,7 +232,12 @@ def _linhas_do_arquivo(arquivo, nome_arquivo: str) -> list[list]:
         except Exception as erro:
             raise PlanilhaInvalida(f"Não foi possível abrir a planilha: {erro}") from erro
         aba = planilha[planilha.sheetnames[0]]
-        return [list(linha) for linha in aba.iter_rows(values_only=True)]
+        linhas = []
+        for linha in aba.iter_rows(values_only=True):
+            linhas.append(list(linha))
+            if len(linhas) > MAX_LINHAS:
+                raise PlanilhaInvalida(f"A planilha tem linhas demais (limite de {MAX_LINHAS}).")
+        return linhas
 
     raise PlanilhaInvalida("Formato não suportado. Envie um arquivo .xlsx ou .csv.")
 

@@ -144,10 +144,25 @@ def link_whatsapp(texto: str) -> str:
 
 
 class WhatsAppDiagnosticoView(View):
-    """Registra que a pessoa chamou o comercial e abre o WhatsApp com o resumo."""
+    """Registra que a pessoa chamou o comercial e abre o WhatsApp com o resumo.
+
+    Segue em GET porque a página pública (publico/resultado.html, fora do escopo do backend) usa um
+    link simples. Para não gravar por prefetch ou robô: ignora HEAD/pré-carregamento e só marca a
+    primeira vez. Quando o template virar um form POST, basta trocar `get` por `post`.
+    """
+
+    def post(self, request, token):
+        return self._abrir(request, token, registrar=True)
 
     def get(self, request, token):
+        pre_carga = request.headers.get("Sec-Purpose", "").startswith("prefetch") or request.headers.get("Purpose") == "prefetch"
+        return self._abrir(request, token, registrar=not pre_carga)
+
+    def _abrir(self, request, token, registrar):
         diagnostico = get_object_or_404(Diagnostico, token=token)
-        diagnostico.whatsapp_em = timezone.now()
-        diagnostico.save(update_fields=["whatsapp_em", "atualizado_em"])
-        return redirect(link_whatsapp(diagnostico.resumo_texto()))
+        if registrar and not diagnostico.whatsapp_em:
+            diagnostico.whatsapp_em = timezone.now()
+            diagnostico.save(update_fields=["whatsapp_em", "atualizado_em"])
+        resposta = redirect(link_whatsapp(diagnostico.resumo_texto()))
+        resposta["Cache-Control"] = "no-store"
+        return resposta
