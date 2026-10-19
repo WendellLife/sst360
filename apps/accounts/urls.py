@@ -8,9 +8,7 @@ app_name = "accounts"
 urlpatterns = [
     path(
         "entrar/",
-        auth_views.LoginView.as_view(
-            template_name="accounts/login.html", redirect_authenticated_user=True
-        ),
+        views.EntrarView.as_view(),
         name="login",
     ),
     path("sair/", auth_views.LogoutView.as_view(), name="logout"),
