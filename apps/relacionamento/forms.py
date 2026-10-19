@@ -11,7 +11,9 @@ class EnvioDocumentoForm(forms.ModelForm):
         fields = ["arquivo"]
 
     def clean_arquivo(self):
-        arquivo = self.cleaned_data["arquivo"]
+        arquivo = self.cleaned_data.get("arquivo")
+        if not arquivo:
+            raise forms.ValidationError("Selecione um arquivo.")
         if arquivo.size > 20 * 1024 * 1024:
             raise forms.ValidationError("Arquivo muito grande (limite de 20 MB).")
         return arquivo
