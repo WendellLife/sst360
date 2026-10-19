@@ -1,5 +1,7 @@
 """Leituras do app tarefas_ext vão para a conexão "tarefas"; nada é escrito nem migrado lá."""
 
+from .models import MENSAGEM_SOMENTE_LEITURA, escrita_liberada
+
 ALIAS = "tarefas"
 APP = "tarefas_ext"
 
@@ -9,7 +11,12 @@ class RoteadorTarefas:
         return ALIAS if model._meta.app_label == APP else None
 
     def db_for_write(self, model, **hints):
-        return ALIAS if model._meta.app_label == APP else None
+        if model._meta.app_label != APP:
+            return None
+        if not escrita_liberada():
+            # nunca devolve o alias tarefas (nem cai no banco do SST360): escrever aqui é erro de programação
+            raise PermissionError(MENSAGEM_SOMENTE_LEITURA)
+        return ALIAS
 
     def allow_relation(self, obj1, obj2, **hints):
         apps = {obj1._meta.app_label, obj2._meta.app_label}

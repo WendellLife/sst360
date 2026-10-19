@@ -4,19 +4,70 @@ Cada sistema continua no seu módulo e no seu banco. O SST360 só lê, pela cone
 (TAREFAS_DATABASE_URL), os clientes, contatos, projetos, tarefas e turmas para mostrar na área comercial.
 Os models são unmanaged: o SST360 nunca cria, altera ou migra essas tabelas.
 """
+from django.conf import settings
 from django.db import models
+
+MENSAGEM_SOMENTE_LEITURA = "Os dados do sistema Tarefas são somente leitura no SST360."
+
+
+def escrita_liberada() -> bool:
+    """Só os testes montam o banco do Tarefas por conta própria; em produção a escrita nunca é liberada."""
+    return bool(getattr(settings, "TAREFAS_ESCRITA_PARA_TESTES", False))
+
+
+def _bloquear():
+    if not escrita_liberada():
+        raise PermissionError(MENSAGEM_SOMENTE_LEITURA)
+
+
+class SomenteLeituraQuerySet(models.QuerySet):
+    """Leitura normal; qualquer caminho de escrita levanta PermissionError antes de tocar o banco."""
+
+    def create(self, *args, **kwargs):
+        _bloquear()
+        return super().create(*args, **kwargs)
+
+    def get_or_create(self, *args, **kwargs):
+        _bloquear()
+        return super().get_or_create(*args, **kwargs)
+
+    def update_or_create(self, *args, **kwargs):
+        _bloquear()
+        return super().update_or_create(*args, **kwargs)
+
+    def bulk_create(self, *args, **kwargs):
+        _bloquear()
+        return super().bulk_create(*args, **kwargs)
+
+    def bulk_update(self, *args, **kwargs):
+        _bloquear()
+        return super().bulk_update(*args, **kwargs)
+
+    def update(self, *args, **kwargs):
+        _bloquear()
+        return super().update(*args, **kwargs)
+
+    def delete(self):
+        _bloquear()
+        return super().delete()
+
+    def _raw_delete(self, using):
+        _bloquear()
+        return super()._raw_delete(using)
 
 
 class SomenteLeitura(models.Model):
+    objects = SomenteLeituraQuerySet.as_manager()
+
     class Meta:
         abstract = True
         managed = False
 
     def save(self, *args, **kwargs):
-        raise PermissionError("Os dados do sistema Tarefas são somente leitura no SST360.")
+        raise PermissionError(MENSAGEM_SOMENTE_LEITURA)
 
     def delete(self, *args, **kwargs):
-        raise PermissionError("Os dados do sistema Tarefas são somente leitura no SST360.")
+        raise PermissionError(MENSAGEM_SOMENTE_LEITURA)
 
 
 class Pessoa(SomenteLeitura):
