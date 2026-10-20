@@ -18,9 +18,9 @@
 
 <section class="cartao">
   <header class="cartao-cab"><h2>Documentos técnicos</h2></header>
-  <div class="tabela" style="border:0;border-radius:0">
+  <div class="tabela" role="region" tabindex="0" aria-label="Vencimentos de documentos" style="border:0;border-radius:0">
     <table>
-      <thead><tr><th>Documento</th><th>Empresa</th><th>Emitido</th><th>Revisar até</th><th>Situação</th></tr></thead>
+      <thead><tr><th scope="col">Documento</th><th scope="col">Empresa</th><th scope="col">Emitido</th><th scope="col">Revisar até</th><th scope="col">Situação</th></tr></thead>
       <tbody>
         {% for documento in documentos %}
         <tr>

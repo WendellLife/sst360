@@ -34,10 +34,10 @@
   <button class="btn" type="submit">Filtrar</button>
 </form>
 
-<div class="tabela">
+<div class="tabela" role="region" tabindex="0" aria-label="Diagnósticos recebidos">
   <table>
     <thead>
-      <tr><th>Recebido</th><th>Contato</th><th>Perfil e serviços indicados</th><th>Exposição</th><th>Primeiro contato</th><th></th></tr>
+      <tr><th scope="col">Recebido</th><th scope="col">Contato</th><th scope="col">Perfil e serviços indicados</th><th scope="col">Exposição</th><th scope="col">Primeiro contato</th><th scope="col"><span class="so-leitor">Ações</span></th></tr>
     </thead>
     <tbody>
       {% for diagnostico in diagnosticos %}

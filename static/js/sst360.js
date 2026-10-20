@@ -67,11 +67,45 @@
     if (b) { var w = b.parentNode, aberto = w.classList.toggle("is-open"); b.setAttribute("aria-expanded", aberto ? "true" : "false"); }
   });
   document.addEventListener("keydown", function (ev) {
-    if (ev.key === "Escape") document.querySelectorAll(".info-titulo.is-open").forEach(function (w) { w.classList.remove("is-open"); w.firstChild.setAttribute("aria-expanded", "false"); });
+    if (ev.key !== "Escape") return;
+    document.querySelectorAll(".info-titulo.is-open").forEach(function (w) {
+      var tinha = w.contains(document.activeElement);
+      w.classList.remove("is-open"); w.firstChild.setAttribute("aria-expanded", "false");
+      if (tinha) w.firstChild.focus();
+    });
+  });
+
+  /* Sino de avisos (<details>): fecha com Escape (devolvendo o foco ao botão) e com clique fora. */
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key !== "Escape") return;
+    document.querySelectorAll("details.sino[open]").forEach(function (det) {
+      var tinha = det.contains(document.activeElement);
+      det.removeAttribute("open");
+      if (tinha) { var s = det.querySelector("summary"); if (s) s.focus(); }
+    });
+  });
+  document.addEventListener("click", function (ev) {
+    document.querySelectorAll("details.sino[open]").forEach(function (det) { if (!det.contains(ev.target)) det.removeAttribute("open"); });
+  });
+
+  /* Formulário com data-autosubmit: o <select> envia ao escolher com o mouse ou toque. Com as setas
+     do teclado cada passo dispara "change"; aí não envia, e o botão "Aplicar" (visível sem JS,
+     escondido por CSS com JS) aparece para confirmar. */
+  var navTeclado = false;
+  document.addEventListener("keydown", function (ev) {
+    if (/^(Arrow|Home$|End$|Page)/.test(ev.key) && ev.target.closest && ev.target.closest("form[data-autosubmit]")) navTeclado = true;
+  });
+  document.addEventListener("keyup", function () { navTeclado = false; });
+  document.addEventListener("change", function (ev) {
+    var form = ev.target.closest && ev.target.closest("form[data-autosubmit]");
+    if (!form || ev.target.tagName !== "SELECT") return;
+    if (navTeclado) { form.classList.add("is-pendente"); return; }
+    if (form.requestSubmit) form.requestSubmit(); else form.submit();
   });
   document.addEventListener("DOMContentLoaded", function () {
     infoTitulo();
     var barra = document.querySelector("[data-barra-recolher]");
+    if (barra && !barra.hasAttribute("aria-controls") && document.getElementById("sb-rolagem")) barra.setAttribute("aria-controls", "sb-rolagem");
     if (barra && d.getAttribute("data-barra") === "recolhida") { barra.setAttribute("aria-expanded", "false"); barra.setAttribute("aria-label", "Abrir barra lateral"); }
   });
 })();

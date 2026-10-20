@@ -52,10 +52,10 @@
 </div>
 
 <div class="grade grade-2-1">
-  <div class="tabela">
+  <div class="tabela" role="region" tabindex="0" aria-label="Vendas de serviços">
     <table>
       <thead>
-        <tr><th>Data</th><th>Empresa / venda</th><th>Serviço</th><th class="direita">Total</th><th>Status</th></tr>
+        <tr><th scope="col">Data</th><th scope="col">Empresa / venda</th><th scope="col">Serviço</th><th scope="col" class="direita">Total</th><th scope="col">Status</th></tr>
       </thead>
       <tbody>
         {% for venda in vendas %}
@@ -68,14 +68,14 @@
           <td class="texto-suave">{{ venda.get_servico_display }}</td>
           <td class="num direita">{{ venda.total|moeda }}<div class="apoio">{% if venda.quantidade > 1 %}{{ venda.quantidade }} × {{ venda.valor_unitario|moeda }} · {% endif %}{% if venda.cobranca == 'MEN' %}/mês{% else %}único{% endif %}</div></td>
           <td>
-            <form method="post" action="{% url 'vendas:status' venda.pk %}" class="status-venda">
+            <form method="post" action="{% url 'vendas:status' venda.pk %}" class="status-venda" data-autosubmit>
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ request.get_full_path }}">
               <span class="etiqueta {{ venda.cor|badge_cor }}">{{ venda.get_status_display }}</span>
-              <select name="status" onchange="this.form.submit()" aria-label="Alterar status">
+              <select name="status" aria-label="Alterar status">
                 {% for valor, rotulo in status_opcoes %}<option value="{{ valor }}" {% if venda.status == valor %}selected{% endif %}>{{ rotulo }}</option>{% endfor %}
               </select>
-              <noscript><button class="btn btn-pequeno" type="submit">Ok</button></noscript>
+              <button class="btn btn-pequeno btn-aplicar" type="submit">Aplicar</button>
             </form>
           </td>
         </tr>

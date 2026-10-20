@@ -11,7 +11,7 @@
 </div>
 <form method="post" class="cartao">
   {% csrf_token %}
-  {% if form.non_field_errors %}<div class="cartao-corpo"><div class="aviso aviso--error">{{ form.non_field_errors }}</div></div>{% endif %}
+  {% if form.non_field_errors %}<div class="cartao-corpo"><div class="aviso aviso--error" role="alert">{{ form.non_field_errors }}</div></div>{% endif %}
   <div class="cartao-cab"><h2>Dados da pessoa</h2></div>
   <div class="cartao-corpo">
     <div class="campos">

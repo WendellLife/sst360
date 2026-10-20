@@ -29,10 +29,10 @@
   <div class="resumo">{% if paginator %}{{ paginator.count }}{% else %}{{ gestoes|length }}{% endif %} gestão(ões)</div>
 </form>
 
-<div class="tabela">
+<div class="tabela" role="region" tabindex="0" aria-label="Gestões de SST">
   <table>
     <thead>
-      <tr><th>Gestão</th><th>Empresa</th><th>Etapa do método</th><th>Documentos</th><th>Plano de ação</th><th>Modelo</th></tr>
+      <tr><th scope="col">Gestão</th><th scope="col">Empresa</th><th scope="col">Etapa do método</th><th scope="col">Documentos</th><th scope="col">Plano de ação</th><th scope="col">Modelo</th></tr>
     </thead>
     <tbody>
       {% for linha in linhas %}{% with gestao=linha.gestao ind=linha.ind %}

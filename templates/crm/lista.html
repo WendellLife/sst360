@@ -28,10 +28,10 @@
   <div class="resumo">{% if paginator %}{{ paginator.count }}{% else %}{{ leads|length }}{% endif %} lead(s)</div>
 </form>
 
-<div class="tabela">
+<div class="tabela" role="region" tabindex="0" aria-label="Leads">
   <table>
     <thead>
-      <tr><th>Empresa</th><th>Situação em SST</th><th>Interesse</th><th>Urgência</th><th>Estágio</th><th>Valor</th><th>Responsável</th><th>Próximo contato</th></tr>
+      <tr><th scope="col">Empresa</th><th scope="col">Situação em SST</th><th scope="col">Interesse</th><th scope="col">Urgência</th><th scope="col">Estágio</th><th scope="col">Valor</th><th scope="col">Responsável</th><th scope="col">Próximo contato</th></tr>
     </thead>
     <tbody>
       {% for lead in leads %}
