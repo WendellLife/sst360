@@ -20,3 +20,7 @@
 - Eventos do eSocial (S-2210, S-2220, S-2240) com status de envio
 - Indicadores: taxa de frequência e gravidade, afastamentos, FAP
 - Testes automatizados do domínio de SST
+
+## Dívidas técnicas
+
+- Migrar `EMAIL_*`/`get_connection()` para `MAILERS` antes do Django 2028 (hoje só emite `RemovedInDjango2028Warning`). Arquivos afetados: `apps/campanhas/regua.py` (`get_connection`, linha ~192), `apps/notificacoes/services.py` (`get_connection`, ~141), `apps/accounts/codigos.py` (`send_mail`) e `config/settings.py` (linhas 195-206, `EMAIL_*`).
