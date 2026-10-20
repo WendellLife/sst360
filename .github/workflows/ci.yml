@@ -72,9 +72,5 @@ jobs:
           export DJANGO_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(64))')"
           python manage.py check --deploy
 
-      # Hoje acusa vulnerabilidades em django 5.2.6, python-dotenv 1.1.1 e requests 2.32.3
-      # (ver relatório da Sonda). Deixa de ser informativo assim que o requirements.txt for atualizado:
-      # remova o continue-on-error nesse momento.
       - name: Auditoria de dependências (pip-audit)
-        continue-on-error: true
         run: pip-audit -r requirements.txt

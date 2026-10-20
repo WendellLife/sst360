@@ -164,7 +164,7 @@ class ResultadoTest(TestCase):
         self.assertEqual((self.d.pontuacao, self.d.urgencia, list(self.d.respostas)), antes)
         self.assertEqual(str(self.d.token), self.url.split("/")[-2])
 
-    def test_whatsapp_registra_clique_e_redireciona_com_resumo(self):
+    def test_whatsapp_get_redireciona_com_resumo_sem_gravar(self):
         r = self.client.get(reverse("publico:whatsapp", args=[self.d.token]))
         self.assertEqual(r.status_code, 302)
         url = urlparse(r["Location"])
@@ -173,7 +173,19 @@ class ResultadoTest(TestCase):
         self.assertIn("Diagnóstico de SST", texto)
         self.assertIn(self.d.referencia, texto)
         self.d.refresh_from_db()
-        self.assertIsNotNone(self.d.whatsapp_em)
+        self.assertIsNone(self.d.whatsapp_em)
+
+    def test_whatsapp_post_registra_clique_so_na_primeira_vez(self):
+        url = reverse("publico:whatsapp", args=[self.d.token])
+        r = self.client.post(url)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(urlparse(r["Location"]).netloc, "wa.me")
+        self.d.refresh_from_db()
+        primeiro = self.d.whatsapp_em
+        self.assertIsNotNone(primeiro)
+        self.client.post(url)
+        self.d.refresh_from_db()
+        self.assertEqual(self.d.whatsapp_em, primeiro)
 
     @override_settings(WHATSAPP_NUMERO="")
     def test_whatsapp_sem_numero_configurado(self):
