@@ -21,6 +21,9 @@ def icone(nome, tamanho=16, classe="", estilo=""):
 
 _ATRIBUTO = re.compile(r"""([a-zA-Z_][\w:.-]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?""")
 _NOME_ATRIBUTO = re.compile(r"^[a-zA-Z_][\w:.-]*$")
+_MANIPULADOR = re.compile(r"^on[a-z]+$", re.IGNORECASE)
+_ATRIBUTOS_DE_URL = {"href", "src", "action", "formaction"}
+_ESQUEMA_PERIGOSO = re.compile(r"^[\s\x00-\x1f]*(?:javascript|data):", re.IGNORECASE)
 
 
 def _pares(attrs):
@@ -36,7 +39,7 @@ def _pares(attrs):
 def atributos(attrs):
     """Monta atributos HTML escapados a partir de um dict ou de um texto `nome="valor" outro`.
 
-    Nomes inválidos e manipuladores `on*` são descartados; valores sempre escapados. Valor True
+    Nomes inválidos, manipuladores `on<evento>` e URLs `javascript:`/`data:` (href, src, action, formaction) são descartados; valores sempre escapados. Valor True
     (ou texto sem `=`) vira atributo booleano; False/None omite o atributo.
     """
     if not attrs:
@@ -44,7 +47,9 @@ def atributos(attrs):
     partes = []
     for nome, valor in _pares(attrs):
         nome = str(nome)
-        if not _NOME_ATRIBUTO.match(nome) or nome.lower().startswith("on") or valor is False or valor is None:
+        if not _NOME_ATRIBUTO.match(nome) or _MANIPULADOR.match(nome) or valor is False or valor is None:
+            continue
+        if nome.lower() in _ATRIBUTOS_DE_URL and _ESQUEMA_PERIGOSO.match(str(valor)):
             continue
         if valor is True:
             partes.append(format_html("{}", nome))
