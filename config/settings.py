@@ -229,6 +229,9 @@ if not DEBUG and not EM_TESTE:
     SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", True)
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    # HSTS deliberado (check --deploy avisa W005/W021): a duração vem do env (padrão 30 dias, para dar para
+    # voltar atrás); subdomínios e preload ficam DESLIGADOS por padrão, pois só devem ser ligados quando todo
+    # o domínio e os subdomínios forem servidos só por HTTPS. Ligue com DJANGO_HSTS_SUBDOMINIOS=True.
     SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_HSTS_SECONDS", str(60 * 60 * 24 * 30)))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("DJANGO_HSTS_SUBDOMINIOS", False)
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
