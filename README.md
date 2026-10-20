@@ -43,7 +43,7 @@ situação em SST e serviço de interesse.
 
 ## Stack
 
-Python 3.11+ · Django 5.2 · PostgreSQL (SQLite em desenvolvimento) · templates
+Python 3.12+ · Django 6.1 · PostgreSQL (SQLite em desenvolvimento) · templates
 Django com JavaScript próprio e pequeno, sem CDN · WhiteNoise. Identidade visual: a mesma interface do Razach Tarefas Internas (design system
 Razach com o tema soft): Archivo e Montserrat servidas pelo próprio servidor,
 ícones Lucide locais, barra lateral e barra superior em vidro, cantos
