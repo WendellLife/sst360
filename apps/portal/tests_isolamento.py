@@ -156,7 +156,7 @@ class IsolamentoDoPortalTest(TestCase):
                 r = self.client.get(url)
                 self.assertIn(r.status_code, (302, 403, 404), url)
                 if r.status_code == 302:
-                    self.assertNotIn("/gestao/", r["Location"].split("?")[0] if "/portal" not in r["Location"] else "")
+                    self.assertFalse(r["Location"].startswith("/gestao/"), r["Location"])
                 self.assertNotIn("Empresa Beta", r.content.decode())
 
     def test_cliente_nao_altera_pela_area_interna(self):
