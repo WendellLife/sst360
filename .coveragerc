@@ -4,7 +4,6 @@ branch = False
 omit =
     */migrations/*
     */tests*.py
-    apps/core/bugs_conhecidos.py
     */__init__.py
 
 [report]
