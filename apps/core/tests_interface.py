@@ -53,6 +53,22 @@ class ComponentesEscapamentoTest(SimpleTestCase):
             self.assertNotIn('a"b', html)
             self.assertIn('data-ok="2"', html)
 
+    def test_attrs_descarta_url_perigosa_em_atributos_de_url(self):
+        for nome in ("href", "src", "action", "formaction"):
+            for valor in ("javascript:alert(1)", "  JavaScript:alert(1)", "data:text/html,x", "	DATA:x"):
+                html = self._renderiza("badge", texto="t", attrs={nome: valor, "data-ok": "1"})
+                self.assertNotIn(valor.strip(), html, (nome, valor))
+                self.assertIn('data-ok="1"', html)
+        html = self._renderiza("badge", texto="t", attrs={"href": "/ok/", "data-url": "javascript:x"})
+        self.assertIn('href="/ok/"', html)
+        self.assertIn('data-url="javascript:x"', html)
+
+    def test_attrs_descarta_so_manipuladores_on_evento(self):
+        html = self._renderiza("badge", texto="t", attrs={"onClick": "x()", "one-x": "1", "on": "2"})
+        self.assertNotIn("onClick", html)
+        self.assertIn('one-x="1"', html)
+        self.assertIn('on="2"', html)
+
     def test_attrs_com_tag_solta_nao_vira_html(self):
         html = self._renderiza("button", texto="Ir", attrs="<img src=x onerror=alert(1)>")
         self.assertNotIn("<img", html)
@@ -113,7 +129,7 @@ class MensagensTest(SimpleTestCase):
 
 class TabelasTest(SimpleTestCase):
     def test_th_com_scope_e_rolagem_acessivel(self):
-        sem_scope, sem_regiao = [], []
+        sem_scope, sem_regiao, sem_wrapper = [], [], []
         for arquivo in RAIZ_TEMPLATES.rglob("*.html"):
             rel = arquivo.relative_to(RAIZ_TEMPLATES).as_posix()
             if rel.startswith(("razach/", "campanhas/email")):
@@ -121,11 +137,26 @@ class TabelasTest(SimpleTestCase):
             texto = arquivo.read_text(encoding="utf-8")
             if re.search(r"<th(?![a-z])(?![^>]*\bscope=)", texto):
                 sem_scope.append(rel)
+            # Exceção documentada: a tabela alternativa do gráfico fica dentro de <details>, sem wrapper.
+            tabelas = len(re.findall(r"<table[\s>]", texto))
+            if rel == "core/indicadores.html":
+                tabelas -= len(re.findall(r'<details class="tabela-grafico"', texto))
+            if tabelas != len(re.findall(r'<div class="tabela[\s"]', texto)):
+                sem_wrapper.append(rel)
             for m in re.finditer(r'<div class="tabela[^"]*"([^>]*)>', texto):
                 if 'role="region"' not in m.group(1) or "tabindex" not in m.group(1) or "aria-label" not in m.group(1):
                     sem_regiao.append(rel)
         self.assertEqual(sorted(set(sem_scope)), [])
         self.assertEqual(sorted(set(sem_regiao)), [])
+
+
+class CodigoConfirmarTest(SimpleTestCase):
+    def test_campo_aceita_codigo_colado_com_espaco_ou_hifen(self):
+        html = render_to_string("accounts/codigo_confirmar.html", {"form": None, "email": "a@b.com"})
+        campo = re.search(r'<input[^>]*name="codigo"[^>]*>', html, re.S).group(0)
+        self.assertIn(r'pattern="[0-9 \-]*"', campo)
+        self.assertIn('inputmode="numeric"', campo)
+        self.assertNotIn("maxlength", campo)
 
 
 class QuizTest(SimpleTestCase):
