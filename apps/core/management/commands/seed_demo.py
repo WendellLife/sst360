@@ -10,6 +10,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from apps.accounts.models import TipoUsuario
+from apps.core.management import travas
 from apps.crm.models import (
     Atividade,
     Estagio,
@@ -61,10 +62,15 @@ class Command(BaseCommand):
     help = "Cria dados de demonstracao (equipe, clientes, gestoes de SST, leads e diagnosticos)."
 
     def add_arguments(self, parser):
-        parser.add_argument("--senha", default="sst360demo", help="Senha dos usuarios criados.")
+        parser.add_argument("--senha", default=None, help="Senha dos usuarios criados (padrão de demonstração: sst360demo).")
+        parser.add_argument(
+            "--permitir-producao", action="store_true",
+            help="Permite rodar com DEBUG=False; exige também --senha.",
+        )
 
     def handle(self, *args, **options):
-        self.senha = options["senha"]
+        travas.exigir_para_seed(options["senha"] is not None, options["permitir_producao"])
+        self.senha = options["senha"] or "sst360demo"
         self.hoje = timezone.localdate()
 
         analista = self._usuario(

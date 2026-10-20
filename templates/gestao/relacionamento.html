@@ -23,7 +23,7 @@
           <div class="doc-pedido">
             <div class="info">
               <div class="titulo">
-                {% if pedido.arquivo %}<a href="{{ pedido.arquivo.url }}" target="_blank" rel="noopener">{{ pedido.titulo }}</a>{% else %}{{ pedido.titulo }}{% endif %}
+                {% if pedido.arquivo %}<a href="{% url 'core:arquivo_solicitado' pedido.pk %}" target="_blank" rel="noopener">{{ pedido.titulo }}</a>{% else %}{{ pedido.titulo }}{% endif %}
               </div>
               {% if pedido.motivo %}<div class="texto-fraco">{{ pedido.motivo }}</div>{% endif %}
               <div style="margin-top:6px" class="chips">

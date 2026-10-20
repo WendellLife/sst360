@@ -27,7 +27,20 @@ CHAVE_DE_DESENVOLVIMENTO = "dev-insecure-key-trocar-em-producao"
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", CHAVE_DE_DESENVOLVIMENTO)
 # Desligado por padrão: o modo de desenvolvimento precisa ser pedido (DJANGO_DEBUG=True no .env).
 DEBUG = env_bool("DJANGO_DEBUG", False)
-EM_TESTE = len(sys.argv) > 1 and sys.argv[1] == "test"
+
+
+def _em_teste() -> bool:
+    """`manage.py test`, `python -m django test`, pytest ou DJANGO_TESTING=1."""
+    if env_bool("DJANGO_TESTING", False):
+        return True
+    # Só o subcomando é "test" (manage.py test, python -m django test); `changepassword test` não conta.
+    if len(sys.argv) > 1 and sys.argv[1] == "test":
+        return True
+    programa = os.path.basename(sys.argv[0]).lower() if sys.argv else ""
+    return "pytest" in sys.modules or programa.startswith(("pytest", "py.test")) or "PYTEST_CURRENT_TEST" in os.environ
+
+
+EM_TESTE = _em_teste()
 if not DEBUG and not EM_TESTE and (SECRET_KEY == CHAVE_DE_DESENVOLVIMENTO or len(SECRET_KEY) < 50):
     from django.core.exceptions import ImproperlyConfigured
 
@@ -142,9 +155,20 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Sem TAREFAS_DATABASE_URL, a área "Sistema Tarefas" mostra como ligar. TAREFAS_URL abre o sistema no navegador.
 if os.getenv("TAREFAS_DATABASE_URL"):
     DATABASES["tarefas"] = dj_database_url.parse(os.getenv("TAREFAS_DATABASE_URL"), conn_max_age=600)
+    if DATABASES["tarefas"]["ENGINE"].endswith("postgresql"):
+        # Segunda trava: mesmo que o código tentasse escrever, a sessão do Postgres recusa.
+        # PgBouncer em modo transaction rejeita esse parâmetro de startup: use TAREFAS_DB_OPTIONS= (vazio)
+        # e garanta a leitura só pelo GRANT SELECT do usuário (README).
+        opcoes = os.getenv("TAREFAS_DB_OPTIONS", "-c default_transaction_read_only=on").strip()
+        if opcoes:
+            DATABASES["tarefas"].setdefault("OPTIONS", {})["options"] = opcoes
 if EM_TESTE:
     # Nos testes, o Tarefas é um SQLite em memória com as tabelas criadas pelo próprio teste.
     DATABASES["tarefas"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:", "TEST": {"NAME": ":memory:"}}
+# Só os testes (que montam um SQLite próprio para o Tarefas) podem gravar nos models de tarefas_ext.
+TAREFAS_ESCRITA_PARA_TESTES = EM_TESTE
+# Envio do código de acesso fora do pedido (iguala o tempo de resposta); nos testes roda na hora.
+CODIGO_ENVIO_EM_THREAD = not EM_TESTE
 DATABASE_ROUTERS = ["apps.tarefas_ext.roteador.RoteadorTarefas"]
 TAREFAS_URL = os.getenv("TAREFAS_URL", "")
 
@@ -225,3 +249,21 @@ LOGGING = {
 }
 # Quem recebe por e-mail os erros 500 em produção (separe por vírgula: "Nome <email>" ou só o e-mail).
 ADMINS = [(e.split("<")[0].strip() or e, e.split("<")[-1].strip(">").strip()) for e in env_list("DJANGO_ADMINS")]
+
+# Cache do limite de tentativas de login/código. O padrão (memória) vale por processo; com vários workers do
+# gunicorn defina DJANGO_CACHE_DIR para uma pasta compartilhada (cache em arquivos) e o limite vale para todos.
+if os.getenv("DJANGO_CACHE_DIR"):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+            "LOCATION": os.getenv("DJANGO_CACHE_DIR"),
+        }
+    }
+# Quantos proxies confiáveis (nginx, balanceador) ficam entre o cliente e o Django: com 1, o IP vem do X-Forwarded-For.
+# Deixe 0 se o Django recebe as conexões direto; assim ninguém forja o IP e escapa do limite.
+NUM_PROXIES_CONFIAVEIS = int(os.getenv("DJANGO_NUM_PROXIES", "0"))
+
+
+if EM_TESTE:
+    # Hash rápido só nos testes (o PBKDF2 padrão deixa a suíte lenta); produção não passa por aqui.
+    PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]

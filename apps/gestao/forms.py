@@ -1,6 +1,9 @@
 from decimal import Decimal
 
 from django import forms
+from django.core.exceptions import ValidationError
+
+from apps.core.arquivos import validar_planilha
 
 from .models import AcaoPlano, Documento, FichaFap, Gestao, Prazo, Registro, Servico, Treinamento
 
@@ -64,6 +67,12 @@ class DocumentoForm(forms.ModelForm):
                   "responsavel_tecnico", "arquivo", "visivel_cliente"]
         widgets = {"emitido_em": _data(), "valido_ate": _data()}
 
+    def clean_arquivo(self):
+        arquivo = self.cleaned_data.get("arquivo")
+        if arquivo and getattr(arquivo, "size", 0) > 20 * 1024 * 1024:
+            raise forms.ValidationError("Arquivo muito grande (limite de 20 MB).")
+        return arquivo
+
 
 class TreinamentoForm(forms.ModelForm):
     class Meta:
@@ -102,8 +111,10 @@ class ImportacaoPlanoForm(forms.Form):
         arquivo = self.cleaned_data["arquivo"]
         if arquivo.size > 10 * 1024 * 1024:
             raise forms.ValidationError("Arquivo muito grande (limite de 10 MB).")
-        if not arquivo.name.lower().endswith((".xlsx", ".xlsm", ".csv", ".txt")):
-            raise forms.ValidationError("Envie um arquivo .xlsx ou .csv.")
+        try:
+            validar_planilha(arquivo)
+        except ValidationError:
+            raise forms.ValidationError("Envie um arquivo .xlsx ou .csv válido.")
         return arquivo
 
 

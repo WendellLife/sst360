@@ -18,5 +18,7 @@ urlpatterns = [
     path("", include("apps.campanhas.urls")),
 ]
 
+# /media/ público só existe com DEBUG=True (desenvolvimento). Em produção (DEBUG=False) os arquivos saem
+# apenas pelas views autenticadas de apps.core (/arquivos/...); não exponha a pasta no proxy.
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

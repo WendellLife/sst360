@@ -144,10 +144,23 @@ def link_whatsapp(texto: str) -> str:
 
 
 class WhatsAppDiagnosticoView(View):
-    """Registra que a pessoa chamou o comercial e abre o WhatsApp com o resumo."""
+    """Registra (só em POST) que a pessoa chamou o comercial e abre o WhatsApp com o resumo.
+
+    O GET não grava nada: abre o WhatsApp sem registrar, para links antigos, prefetch e robôs
+    não alterarem dados. A página de resultado usa um form POST com CSRF.
+    """
+
+    def post(self, request, token):
+        return self._abrir(request, token, registrar=True)
 
     def get(self, request, token):
+        return self._abrir(request, token, registrar=False)
+
+    def _abrir(self, request, token, registrar):
         diagnostico = get_object_or_404(Diagnostico, token=token)
-        diagnostico.whatsapp_em = timezone.now()
-        diagnostico.save(update_fields=["whatsapp_em", "atualizado_em"])
-        return redirect(link_whatsapp(diagnostico.resumo_texto()))
+        if registrar and not diagnostico.whatsapp_em:
+            diagnostico.whatsapp_em = timezone.now()
+            diagnostico.save(update_fields=["whatsapp_em", "atualizado_em"])
+        resposta = redirect(link_whatsapp(diagnostico.resumo_texto()))
+        resposta["Cache-Control"] = "no-store"
+        return resposta

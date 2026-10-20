@@ -7,11 +7,12 @@ from __future__ import annotations
 
 import logging
 import secrets
+from smtplib import SMTPException
 
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import send_mail
-from django.db import models
+from django.db import models, transaction
 from django.template.loader import render_to_string
 from django.utils import timezone
 
@@ -59,15 +60,27 @@ class CodigoAcesso(TimeStampedModel):
         return not self.usado_em and not self.expirado and self.tentativas < MAX_TENTATIVAS
 
     def confere(self, digitado: str) -> bool:
-        """Compara o codigo digitado e consome uma tentativa."""
-        if not self.valido:
-            return False
-        self.tentativas += 1
-        acertou = check_password(digitado.strip(), self.codigo_hash)
-        if acertou:
-            self.usado_em = timezone.now()
-        self.save(update_fields=["tentativas", "usado_em", "atualizado_em"])
+        """Compara o codigo digitado e consome uma tentativa.
+
+        Atômico: a linha fica travada durante a conferência, então dois pedidos simultâneos com o
+        código certo não entram os dois (uso único) e as tentativas não se perdem na soma.
+        """
+        with transaction.atomic():
+            atual = CodigoAcesso.objects.select_for_update().get(pk=self.pk)
+            if not atual.valido:
+                self.tentativas, self.usado_em = atual.tentativas, atual.usado_em
+                return False
+            atual.tentativas += 1
+            acertou = check_password(digitado.strip(), atual.codigo_hash)
+            if acertou:
+                atual.usado_em = timezone.now()
+            atual.save(update_fields=["tentativas", "usado_em", "atualizado_em"])
+        self.tentativas, self.usado_em = atual.tentativas, atual.usado_em
         return acertou
+
+
+class EnvioCodigoFalhou(Exception):
+    """O canal (SMTP) não entregou o código; o registro criado foi descartado."""
 
 
 def pode_pedir(usuario) -> bool:
@@ -83,11 +96,6 @@ def criar_e_enviar(usuario) -> CodigoAcesso | None:
         logger.warning("Pedidos de codigo em excesso para o usuario %s", usuario.pk)
         return None
 
-    # um codigo novo invalida os anteriores
-    CodigoAcesso.objects.filter(usuario=usuario, usado_em__isnull=True).update(
-        expira_em=timezone.now()
-    )
-
     codigo = gerar_codigo()
     registro = CodigoAcesso.objects.create(
         usuario=usuario,
@@ -95,7 +103,17 @@ def criar_e_enviar(usuario) -> CodigoAcesso | None:
         expira_em=timezone.now() + timezone.timedelta(minutes=VALIDADE_MINUTOS),
         canal=settings.CANAL_CODIGO_ACESSO,
     )
-    _enviar(usuario, codigo)
+    try:
+        _enviar(usuario, codigo)
+    except (SMTPException, OSError) as erro:
+        # sem entrega, o código não serve para nada e não deve gastar o limite de pedidos do usuário
+        logger.error("Falha ao enviar o codigo de acesso ao usuario %s: %s", usuario.pk, erro)
+        registro.delete()
+        raise EnvioCodigoFalhou from erro
+    # um codigo novo (entregue) invalida os anteriores
+    CodigoAcesso.objects.filter(usuario=usuario, usado_em__isnull=True).exclude(pk=registro.pk).update(
+        expira_em=timezone.now()
+    )
     return registro
 
 

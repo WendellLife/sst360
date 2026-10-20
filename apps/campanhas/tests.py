@@ -133,7 +133,13 @@ class ReguaTest(TestCase):
     def test_whatsapp_abre_conversa_e_marca_enviado(self):
         regua.gerar_envios(self.campanha)
         envio = Envio.objects.get(lead=self.lead, canal=Canal.WHATSAPP)
+        # GET (prefetch, robôs) não grava: volta ao painel e o envio segue pendente
         r = self.client.get(f"/campanhas/envios/{envio.pk}/whatsapp/")
+        self.assertEqual(r.status_code, 302)
+        self.assertNotIn("wa.me", r["Location"])
+        envio.refresh_from_db()
+        self.assertEqual(envio.status, StatusEnvio.PENDENTE)
+        r = self.client.post(f"/campanhas/envios/{envio.pk}/whatsapp/")
         self.assertEqual(r.status_code, 302)
         self.assertTrue(r["Location"].startswith("https://wa.me/5519998123344?text="))
         envio.refresh_from_db()

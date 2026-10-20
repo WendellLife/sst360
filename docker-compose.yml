@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: sst360
     ports:
       # 5433 no host: evita conflito com um Postgres ja instalado na maquina
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - sst360_pgdata:/var/lib/postgresql/data
     healthcheck:

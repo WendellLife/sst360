@@ -3,6 +3,7 @@
 O cruzamento com o SST360 é pelo CNPJ (só letras e dígitos, em maiúsculas: o Tarefas aceita o CNPJ
 alfanumérico). Nada é gravado no Tarefas; daqui só sai a criação de um lead no SST360.
 """
+import logging
 import re
 from datetime import timedelta
 
@@ -12,6 +13,8 @@ from django.db.models import Count, Max, Min, Q
 from django.utils import timezone
 
 from .roteador import ALIAS
+
+logger = logging.getLogger(__name__)
 
 
 def chave_cnpj(valor) -> str:
@@ -36,7 +39,9 @@ def status() -> dict:
     try:
         Cliente.objects.exists()
     except DatabaseError as erro:
-        return {"ok": False, "motivo": "erro", "erro": str(erro)[:200]}
+        # O detalhe pode trazer host, usuário e banco: vai só para o log, a tela recebe texto genérico.
+        logger.error("Falha ao consultar o sistema Tarefas: %s", erro)
+        return {"ok": False, "motivo": "erro", "erro": "Não foi possível consultar o sistema Tarefas. Veja o registro do servidor."}
     return {"ok": True, "motivo": ""}
 
 

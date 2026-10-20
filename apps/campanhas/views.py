@@ -19,11 +19,21 @@ PIXEL = b64decode("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
 
 
 def _campanha_do_pedido(request) -> Campanha:
+    """Campanha do mês pedido (?mes=AAAA-MM).
+
+    Num GET nada é criado além do mês corrente e dos vizinhos que a navegação do painel oferece
+    (idempotente e limitado); qualquer outro mês inexistente cai no mês corrente. Só o POST cria
+    campanhas de meses distantes.
+    """
     chave = request.GET.get("mes") or request.POST.get("mes") or ""
     try:
         ano, mes = (int(x) for x in chave.split("-"))
         if 1 <= mes <= 12 and 2020 <= ano <= 2100:
-            return regua.garantir_campanha(ano, mes)
+            if request.method == "POST" or Campanha.objects.filter(ano=ano, mes=mes).exists():
+                return regua.garantir_campanha(ano, mes)
+            hoje = timezone.localdate()
+            if abs((ano - hoje.year) * 12 + mes - hoje.month) <= 1:
+                return regua.garantir_campanha(ano, mes)
     except ValueError:
         pass
     return regua.campanha_atual()
@@ -102,11 +112,16 @@ class ConteudoView(ComercialMixin, View):
 class WhatsappView(ComercialMixin, View):
     """Marca o envio como feito e abre o WhatsApp com a mensagem pronta."""
 
-    def get(self, request, pk):
+    def post(self, request, pk):
         envio = get_object_or_404(Envio.objects.select_related("lead", "campanha"), pk=pk, canal=Canal.WHATSAPP)
         link = regua.link_whatsapp(envio)
         regua.marcar_whatsapp_enviado(envio, request.user)
         return redirect(link)
+
+    def get(self, request, pk):
+        # GET não grava nada (prefetch e robôs); quem chega por link antigo volta ao painel.
+        envio = get_object_or_404(Envio.objects.select_related("campanha"), pk=pk, canal=Canal.WHATSAPP)
+        return redirect(f"{reverse('campanhas:painel')}?mes={envio.campanha.chave}#whatsapp")
 
 
 class PularEnvioView(ComercialMixin, View):
