@@ -18,8 +18,8 @@
   {% csrf_token %}
   <div class="campo">
     <label for="codigo">Código de 6 dígitos</label>
-    <input type="text" id="codigo" name="codigo" inputmode="numeric" pattern="[0-9]{6}" title="6 dígitos"
-           maxlength="6" autocomplete="one-time-code" required
+    <input type="text" id="codigo" name="codigo" inputmode="numeric" pattern="[0-9 \-]*" title="6 dígitos (espaço ou hífen são aceitos)"
+           autocomplete="one-time-code" required
            style="font-family:var(--serif);font-size:26px;letter-spacing:.3em;text-align:center">
   </div>
   <button class="btn btn-primario btn-largo" style="margin-top:16px" type="submit">Entrar</button>
