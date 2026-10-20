@@ -22,7 +22,8 @@ def icone(nome, tamanho=16, classe="", estilo=""):
 _ATRIBUTO = re.compile(r"""([a-zA-Z_][\w:.-]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?""")
 _NOME_ATRIBUTO = re.compile(r"^[a-zA-Z_][\w:.-]*$")
 _MANIPULADOR = re.compile(r"^on[a-z]+$", re.IGNORECASE)
-_ATRIBUTOS_DE_URL = {"href", "xlink:href", "src", "srcdoc", "action", "formaction", "poster", "ping", "background"}
+_ATRIBUTOS_DE_URL = {"href", "xlink:href", "src", "action", "formaction", "poster", "ping", "background"}
+_SEMPRE_DESCARTADOS = {"srcdoc"}  # HTML inline: executa script sem esquema de URL
 _ESQUEMA_PERIGOSO = re.compile(r"^(?:javascript|data|vbscript):", re.IGNORECASE)
 _SEM_BRANCOS = re.compile(r"[\x00-\x20]+")
 
@@ -40,7 +41,7 @@ def _pares(attrs):
 def atributos(attrs):
     """Monta atributos HTML escapados a partir de um dict ou de um texto `nome="valor" outro`.
 
-    Nomes inválidos, manipuladores `on<evento>` e URLs `javascript:`/`data:`/`vbscript:` em atributos de URL (o navegador ignora brancos dentro do esquema) são descartados; valores sempre escapados. Valor True
+    Nomes inválidos, manipuladores `on<evento>`, `srcdoc` e URLs `javascript:`/`data:`/`vbscript:` em atributos de URL (o navegador ignora brancos dentro do esquema) são descartados; valores sempre escapados. Valor True
     (ou texto sem `=`) vira atributo booleano; False/None omite o atributo.
     """
     if not attrs:
@@ -48,7 +49,7 @@ def atributos(attrs):
     partes = []
     for nome, valor in _pares(attrs):
         nome = str(nome)
-        if not _NOME_ATRIBUTO.match(nome) or _MANIPULADOR.match(nome) or valor is False or valor is None:
+        if not _NOME_ATRIBUTO.match(nome) or _MANIPULADOR.match(nome) or nome.lower() in _SEMPRE_DESCARTADOS or valor is False or valor is None:
             continue
         if nome.lower() in _ATRIBUTOS_DE_URL and _ESQUEMA_PERIGOSO.match(_SEM_BRANCOS.sub("", str(valor))):
             continue

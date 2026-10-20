@@ -65,7 +65,7 @@ class ComponentesEscapamentoTest(SimpleTestCase):
         perigosos = tuple(
             v.replace("TAB", chr(9)).replace("CRLF", chr(13) + chr(10)).replace("LF", chr(10)) for v in perigosos
         )
-        for nome in ("href", "xlink:href", "src", "srcdoc", "action", "formaction", "poster", "ping", "background"):
+        for nome in ("href", "xlink:href", "src", "action", "formaction", "poster", "ping", "background"):
             for valor in perigosos:
                 html = self._renderiza("badge", texto="t", attrs={nome: valor, "data-ok": "1"})
                 self.assertNotIn(nome + "=", html, (nome, valor))
@@ -73,6 +73,17 @@ class ComponentesEscapamentoTest(SimpleTestCase):
         html = self._renderiza("badge", texto="t", attrs={"href": "/ok/", "data-url": "javascript:x"})
         self.assertIn('href="/ok/"', html)
         self.assertIn('data-url="javascript:x"', html)
+
+    def test_attrs_preserva_urls_legitimas(self):
+        for valor in ("https://x.y/", "mailto:a@b.c", "#ancora", "/ok/?a=1", "tel:+5511999990000"):
+            html = self._renderiza("badge", texto="t", attrs={"href": valor})
+            self.assertIn('href="%s"' % valor.replace("&", "&amp;"), html, valor)
+
+    def test_attrs_descarta_srcdoc_sempre(self):
+        for valor in ("<script>alert(1)</script>", "texto", "/ok/"):
+            html = self._renderiza("badge", texto="t", attrs={"srcdoc": valor, "data-ok": "1"})
+            self.assertNotIn("srcdoc", html, valor)
+            self.assertIn('data-ok="1"', html)
 
     def test_entidades_no_valor_sao_escapadas_e_nunca_decodificadas(self):
         # format_html escapa o "&", então &#x09; / &#106; chegam ao navegador como texto literal.
