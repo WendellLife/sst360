@@ -12,9 +12,9 @@
 
 <section class="cartao">
   <header class="cartao-cab"><h2>Programas e laudos</h2><span class="texto-fraco">emitidos pela equipe técnica</span></header>
-  <div class="tabela" style="border:0;border-radius:0">
+  <div class="tabela" role="region" tabindex="0" aria-label="Documentos da empresa" style="border:0;border-radius:0">
     <table>
-      <thead><tr><th>Documento</th><th>Emitido</th><th>Revisar até</th><th>Situação</th><th></th></tr></thead>
+      <thead><tr><th scope="col">Documento</th><th scope="col">Emitido</th><th scope="col">Revisar até</th><th scope="col">Situação</th><th scope="col"><span class="so-leitor">Ações</span></th></tr></thead>
       <tbody>
         {% for documento in tecnicos %}
         <tr>

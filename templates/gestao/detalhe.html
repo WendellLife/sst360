@@ -96,9 +96,9 @@
   <div>
     <section class="cartao">
       <header class="cartao-cab"><h2>Documentos técnicos</h2><span class="texto-fraco">{{ documentos|length }} documento(s)</span></header>
-      <div class="tabela" style="border:0;border-radius:0">
+      <div class="tabela" role="region" tabindex="0" aria-label="Documentos da gestão" style="border:0;border-radius:0">
         <table>
-          <thead><tr><th>Documento</th><th>Emitido</th><th>Revisar até</th><th>Situação</th><th></th></tr></thead>
+          <thead><tr><th scope="col">Documento</th><th scope="col">Emitido</th><th scope="col">Revisar até</th><th scope="col">Situação</th><th scope="col"><span class="so-leitor">Ações</span></th></tr></thead>
           <tbody>
             {% for documento in documentos %}
             <tr>
@@ -283,9 +283,9 @@
 <div style="margin-top:18px">
     <section class="cartao" id="prazos">
       <header class="cartao-cab"><h2>Prazos</h2><a href="{% url 'gestao:agenda' %}">agenda geral</a></header>
-      <div class="tabela" style="border:0;border-radius:0">
+      <div class="tabela" role="region" tabindex="0" aria-label="Prazos da gestão" style="border:0;border-radius:0">
         <table>
-          <thead><tr><th>Prazo</th><th>Início</th><th>Vencimento</th><th>Responsável</th><th>Status</th><th></th></tr></thead>
+          <thead><tr><th scope="col">Prazo</th><th scope="col">Início</th><th scope="col">Vencimento</th><th scope="col">Responsável</th><th scope="col">Status</th><th scope="col"><span class="so-leitor">Ações</span></th></tr></thead>
           <tbody>
             {% for prazo in prazos %}{% include "gestao/partials/linha_prazo.html" with prazo=prazo %}{% empty %}
             <tr><td colspan="6" class="vazio">Nenhum prazo cadastrado.</td></tr>

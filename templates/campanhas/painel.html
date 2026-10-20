@@ -40,9 +40,9 @@
   <section class="cartao" id="renovacoes">
     <header class="cartao-cab"><h2>Renovações nos próximos 3 meses</h2><span class="texto-fraco">ligar antes da mensagem</span></header>
     {% if atual %}
-    <div class="tabela" style="border:0;border-radius:0">
+    <div class="tabela" role="region" tabindex="0" aria-label="Leads com renovação próxima" style="border:0;border-radius:0">
       <table>
-        <thead><tr><th>Lead</th><th>Renovação</th><th>Etapa</th><th>Fornecedor atual</th><th></th></tr></thead>
+        <thead><tr><th scope="col">Lead</th><th scope="col">Renovação</th><th scope="col">Etapa</th><th scope="col">Fornecedor atual</th><th scope="col"><span class="so-leitor">Ações</span></th></tr></thead>
         <tbody>
           {% for x in renovacoes %}
           <tr>
@@ -106,9 +106,9 @@
 
 <section class="cartao" id="emails" style="margin-top:18px">
   <header class="cartao-cab"><h2>E-mails do mês</h2><span class="texto-fraco">{{ r.emails_enviados }} enviado(s) · {{ r.abertos }} aberto(s)</span></header>
-  <div class="tabela" style="border:0;border-radius:0">
+  <div class="tabela" role="region" tabindex="0" aria-label="Envios da campanha" style="border:0;border-radius:0">
     <table>
-      <thead><tr><th>Lead</th><th>Etapa</th><th>Status</th><th>Abriu</th><th>Clicou</th><th></th></tr></thead>
+      <thead><tr><th scope="col">Lead</th><th scope="col">Etapa</th><th scope="col">Status</th><th scope="col">Abriu</th><th scope="col">Clicou</th><th scope="col"><span class="so-leitor">Ações</span></th></tr></thead>
       <tbody>
         {% for e in emails %}
         <tr>

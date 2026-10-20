@@ -124,10 +124,8 @@ class TabelasTest(SimpleTestCase):
             for m in re.finditer(r'<div class="tabela[^"]*"([^>]*)>', texto):
                 if 'role="region"' not in m.group(1) or "tabindex" not in m.group(1) or "aria-label" not in m.group(1):
                     sem_regiao.append(rel)
-        # Arquivos de outros agentes (Forja) ficam de fora até serem ajustados por eles.
-        forja = {"gestao/detalhe.html", "gestao/relacionamento.html", "campanhas/painel.html", "portal/documentos.html"}
-        self.assertEqual(sorted(set(sem_scope) - forja), [])
-        self.assertEqual(sorted(set(sem_regiao) - forja), [])
+        self.assertEqual(sorted(set(sem_scope)), [])
+        self.assertEqual(sorted(set(sem_regiao)), [])
 
 
 class QuizTest(SimpleTestCase):
