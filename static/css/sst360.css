@@ -883,4 +883,7 @@ code.campo-modelo { font-family: var(--mono); font-size: 12px; background: var(-
 .opcoes-grupo .opcao + .opcao { margin-top: 10px; }
 
 /* Links no meio de texto: sublinhado, para não depender só da cor (WCAG 1.4.1). */
-p a:not(.btn), li a:not(.btn):not(.item-nav), dd a, .texto-fraco a { text-decoration: underline; text-underline-offset: 3px; }
+p a:not(.btn):not([class*="rz-c-button"]):not(.ib), li a:not(.btn):not([class*="rz-c-button"]):not(.sb-link):not(.item-nav):not(.ib), dd a, .texto-fraco a:not(.btn):not([class*="rz-c-button"]) { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Alvo do link "Pular para o conteúdo": recebe o foco por script e não precisa de anel ao redor da página inteira. */
+main[tabindex="-1"]:focus, main[tabindex="-1"]:focus-visible { outline: none; box-shadow: none; }
