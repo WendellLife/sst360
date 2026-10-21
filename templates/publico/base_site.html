@@ -20,6 +20,7 @@
 </head>
 <body>
 <div class="rz-app site">
+  <a class="rz-pular" href="#conteudo">Pular para o conteúdo</a>
   <header class="site-topo">
     <div class="faixa">
       <div>
@@ -37,7 +38,7 @@
     </div>
   </header>
 
-  <main class="site-corpo">
+  <main class="site-corpo" id="conteudo" tabindex="-1">
     {% if messages %}
     <div class="site-secao compacta">{% include "partials/messages.html" %}</div>
     {% endif %}

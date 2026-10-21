@@ -134,7 +134,7 @@
       </nav>
       <div class="tb-tools">
         <details class="sino">
-          <summary class="ib" aria-label="Avisos" title="Avisos">{% icone "bell" 18 %}{% if notificacoes %}<span class="ib-count" aria-hidden="true">{{ notificacoes|length }}</span>{% endif %}</summary>
+          <summary class="ib" aria-label="Avisos{% if notificacoes %}, {{ notificacoes|length }} {% if notificacoes|length == 1 %}novo{% else %}novos{% endif %}{% endif %}" title="Avisos">{% icone "bell" 18 %}{% if notificacoes %}<span class="ib-count" aria-hidden="true">{{ notificacoes|length }}</span>{% endif %}</summary>
           <div class="painel">
             {% for aviso in notificacoes %}
             <a class="aviso-item {% if aviso.alerta %}alerta{% endif %}" href="{% url aviso.url %}">
@@ -167,6 +167,7 @@
 
 {% else %}
 <div class="rz-app">
+<a class="rz-pular" href="#conteudo">Pular para o conteúdo</a>
   <div class="lg">
     <section class="lg-art" aria-label="Razach Technology">
       <svg class="lg-traces" viewBox="0 0 720 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -193,11 +194,11 @@
       </div>
       <div class="lg-copy rz-in" style="--i: 6">
         <span class="rz-c-monolabel is-accent">{{ CONSULTORIA_NOME }} · Saúde e segurança do trabalho</span>
-        <h1 class="lg-title">{{ APP_NOME }}</h1>
+        <p class="lg-title">{{ APP_NOME }}</p>
         <p class="lg-texto">Gestões de SST, prazos, documentos e captação de clientes em um só painel.</p>
       </div>
     </section>
-    <main class="lg-main" id="conteudo">
+    <main class="lg-main" id="conteudo" tabindex="-1">
       <div class="lg-tools">
         <button class="ib" type="button" data-tema-alternar aria-label="Alternar tema" title="Alternar tema">{% icone "moon" 18 "so-claro" %}{% icone "sun" 18 "so-escuro" %}</button>
       </div>

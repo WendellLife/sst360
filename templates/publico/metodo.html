@@ -19,7 +19,7 @@
     {% for etapa in etapas %}
     <div class="etapa-metodo" data-titulo="{{ etapa.titulo }}">
       <div class="cabeca"><span class="numero">{{ etapa.numero|stringformat:"02d" }}</span><span class="fase">{{ etapa.fase }}</span></div>
-      <h3>{{ etapa.titulo }}</h3>
+      <h2>{{ etapa.titulo }}</h2>
       <p>{{ etapa.desc }}</p>
       <div class="entrega"><strong>Entrega</strong>{{ etapa.entrega }}</div>
     </div>

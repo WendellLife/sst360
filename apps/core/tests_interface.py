@@ -223,3 +223,25 @@ class CodigoColadoNoServidorTest(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertIn("6 dígitos", r.context["erro"])
         self.assertNotIn("_auth_user_id", self.client.session)
+
+
+class TitulosESaltoTest(TestCase):
+    def _html(self, nome):
+        r = self.client.get(reverse(nome))
+        self.assertEqual(r.status_code, 200, nome)
+        return r.content.decode()
+
+    def test_login_e_codigo_tem_um_h1_e_link_de_pulo(self):
+        for nome in ("accounts:login", "accounts:codigo_pedir"):
+            html = self._html(nome)
+            self.assertEqual(len(re.findall(r"<h1[\s>]", html)), 1, nome)
+            self.assertIn('href="#conteudo"', html, nome)
+            self.assertIn('id="conteudo"', html, nome)
+
+    def test_metodo_e_quiz_tem_link_de_pulo_e_titulos_em_ordem(self):
+        for nome in ("publico:metodo", "publico:quiz"):
+            html = self._html(nome)
+            self.assertEqual(len(re.findall(r"<h1[\s>]", html)), 1, nome)
+            self.assertIn('href="#conteudo"', html, nome)
+            self.assertIn('id="conteudo"', html, nome)
+        self.assertNotIn("<h3", self._html("publico:metodo"))
