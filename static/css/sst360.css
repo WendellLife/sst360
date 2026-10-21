@@ -509,7 +509,7 @@ details[open] > summary { margin-bottom: 14px; }
 .etapa-metodo .cabeca { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .etapa-metodo .numero { font-family: var(--titulo); font-variation-settings: var(--fv-title); font-weight: 800; font-size: 22px; color: var(--text-brand); }
 .etapa-metodo .fase { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--tinta-fraca); }
-.etapa-metodo h3 { font-size: 17px; margin: 6px 0 6px; }
+.etapa-metodo h2 { font-size: 17px; margin: 6px 0 6px; }
 .etapa-metodo p { margin: 0; color: var(--tinta-suave); line-height: 1.6; }
 .etapa-metodo .entrega { margin-top: 12px; background: var(--superficie-2); border: 1px solid var(--linha-suave); border-radius: var(--raio-p); padding: 9px 12px; font-size: 13px; }
 .etapa-metodo .entrega strong { display: block; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--tinta-fraca); margin-bottom: 2px; }
@@ -881,3 +881,6 @@ code.campo-modelo { font-family: var(--mono); font-size: 12px; background: var(-
 .opcoes-grupo > legend { padding: 0; float: left; width: 100%; }
 .opcoes-grupo > legend + * { clear: both; }
 .opcoes-grupo .opcao + .opcao { margin-top: 10px; }
+
+/* Links no meio de texto: sublinhado, para não depender só da cor (WCAG 1.4.1). */
+p a:not(.btn), li a:not(.btn):not(.item-nav), dd a, .texto-fraco a { text-decoration: underline; text-underline-offset: 3px; }
